@@ -374,12 +374,12 @@ function bbs_prepare_properties {
     log "Generating 'bitbucket.properties' configuration file"
     [ -n "$(echo ${BBS_URL} | grep -i 'https')" ] && local secure="true" || local secure="false"
 
-    local file_temp="${BBS_HOME}/bitbucket.properties"
-    local file_target="${BBS_SHARED_HOME}/bitbucket.properties"
+    #local file_temp="${BBS_HOME}/bitbucket.properties"
+    #local file_target="${BBS_SHARED_HOME}/bitbucket.properties"
 
-    cat <<EOT >> "${file_temp}"
+    sudo -u "${BBS_USER}" cat <<EOT >> "${BBS_SHARED_HOME}/bitbucket.properties"
 jdbc.driver=${JDBC_DRIVER}
-jdbc.url=${JDBC_URL}
+jdbc.url=$(echo ${JDBC_URL} | sed 's/?ssl=true//g')
 jdbc.user=${JDBC_USER}
 jdbc.password=${SQL_PASS}
 
@@ -405,8 +405,8 @@ server.secure=${secure}
 jmx.enabled=true
 EOT
 
-    chown "${BBS_USER}":"${BBS_GROUP}" "${file_temp}"
-    sudo -u "${BBS_USER}" mv -n "${file_temp}" "${file_target}"
+    #chown "${BBS_USER}":"${BBS_GROUP}" "${file_temp}"
+    #sudo -u "${BBS_USER}" mv -n "${file_temp}" "${file_target}"
 
     log "Done generating 'bitbucket.properties' configuration file"
 }
@@ -541,7 +541,7 @@ function bbs_install {
     cp "${NFS_INSTALLER_DIR}/installer" .
     bbs_run_installer
 
-    install_postgres_cert_if_needed
+    #install_postgres_cert_if_needed
 
     atl_log bbs_install "Configuring app insights..."
     install_appinsights
