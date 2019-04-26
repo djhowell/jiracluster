@@ -312,6 +312,20 @@
                 "description": "The storage size of the PostgresSQL instance in MB. Note that if the 'jiraClusterSize' parameter is used this value will be ignored."
             }
         },
+        "linuxOsType": {
+            "type": "string",
+            "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
+            "allowedValues": [
+                "Canonical:UbuntuServer:16.04-LTS",
+                "Canonical:UbuntuServer:18.04-LTS",
+                "RedHat:RHEL:7.5",
+                "OpenLogic:CentOS:7.5",
+                "credativ:Debian:9-backports"
+            ],
+            "metadata": {
+                "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
+        },
         "nfsVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
@@ -547,6 +561,12 @@
                     "location": {
                         "value": "[parameters('location')]"
                     },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
                     "adminUsername": {
                         "value": "[parameters('adminUsername')]"
                     },
@@ -567,6 +587,9 @@
                     },
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
+                    },
+                    "linuxOsType": {
+                        "value": "[parameters('linuxOsType')]"
                     }
                 }
             }
@@ -737,8 +760,10 @@
                     },
                     "workspaceSku": {
                         "value": "[parameters('workspaceSku')]"
+                    },
+                    "linuxOsType": {
+                        "value": "[parameters('linuxOsType')]"
                     }
-
                 }
             }
         },

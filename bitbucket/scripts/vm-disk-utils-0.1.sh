@@ -307,8 +307,8 @@ create_striped_volume()
 check_mdadm() {
     dpkg -s mdadm >/dev/null 2>&1
     if [ ${?} -ne 0 ]; then
-        (apt-get -y update || (sleep 15; apt-get -y update)) > /dev/null
-        DEBIAN_FRONTEND=noninteractive apt-get -y install mdadm --fix-missing
+        (pacapt update --noconfirm || (sleep 15; pacapt update --noconfirm)) > /dev/null
+        pacapt install --noconfirm mdadm
     fi
 }
 

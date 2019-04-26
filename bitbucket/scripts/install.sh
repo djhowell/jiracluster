@@ -193,9 +193,14 @@ function bbs_install_nfs_client {
 function install_latest_git {
     log "Install latest version of git from PPA"
 
-    apt-add-repository -y ppa:git-core/ppa
-    apt-get update
-    apt-get install -y git
+    if [[ -n ${IS_REDHAT} ]]
+    then
+	    pacapt install --noconfirm git2u
+    else 
+    	apt-add-repository -y ppa:git-core/ppa
+	    pacapt update --noconfirm
+	    pacapt install --noconfirm git
+    fi
 
     log "Latest version of git has been installed"
 }
@@ -355,9 +360,15 @@ EOT
 
 function bbs_run_installer {
     log "Running Bitbucket Server installer"
-
     bbs_prepare_installer_settings
+
+    # https://askubuntu.com/questions/695560/assistive-technology-not-found-awterror
+    sudo sed -i -e '/^assistive_technologies=/s/^/#/' /etc/java-*-openjdk/accessibility.properties
+
     ./installer -q -varfile "${BBS_INSTALLER_VARS}"
+    if [ "$?" -ne "0" ]; then
+      error "Bitbucket Installer failed!!"
+    fi
     
     log "Done running Bitbucket Server installer"
 }
@@ -446,7 +457,7 @@ function install_appinsights_collectd {
     if [[ -n ${IS_REDHAT} ]]
     then
       # https://bugs.centos.org/view.php?id=15495
-      pacapt install --noconfirm install collectd collectd-generic-jmx.x86_64 collectd-java.x86_64 collectd-sensors.x86_64 collectd-rrdtool.x86_64 glib2.x86_64
+      pacapt install --noconfirm collectd collectd-generic-jmx.x86_64 collectd-java.x86_64 collectd-sensors.x86_64 collectd-rrdtool.x86_64 glib2.x86_64
       ln -sf /usr/lib64/collectd /usr/lib/collectd
 
       # https://github.com/collectd/collectd/issues/635
@@ -476,6 +487,15 @@ function install_appinsights_collectd {
     # Bouncing collectd - cgroups issue with Azure wagent
     sleep 5
     systemctl restart collectd
+  fi
+}
+
+function disable_rhel_firewall {
+  if [[ -n ${IS_REDHAT} ]]
+  then
+    atl_log disable_rhel_firewall  "Disabling RHEL Firewall - using Azure Cluster NSG to maintain access rules"
+    systemctl stop firewalld.service
+    systemctl disable firewalld.service
   fi
 }
 
@@ -559,6 +579,7 @@ function install_nfs {
 
     install_common
     install_oms_linux_agent
+    disable_rhel_firewall
 
     nfs_install_server
     nfs_prepare_shared_home
@@ -585,6 +606,7 @@ function install_bbs {
     bbs_configure
     install_oms_linux_agent
     bbs_install
+    disable_rhel_firewall
     
     log "Starting Bitbucket Server..."    
     systemctl start atlbitbucket
@@ -626,6 +648,9 @@ function install_redhat_epel_if_needed {
   then
 	  wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 	  yum install -y ./epel-release-latest-*.noarch.rpm
+
+      wget https://rhel7.iuscommunity.org/ius-release.rpm
+	  yum install -y ius-release.rpm
   fi
 }
 
@@ -633,14 +658,19 @@ function install_core_dependencies {
   pacapt update --noconfirm
   # Packages done on different lines as yum command will fail if unknown package defined. Some future proofing.
   pacapt install --noconfirm cifs-utils
+  pacapt install --noconfirm nfs-utils
   pacapt install --noconfirm curl
   pacapt install --noconfirm rsync
+  pacapt install --noconfirm nc
   pacapt install --noconfirm netcat
   pacapt install --noconfirm jq
   pacapt install --noconfirm gettext
 
   # nc/nmap-ncat needed on RHEL jumpbox for SSH proxying
   [ -n "${IS_REDHAT}" ] && pacapt install --noconfirm java-1.8.0-openjdk-headless nc || pacapt install --noconfirm openjdk-8-jre-headless
+
+  # RHEL BB Installer font nullpointer issue - https://github.com/AdoptOpenJDK/openjdk-build/issues/693
+  [ -n "${IS_REDHAT}" ] && pacapt install --noconfirm fontconfig
 }
 
 

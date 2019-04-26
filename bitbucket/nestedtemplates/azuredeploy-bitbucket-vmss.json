@@ -209,6 +209,20 @@
         "appInsightsInstrumentKey": {
             "type": "string",
             "defaultValue": ""
+        },
+        "linuxOsType": {
+            "type": "string",
+            "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
+            "allowedValues": [
+                "Canonical:UbuntuServer:16.04-LTS",
+                "Canonical:UbuntuServer:18.04-LTS",
+                "RedHat:RHEL:7.5",
+                "OpenLogic:CentOS:7.5",
+                "credativ:Debian:9-backports"
+            ],
+            "metadata": {
+                "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
         }
     },
     "variables": {
@@ -224,11 +238,6 @@
                 "size": "[parameters('bbsSize')]",
                 "count": "[parameters('bbsNodeCount')]",
                 "hostname": "[parameters('bbsNodePrefix')]",
-                "image": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "16.04.0-LTS"
-                },
                 "hazelcastTag": {
                     "[parameters('bbsHazelcastTag')]": "[parameters('bbsHazelcastPort')]"
                 },
@@ -318,9 +327,9 @@
                     },
                     "storageProfile": {
                         "imageReference": {
-                            "publisher": "[variables('vm').bbs.image.publisher]",
-                            "offer": "[variables('vm').bbs.image.offer]",
-                            "sku": "[variables('vm').bbs.image.sku]",
+                            "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
+                            "offer": "[split(parameters('linuxOsType'), ':')[1]]",
+                            "sku": "[split(parameters('linuxOsType'), ':')[2]]",
                             "version": "latest"
                         },
                         "osDisk": {
