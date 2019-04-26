@@ -9,6 +9,18 @@
                 "description": "Azure region (WestUS, CentralUs, AustraliaEast, etc) shared by all of the resources in the template"
             }
         },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located"
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
+            }
+        },
         "vnetCIDR": {
             "type": "string",
             "defaultValue": "10.0.0.0/16",
@@ -117,6 +129,20 @@
             "metadata": {
                 "description": "VM type which used for forwarding HTTP traffic from Load Balancer to Application Gateway"
             }
+        },
+        "linuxOsType": {
+            "type": "string",
+            "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
+            "allowedValues": [
+                "Canonical:UbuntuServer:16.04-LTS",
+                "Canonical:UbuntuServer:18.04-LTS",
+                "RedHat:RHEL:7.5",
+                "OpenLogic:CentOS:7.5",
+                "credativ:Debian:9-backports"
+            ],
+            "metadata": {
+                "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
         }
     },
     "variables": {
@@ -128,9 +154,9 @@
             "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
         },
         "image": {
-            "publisher": "Canonical",
-            "offer": "UbuntuServer",
-            "sku": "16.04.0-LTS",
+            "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
+            "offer": "[split(parameters('linuxOsType'), ':')[1]]",
+            "sku": "[split(parameters('linuxOsType'), ':')[2]]",
             "version": "latest"
         },
         "net": {
@@ -676,7 +702,31 @@
                         }
                     ]
                 }
-            }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "apiVersion": "2018-06-01",
+                    "location": "[parameters('location')]",
+                    "condition": "[not(contains(parameters('linuxOsType'), 'UbuntuServer'))]",
+                    "dependsOn": [
+                        "[variables('vm').jumpbox.name]"
+                    ],
+                    "name": "script",
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "[concat(uri(parameters('_artifactsLocation'), 'scripts/jumpbox_install.sh'), parameters('_artifactsLocationSasToken'))]"
+                            ],
+                            "commandToExecute": "bash jumpbox_install.sh 1>&1 2>&1 > ./jumpbox.install-$(uname -n).log"
+                        }
+                    }
+                }
+            ]
         }
     ],
     "outputs": {

@@ -114,7 +114,22 @@
             "metadata": {
                 "description": "The secondary key of the Azure Operations Management Suite (OMS) workspace."
             }
+        },
+        "linuxOsType": {
+            "type": "string",
+            "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
+            "allowedValues": [
+                "Canonical:UbuntuServer:16.04-LTS",
+                "Canonical:UbuntuServer:18.04-LTS",
+                "RedHat:RHEL:7.5",
+                "OpenLogic:CentOS:7.5",
+                "credativ:Debian:9-backports"
+            ],
+            "metadata": {
+                "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
         }
+        
     },
     "variables": {
         "namespace": "bitbucket",
@@ -122,12 +137,7 @@
             "nfs": {
                 "name": "[concat(variables('namespace'), '-nfs')]",
                 "size": "[parameters('nfsVmSize')]",
-                "hostname": "bbsnfs",
-                "image": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "16.04.0-LTS"
-                }
+                "hostname": "bbsnfs"
             }
         },
         "net": {
@@ -177,9 +187,9 @@
                 },
                 "storageProfile": {
                     "imageReference": {
-                        "publisher": "[variables('vm').nfs.image.publisher]",
-                        "offer": "[variables('vm').nfs.image.offer]",
-                        "sku": "[variables('vm').nfs.image.sku]",
+                        "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
+                            "offer": "[split(parameters('linuxOsType'), ':')[1]]",
+                            "sku": "[split(parameters('linuxOsType'), ':')[2]]",
                         "version": "latest"
                     },
                     "osDisk": {
@@ -235,5 +245,10 @@
             ]
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "cmd": {
+            "type": "string",
+            "value": "[concat(variables('data').NFS, ' bash install.sh nfs')]"
+        }
+    }
 }
