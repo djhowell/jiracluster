@@ -2,6 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located"
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
+            }
+        },
         "location": {
             "type": "string",
             "metadata": {
@@ -41,6 +53,9 @@
         },
         "dbDatabaseName": {
             "type": "string"
+        },
+        "workspaceName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -49,6 +64,7 @@
             "name": "[concat(variables('namespace'), '-SupportTeam-', uniqueString(resourceGroup().id))]",
             "shortName": "[toUpper(concat(variables('namespace'), 'SupTeam'))]"
         },
+        "alertsOmsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-alerts-oms.json', parameters('_artifactsLocationSasToken')))]",
         "alerts": {
             "bbNodeOffline": {
                 "name": "[concat(variables('namespace'), '-AlertClusterNodeOffline-', uniqueString(resourceGroup().id))]"
@@ -481,6 +497,30 @@
             "dependsOn": [
                 "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
             ]
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "alertsOmsTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[not(empty(parameters('workspaceName')))]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('alertsOmsTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "workspaceName": {
+                        "value": "[parameters('workspaceName')]"
+                    },
+                    "actionGroup": {
+                        "value": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {}

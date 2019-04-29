@@ -20,15 +20,13 @@
             "type": "string",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
-            },
-            "defaultValue": "[parameters('repositoryLocation')]"
+            }
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
             "metadata": {
                 "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
-            },
-            "defaultValue": ""
+            }
         },
         "bitbucketVersion": {
             "type": "string",
@@ -1154,6 +1152,10 @@
         "dbDatabaseName": {
             "type": "string",
             "value": "[parameters('dbDatabase')]"
+        },
+        "workspaceName": {
+            "type": "string",
+            "value": "[if(parameters('enableAnalytics'), variables('workspace').name, '')]"
         }
     }
 }

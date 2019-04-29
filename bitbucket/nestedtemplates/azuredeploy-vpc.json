@@ -230,11 +230,6 @@
                 "name": "[concat(variables('namespace'), 'jumpbox')]",
                 "size": "[parameters('jumpboxSize')]",
                 "hostname": "[parameters('jumpboxHostname')]"
-            },
-            "nfs": {
-                "name": "[concat(variables('namespace'), '-nfs')]",
-                "size": "[parameters('nfsVmSize')]",
-                "hostname": "bbsnfs"
             }
         }
     },

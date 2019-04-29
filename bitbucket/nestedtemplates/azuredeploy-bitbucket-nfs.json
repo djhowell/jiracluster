@@ -129,7 +129,6 @@
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
         }
-        
     },
     "variables": {
         "namespace": "bitbucket",
@@ -188,8 +187,8 @@
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
-                            "offer": "[split(parameters('linuxOsType'), ':')[1]]",
-                            "sku": "[split(parameters('linuxOsType'), ':')[2]]",
+                        "offer": "[split(parameters('linuxOsType'), ':')[1]]",
+                        "sku": "[split(parameters('linuxOsType'), ':')[2]]",
                         "version": "latest"
                     },
                     "osDisk": {
