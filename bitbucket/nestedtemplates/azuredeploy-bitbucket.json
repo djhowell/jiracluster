@@ -816,9 +816,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
             "dependsOn": [
-                "workspaceTemplate",
-                "[variables('dbTemplate')]",
-                "byodbTemplate"
+                "workspaceTemplate"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -866,6 +864,9 @@
             "apiVersion": "2018-05-01",
             "name": "nfsVmTemplate",
             "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "appInsightsTemplate"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -917,6 +918,9 @@
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "appInsightsInstrumentKey": {
+                        "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
                     }
                 }
             }

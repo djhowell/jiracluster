@@ -64,7 +64,6 @@
             "name": "[concat(variables('namespace'), '-SupportTeam-', uniqueString(resourceGroup().id))]",
             "shortName": "[toUpper(concat(variables('namespace'), 'SupTeam'))]"
         },
-        "alertsOmsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-alerts-oms.json', parameters('_artifactsLocationSasToken')))]",
         "alerts": {
             "bbNodeOffline": {
                 "name": "[concat(variables('namespace'), '-AlertClusterNodeOffline-', uniqueString(resourceGroup().id))]"
@@ -90,6 +89,25 @@
             "dbIoConsumptionPercentage": {
                 "name": "[concat(variables('namespace'), '-AlertDbIoConsumptionPercentage-', uniqueString(resourceGroup().id))]",
                 "description": "Monitors DB IO Consumption"
+            },
+            "nfsNodeOffline": {
+                "name": "[concat(variables('namespace'), '-AlertNfsNodeOffline-', uniqueString(resourceGroup().id))]",
+                "description": "Haven't received a heartbeat from the Bitbucket NFS server within the last 10 mins - might be offline",
+                "severityLevel": "1",
+                "operator": "GreaterThan",
+                "threshold": "0"
+            },
+            "nfsSharedFreeSpace": {
+                "name": "[concat(variables('namespace'), '-AlertNfsSharedFreeSpace-', uniqueString(resourceGroup().id))]",
+                "description": "The NFS Shared Drive is running out of space!",
+                "severityLevel": "1",
+                "operator": "LessThan",
+                "threshold": "10",
+                "metricMeasurement": {
+                    "thresholdOperator": "GreaterThan",
+                    "threshold": "2",
+                    "metricTriggerType": "Consecutive"
+                }
             }
         },
         "webTestName": "[toLower(concat('AppHeartBeat-', parameters('appInsightsName')))]",
@@ -119,6 +137,77 @@
                 "voiceReceivers": [],
                 "logicAppReceivers": [],
                 "azureFunctionReceivers": []
+            }
+        },
+        {
+            "type": "Microsoft.Insights/scheduledQueryRules",
+            "apiVersion": "2018-04-16",
+            "name": "[variables('alerts').nfsNodeOffline.name]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
+            },
+            "properties": {
+                "description": "[variables('alerts').nfsNodeOffline.description]",
+                "enabled": "true",
+                "source": {
+                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
+                    "queryType": "ResultCount",
+                    "query": "Heartbeat | where Computer == \"bbsnfs\"  | summarize lastHeartbeart = max(TimeGenerated) | where lastHeartbeart < ago(10m)"
+                },
+                "action": {
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+                    "severity": "[variables('alerts').nfsNodeOffline.severityLevel]",
+                    "aznsAction": {
+                        "actionGroup": "[array(resourceId('microsoft.insights/actionGroups', variables('supportTeam').name))]"
+                    },
+                    "trigger": {
+                        "thresholdOperator": "[variables('alerts').nfsNodeOffline.operator]",
+                        "threshold": "[variables('alerts').nfsNodeOffline.threshold]"
+                    }
+                },
+                "schedule": {
+                    "frequencyInMinutes": "5",
+                    "timeWindowInMinutes": "60"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Insights/scheduledQueryRules",
+            "apiVersion": "2018-04-16",
+            "name": "[variables('alerts').nfsSharedFreeSpace.name]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
+            },
+            "properties": {
+                "description": "[variables('alerts').nfsSharedFreeSpace.description]",
+                "enabled": "true",
+                "source": {
+                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
+                    "queryType": "ResultCount",
+                    "query": "Perf | where Computer == \"bbsnfs\" and CounterName == \"% Free Space\" and InstanceName == \"/var/atlassian/application-data/bitbucket/shared\" | summarize AggregatedValue = min(CounterValue) by bin(TimeGenerated, 5m)"
+                },
+                "action": {
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+                    "severity": "[variables('alerts').nfsSharedFreeSpace.severityLevel]",
+                    "aznsAction": {
+                        "actionGroup": "[array(resourceId('microsoft.insights/actionGroups', variables('supportTeam').name))]"
+                    },
+                    "trigger": {
+                        "thresholdOperator": "[variables('alerts').nfsSharedFreeSpace.operator]",
+                        "threshold": "[variables('alerts').nfsSharedFreeSpace.threshold]",
+                        "metricTrigger":{
+                            "thresholdOperator": "[variables('alerts').nfsSharedFreeSpace.metricMeasurement.thresholdOperator]",
+                            "threshold": "[variables('alerts').nfsSharedFreeSpace.metricMeasurement.threshold]",
+                            "metricTriggerType": "[variables('alerts').nfsSharedFreeSpace.metricMeasurement.metricTriggerType]"
+                        }
+                    }
+                },
+                "schedule": {
+                    "frequencyInMinutes": "5",
+                    "timeWindowInMinutes": "60"
+                }
             }
         },
         {
@@ -392,7 +481,8 @@
                 "description": "[variables('alerts').dbCpuPercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -400,11 +490,11 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "name": "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "cpu_percent",
-                            "dimensions":[],
+                            "dimensions": [],
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -431,7 +521,8 @@
                 "description": "[variables('alerts').dbIoConsumptionPercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -439,11 +530,11 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbIoConsumptionPercentage.name]",
+                            "name": "[variables('alerts').dbIoConsumptionPercentage.name]",
                             "metricName": "io_consumption_percent",
-                            "dimensions":[],
+                            "dimensions": [],
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -470,7 +561,8 @@
                 "description": "[variables('alerts').dbSizePercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -478,11 +570,11 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbSizePercentage.name]",
+                            "name": "[variables('alerts').dbSizePercentage.name]",
                             "metricName": "storage_percent",
-                            "dimensions":[],
+                            "dimensions": [],
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -497,30 +589,6 @@
             "dependsOn": [
                 "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
             ]
-        },
-        {
-            "apiVersion": "2018-05-01",
-            "name": "alertsOmsTemplate",
-            "type": "Microsoft.Resources/deployments",
-            "condition": "[not(empty(parameters('workspaceName')))]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('alertsOmsTemplateUri')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "workspaceName": {
-                        "value": "[parameters('workspaceName')]"
-                    },
-                    "actionGroup": {
-                        "value": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
-                    }
-                }
-            }
         }
     ],
     "outputs": {}

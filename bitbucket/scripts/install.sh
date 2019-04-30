@@ -478,7 +478,7 @@ function install_appinsights_collectd {
       chmod +r /etc/collectd/collectd.conf
     fi
 
-    atl_log download_appinsights_jars "Copying collectd appinsights jar to /usr/share/collectd/java"
+    atl_log install_appinsights_collectd "Copying collectd appinsights jar to /usr/share/collectd/java"
     cp -fp applicationinsights-collectd*.jar /usr/share/collectd/java/
 
     atl_log install_appinsights_collectd "Starting collectd..."
@@ -586,6 +586,8 @@ function install_nfs {
     nfs_prepare_installer_dir
     nfs_configure
 
+    download_appinsights_jars `pwd`
+    install_appinsights_collectd
     log "Done configuring NFS node!"
 }
 

@@ -4,38 +4,11 @@ PIDFile     "/var/run/collectd.pid"
 PluginDir   "/usr/lib/collectd"
 TypesDB     "/usr/share/collectd/types.db"
 
-#----------------------------------------------------------------------------#
-# When enabled, plugins are loaded automatically with the default options    #
-# when an appropriate <Plugin ...> block is encountered.                     #
-# Disabled by default.                                                       #
-#----------------------------------------------------------------------------#
 #AutoLoadPlugin false
-
-#----------------------------------------------------------------------------#
-# Interval at which to query values. This may be overwritten on a per-plugin #
-# base by using the 'Interval' option of the LoadPlugin block:               #
-#   <LoadPlugin foo>                                                         #
-#       Interval 60                                                          #
-#   </LoadPlugin>                                                            #
-#----------------------------------------------------------------------------#
 Interval     10
-
 Timeout      2
 ReadThreads  5
 WriteThreads 5
-
-# Limit the size of the write queue. Default is no limit. Setting up a limit is
-# recommended for servers handling a high volume of traffic.
-#WriteQueueLimitHigh 1000000
-#WriteQueueLimitLow   800000
-
-##############################################################################
-# Logging                                                                    #
-#----------------------------------------------------------------------------#
-# Plugins which provide logging functions should be loaded first, so log     #
-# messages generated when loading or configuring other plugins can be        #
-# accessed.                                                                  #
-##############################################################################
 
 #LoadPlugin syslog
 LoadPlugin logfile
@@ -46,16 +19,6 @@ LoadPlugin logfile
     File "/var/log/collectd.log"
     Timestamp true
 </Plugin>
-
-##############################################################################
-# LoadPlugin section                                                         #
-#----------------------------------------------------------------------------#
-# Lines beginning with a single `#' belong to plugins which have been built  #
-# but are disabled by default.                                               #
-#                                                                            #
-# Lines begnning with `##' belong to plugins which have not been built due   #
-# to missing dependencies or because they have been deactivated explicitly.  #
-##############################################################################
 
 # Use the aggregation plugin to aggregate specific statistics
 LoadPlugin aggregation
@@ -118,7 +81,7 @@ LoadPlugin load
 
 # Collect memory utilization statistics
 LoadPlugin memory
-<Plugin>
+<Plugin memory>
     # Don't use absolute as each AWS ec2 instance is different, use percentage instead to get a uniform view
     ValuesAbsolute false
     ValuesPercentage true
@@ -129,6 +92,9 @@ LoadPlugin memory
 
 # Collect PostgreSQL statistics
 # LoadPlugin postgresql
+
+# Added NFS stats 
+LoadPlugin nfs
 
 LoadPlugin processes
 <Plugin processes>
@@ -1268,7 +1234,4 @@ LoadPlugin java
             Collect "jvm_localhost_os"
         </Connection>
     </Plugin>
-
 </Plugin>
-
-Include "/etc/collectd.d"
