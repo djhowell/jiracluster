@@ -20,15 +20,13 @@
             "type": "string",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
-            },
-            "defaultValue": "[parameters('repositoryLocation')]"
+            }
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
             "metadata": {
                 "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
-            },
-            "defaultValue": ""
+            }
         },
         "bitbucketVersion": {
             "type": "string",
@@ -818,9 +816,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
             "dependsOn": [
-                "workspaceTemplate",
-                "[variables('dbTemplate')]",
-                "byodbTemplate"
+                "workspaceTemplate"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -868,6 +864,9 @@
             "apiVersion": "2018-05-01",
             "name": "nfsVmTemplate",
             "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "appInsightsTemplate"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -919,6 +918,9 @@
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "appInsightsInstrumentKey": {
+                        "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
                     }
                 }
             }
@@ -1154,6 +1156,10 @@
         "dbDatabaseName": {
             "type": "string",
             "value": "[parameters('dbDatabase')]"
+        },
+        "workspaceName": {
+            "type": "string",
+            "value": "[if(parameters('enableAnalytics'), variables('workspace').name, '')]"
         }
     }
 }

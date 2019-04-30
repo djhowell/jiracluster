@@ -108,42 +108,85 @@
                     "type": "dataSources",
                     "name": "BitBucketSysLog",
                     "dependsOn": [
-                      "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
                     ],
                     "kind": "LinuxSyslog",
                     "properties": {
-                      "syslogName": "syslog",
-                      "syslogSeverities": [
-                        {
-                          "severity": "emerg"
-                        },
-                        {
-                          "severity": "alert"
-                        },
-                        {
-                          "severity": "crit"
-                        },
-                        {
-                          "severity": "err"
-                        },
-                        {
-                          "severity": "warning"
-                        }
-                      ]
+                        "syslogName": "syslog",
+                        "syslogSeverities": [
+                            {
+                                "severity": "emerg"
+                            },
+                            {
+                                "severity": "alert"
+                            },
+                            {
+                                "severity": "crit"
+                            },
+                            {
+                                "severity": "err"
+                            },
+                            {
+                                "severity": "warning"
+                            }
+                        ]
                     }
-                  },
-                  {
+                },
+                {
                     "apiVersion": "2015-11-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketSysLogCollection",
                     "dependsOn": [
-                      "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
                     ],
                     "kind": "LinuxSyslogCollection",
                     "properties": {
-                      "state": "Enabled"
+                        "state": "Enabled"
                     }
-                  }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "datasources",
+                    "name": "BitBucketLinuxPerf",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                    ],
+                    "kind": "LinuxPerformanceObject",
+                    "properties": {
+                        "performanceCounters": [
+                            {
+                                "counterName": "% Used Space"
+                            },
+                            {
+                                "counterName": "Disk Transfers/sec"
+                            },
+                            {
+                                "counterName": "Disk Reads/sec"
+                            },
+                            {
+                                "counterName": "Disk Writes/sec"
+                            },
+                            {
+                                "counterName": "% Free Space"
+                            }
+                        ],
+                        "objectName": "Logical Disk",
+                        "instanceName": "*",
+                        "intervalSeconds": 30
+                    }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "datasources",
+                    "name": "BitBucketLinuxPerfCollection",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                    ],
+                    "kind": "LinuxPerformanceCollection",
+                    "properties": {
+                        "state": "Enabled"
+                    }
+                }
             ]
         }
     ],

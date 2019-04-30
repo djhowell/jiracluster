@@ -128,8 +128,11 @@
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
+        },
+        "appInsightsInstrumentKey": {
+            "type": "string",
+            "defaultValue": ""
         }
-        
     },
     "variables": {
         "namespace": "bitbucket",
@@ -153,7 +156,9 @@
                 "[concat('BBS_INSTALLER_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
                 "[concat('OMS_WORKSPACE_ID', '=\"', parameters('workspaceId'), '\" ')]",
                 "[concat('OMS_PRIMARY_KEY', '=\"', parameters('workspacePrimaryKey'), '\" ')]",
-                "[concat('OMS_SECONDARY_KEY', '=\"', parameters('workspaceSecondaryKey'), '\" ')]"
+                "[concat('OMS_SECONDARY_KEY', '=\"', parameters('workspaceSecondaryKey'), '\" ')]",
+                "[concat('APPINSIGHTS_VER', '=\"', '2.3.1', '\" ')]",
+                "[concat('APPINSIGHTS_INSTRUMENTATION_KEY', '=\"', parameters('appInsightsInstrumentKey'), '\" ')]"
             ]
         },
         "data": {
@@ -188,8 +193,8 @@
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
-                            "offer": "[split(parameters('linuxOsType'), ':')[1]]",
-                            "sku": "[split(parameters('linuxOsType'), ':')[2]]",
+                        "offer": "[split(parameters('linuxOsType'), ':')[1]]",
+                        "sku": "[split(parameters('linuxOsType'), ':')[2]]",
                         "version": "latest"
                     },
                     "osDisk": {
@@ -236,7 +241,9 @@
                                 "[concat(uri(parameters('_artifactsLocation'), 'scripts/bbs_settings.sh'), parameters('_artifactsLocationSasToken'))]",
                                 "[concat(uri(parameters('_artifactsLocation'), 'scripts/nfs_settings.sh'), parameters('_artifactsLocationSasToken'))]",
                                 "[concat(uri(parameters('_artifactsLocation'), 'scripts/settings.sh'), parameters('_artifactsLocationSasToken'))]",
-                                "[concat(uri(parameters('_artifactsLocation'), 'scripts/install.sh'), parameters('_artifactsLocationSasToken'))]"
+                                "[concat(uri(parameters('_artifactsLocation'), 'scripts/install.sh'), parameters('_artifactsLocationSasToken'))]",
+                                "[concat(uri(parameters('_artifactsLocation'), 'templates/ApplicationInsights.xml.template'), parameters('_artifactsLocationSasToken'))]",
+                                "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket-collectd.conf.template'), parameters('_artifactsLocationSasToken'))]"
                             ],
                             "commandToExecute": "[concat(variables('data').NFS, ' bash install.sh nfs 1>&1 2>&1 > ./bbsnfs.install-$(uname -n).log')]"
                         }
