@@ -44,6 +44,9 @@
         },
         "workspaceName": {
             "type": "string"
+        },
+        "sshLbName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -91,6 +94,11 @@
                 "severityLevel": "1",
                 "operator": "GreaterThan",
                 "threshold": "0"
+            },
+            "sshLoadBalancerHealthCheckAlert": {
+                "name": "[concat(variables('namespace'), '-AlertSSHLBHealthCheck-', uniqueString(resourceGroup().id))]",
+                "description": "The Bitbucket SSH Git Load Balancer is experiencing health check issues.",
+                "severityLevel": 1
             }
         },
         "webTestName": "[toLower(concat('AppHeartBeat-', parameters('appInsightsName')))]",
@@ -186,6 +194,44 @@
                     "frequencyInMinutes": "5",
                     "timeWindowInMinutes": "60"
                 }
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[variables('alerts').sshLoadBalancerHealthCheckAlert.name]",
+            "location": "global",
+            "properties": {
+                "description": "[variables('alerts').sshLoadBalancerHealthCheckAlert.description]",
+                "severity": "[variables('alerts').sshLoadBalancerHealthCheckAlert.severityLevel]",
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Network/loadBalancers', parameters('sshLbName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "metricName": "DipAvailability",
+                            "metricNamespace": "microsoft.network/loadbalancers",
+                            "operator": "LessThanOrEqual",
+                            "timeAggregation": "Average",
+                            "name": "Metric1",
+                            "dimensions": [],
+                            "monitorTemplateType": "8",
+                            "criterionType": "StaticThresholdCriterion",
+                            "threshold": 95
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
+                        "webHookProperties": {}
+                    }
+                ]
             }
         },
         {

@@ -582,9 +582,6 @@
                     "jumpboxSize": {
                         "value": "[parameters('jumpboxSize')]"
                     },
-                    "nfsVmSize": {
-                        "value": "[parameters('nfsVmSize')]"
-                    },
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
                     },
@@ -847,6 +844,9 @@
                     },
                     "workspaceName": {
                         "value": "[reference('bitbucketTemplate').outputs.workspaceName.value]"
+                    },
+                    "sshLbName": {
+                        "value": "[reference('vpcTemplate').outputs.sshLbName.value]"
                     }
                 }
             }
