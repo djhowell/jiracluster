@@ -96,25 +96,6 @@
                 "description": "Internal port that Bitbucket Server uses for Hazelcast communication"
             }
         },
-        "nfsVmSize": {
-            "type": "string",
-            "defaultValue": "Standard_DS3_v2",
-            "allowedValues": [
-                "Standard_DS3_v2",
-                "Standard_D8s_v3",
-                "Standard_DS4_v2",
-                "Standard_E8-4s_v3",
-                "Standard_L4s",
-                "Standard_L8s",
-                "Standard_L16s",
-                "Standard_L32s",
-                "Standard_D16_v3",
-                "Standard_E16s_v3"
-            ],
-            "metadata": {
-                "description": "The size of the VM that is used for NFS server."
-            }
-        },
         "httpGatewaySize": {
             "type": "string",
             "allowedValues": [
@@ -221,7 +202,8 @@
                     "bendHttp": "[concat(variables('namespace'), '-lb', '-bend-http')]",
                     "ruleGit": "[concat(variables('namespace'), '-lb', '-rule-git')]",
                     "ruleSsh": "[concat(variables('namespace'), '-lb', '-rule-ssh')]",
-                    "ruleHttp": "[concat(variables('namespace'), '-lb', '-rule-http')]"
+                    "probeGit": "[concat(variables('namespace'), '-lb', '-rule-git-probe')]",
+                    "probeSsh": "[concat(variables('namespace'), '-lb', '-rule-ssh-probe')]"
                 }
             }
         },
@@ -579,7 +561,10 @@
                             "frontendPort": 7999,
                             "backendPort": 7999,
                             "protocol": "Tcp",
-                            "idleTimeoutInMinutes": 30
+                            "idleTimeoutInMinutes": 30,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/probes/', variables('net').lb.names.probeGit)]"
+                            }
                         }
                     },
                     {
@@ -594,7 +579,32 @@
                             "frontendPort": 22,
                             "backendPort": 22,
                             "protocol": "Tcp",
-                            "idleTimeoutInMinutes": 30
+                            "idleTimeoutInMinutes": 30,
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/probes/', variables('net').lb.names.probeSsh)]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "[variables('net').lb.names.probeGit]",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "Tcp",
+                            "port": 7999,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    },
+                    {
+                        "name": "[variables('net').lb.names.probeSsh]",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "Tcp",
+                            "port": 22,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
                         }
                     }
                 ]
@@ -744,6 +754,10 @@
         "sshLbIpName": {
             "type": "string",
             "value": "[variables('net').lb.names.publicIP]"
+        },
+        "sshLbName": {
+            "type": "string",
+            "value": "[variables('net').lb.name]"
         },
         "ssh": {
             "type": "string",

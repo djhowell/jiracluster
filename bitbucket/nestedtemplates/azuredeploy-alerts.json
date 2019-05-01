@@ -2,18 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "_artifactsLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "The base URI where artifacts required by this template are located"
-            }
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
-            }
-        },
         "location": {
             "type": "string",
             "metadata": {
@@ -55,6 +43,9 @@
             "type": "string"
         },
         "workspaceName": {
+            "type": "string"
+        },
+        "sshLbName": {
             "type": "string"
         }
     },
@@ -101,13 +92,13 @@
                 "name": "[concat(variables('namespace'), '-AlertNfsSharedFreeSpace-', uniqueString(resourceGroup().id))]",
                 "description": "The NFS Shared Drive is running out of space!",
                 "severityLevel": "1",
-                "operator": "LessThan",
-                "threshold": "10",
-                "metricMeasurement": {
-                    "thresholdOperator": "GreaterThan",
-                    "threshold": "2",
-                    "metricTriggerType": "Consecutive"
-                }
+                "operator": "GreaterThan",
+                "threshold": "0"
+            },
+            "sshLoadBalancerHealthCheckAlert": {
+                "name": "[concat(variables('namespace'), '-AlertSSHLBHealthCheck-', uniqueString(resourceGroup().id))]",
+                "description": "The Bitbucket SSH Git Load Balancer is experiencing health check issues.",
+                "severityLevel": 1
             }
         },
         "webTestName": "[toLower(concat('AppHeartBeat-', parameters('appInsightsName')))]",
@@ -186,7 +177,7 @@
                 "source": {
                     "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
                     "queryType": "ResultCount",
-                    "query": "Perf | where Computer == \"bbsnfs\" and CounterName == \"% Free Space\" and InstanceName == \"/var/atlassian/application-data/bitbucket/shared\" | summarize AggregatedValue = min(CounterValue) by bin(TimeGenerated, 5m)"
+                    "query": "Perf | where Computer == \"bbsnfs\" and CounterName == \"% Free Space\" and InstanceName == \"/var/atlassian/application-data/bitbucket/shared\" and CounterValue < 10 and TimeGenerated > now(-10m) | summarize DiskFreePercentage = min(CounterValue) by bin(TimeGenerated, 5m), Computer"
                 },
                 "action": {
                     "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
@@ -196,18 +187,51 @@
                     },
                     "trigger": {
                         "thresholdOperator": "[variables('alerts').nfsSharedFreeSpace.operator]",
-                        "threshold": "[variables('alerts').nfsSharedFreeSpace.threshold]",
-                        "metricTrigger":{
-                            "thresholdOperator": "[variables('alerts').nfsSharedFreeSpace.metricMeasurement.thresholdOperator]",
-                            "threshold": "[variables('alerts').nfsSharedFreeSpace.metricMeasurement.threshold]",
-                            "metricTriggerType": "[variables('alerts').nfsSharedFreeSpace.metricMeasurement.metricTriggerType]"
-                        }
+                        "threshold": "[variables('alerts').nfsSharedFreeSpace.threshold]"
                     }
                 },
                 "schedule": {
                     "frequencyInMinutes": "5",
                     "timeWindowInMinutes": "60"
                 }
+            }
+        },
+        {
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[variables('alerts').sshLoadBalancerHealthCheckAlert.name]",
+            "location": "global",
+            "properties": {
+                "description": "[variables('alerts').sshLoadBalancerHealthCheckAlert.description]",
+                "severity": "[variables('alerts').sshLoadBalancerHealthCheckAlert.severityLevel]",
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Network/loadBalancers', parameters('sshLbName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "metricName": "DipAvailability",
+                            "metricNamespace": "microsoft.network/loadbalancers",
+                            "operator": "LessThanOrEqual",
+                            "timeAggregation": "Average",
+                            "name": "Metric1",
+                            "dimensions": [],
+                            "monitorTemplateType": "8",
+                            "criterionType": "StaticThresholdCriterion",
+                            "threshold": 95
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
+                        "webHookProperties": {}
+                    }
+                ]
             }
         },
         {
