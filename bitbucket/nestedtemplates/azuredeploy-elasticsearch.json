@@ -145,7 +145,7 @@
             ],
             "dataNodesAreMasterEligible": "Yes",
             "dataNodeStorageSettings": {
-                "accountType": "Standard_LRS",
+                "accountType": "Premium_LRS",
                 "diskSize": "[parameters('dataDiskSize')]",
                 "dataDisks": 1
             },
@@ -161,14 +161,14 @@
             "logstashKeystorePwd": "",
             "logstashPlugins": "",
             "logstashYaml": "",
-            "vmClientNodeAcceleratedNetworking": "No",
-            "vmDataNodeAcceleratedNetworking": "No",
-            "vmKibanaAcceleratedNetworking": "No",
-            "vmLogstashAcceleratedNetworking": "No",
-            "vmMasterNodeAcceleratedNetworking": "No",
+            "vmClientNodeAcceleratedNetworking": "Yes",
+            "vmDataNodeAcceleratedNetworking": "Yes",
+            "vmKibanaAcceleratedNetworking": "Yes",
+            "vmLogstashAcceleratedNetworking": "Yes",
+            "vmMasterNodeAcceleratedNetworking": "Yes",
             "vmClientNodeCount": 0,
             "vmDataNodeCount": "[parameters('dataNodeCount')]",
-            "vmDataNodeStorageAccountType": "Standard_LRS",
+            "vmDataNodeStorageAccountType": "Premium_LRS",
             "vmHostNamePrefix": "[parameters('namespace')]",
             "vmSizeDataNodes": "[parameters('vmSizeDataNodes')]",
             "vmSizeKibana": "Standard_A6",
@@ -183,23 +183,11 @@
                 "loadbalancerIp": "[parameters('lbIp')]",
                 "name": "[parameters('esSubnetName')]"
             }
-        },
-        "net": {
-            "lb": {
-                "elasticsearch": {
-                    "name": "[concat(parameters('namespace'), '-loadbalancer')]"
-                }
-            }
-        },
-        "vm": {
-            "elasticsearch": {
-                "name": "[concat(parameters('namespace'), '-virtual-machines')]"
-            }
         }
-    },
+  },
     "resources": [
         {
-            "name": "[variables('net').lb.elasticsearch.name]",
+            "name": "esLoadBalancerTemplate",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "properties": {
@@ -222,11 +210,11 @@
             }
         },
         {
-            "name": "[variables('vm').elasticsearch.name]",
+            "name": "esNodeTemplate",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
             "dependsOn": [
-                "[variables('net').lb.elasticsearch.name]"
+                "esLoadBalancerTemplate"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -274,5 +262,11 @@
                 }
             }
         }
-    ]
+    ],
+    "outputs": {
+        "esLbName": {
+            "type": "string",
+            "value": "es-internal-lb"
+        }
+    }
 }
