@@ -55,6 +55,11 @@ help()
     echo "    -a      set the default storage account for azure cloud plugin"
     echo "    -k      set the key for the default storage account for azure cloud plugin"
 
+    echo "    -o      set the key for the workspace id"
+    echo "    -e      set the key for the workspace primary key"
+    echo "    -f      set the key for the workspace secondary key"
+    echo "    -i      set the key for the app insights key"
+
     echo "    -h      view this help content"
 }
 
@@ -96,6 +101,11 @@ fi
 #########################
 # Parameter handling
 #########################
+# Spit out args
+for (( i=1; i<="$#"; i++ ))
+do
+  log "Arg $i: ${!i}"
+done
 
 CLUSTER_NAME="elasticsearch"
 NAMESPACE_PREFIX=""
@@ -142,8 +152,14 @@ TRANSPORT_CERT_PASSWORD=""
 SAML_METADATA_URI=""
 SAML_SP_URI=""
 
+OMS_WORKSPACE_ID=""
+OMS_PRIMARY_KEY=""
+OMS_SECONDARY_KEY=""
+APPINSIGHTS_INSTRUMENTATION_KEY=""
+APPINSIGHTS_VER=2.3.1
+
 #Loop through options passed
-while getopts :n:m:v:A:R:K:S:F:Z:p:a:k:L:C:B:E:H:G:T:W:V:J:N:D:O:P:xyzldjh optname; do
+while getopts :n:m:v:A:R:K:S:F:Z:p:a:k:L:C:B:E:H:G:T:W:V:J:N:D:O:P:o:e:f:i:xyzldjh optname; do
   log "Option $optname set"
   case $optname in
     n) #set cluster name
@@ -241,6 +257,18 @@ while getopts :n:m:v:A:R:K:S:F:Z:p:a:k:L:C:B:E:H:G:T:W:V:J:N:D:O:P:xyzldjh optna
       ;;
     E) #azure storage account endpoint suffix
       STORAGE_SUFFIX="${OPTARG}"
+      ;;
+    o) 
+      OMS_WORKSPACE_ID="${OPTARG}"
+      ;;
+    e) 
+      OMS_PRIMARY_KEY="${OPTARG}"
+      ;;
+    f) 
+      OMS_SECONDARY_KEY="${OPTARG}"
+      ;;
+    i) 
+      APPINSIGHTS_INSTRUMENTATION_KEY="${OPTARG}"
       ;;
     h) #show help
       help
@@ -1204,6 +1232,80 @@ port_forward()
     log "[port_forward] port forwarding configured"
 }
 
+function install_oms_linux_agent {
+  log "Have OMS Workspace Key? |${OMS_WORKSPACE_ID}|"
+  if [[ -n ${OMS_WORKSPACE_ID} ]]; then
+    log "Installing OMS Linux Agent with workspace id: ${OMS_WORKSPACE_ID} and primary key: ${OMS_PRIMARY_KEY}"
+    wget https://raw.githubusercontent.com/Microsoft/OMS-Agent-for-Linux/master/installer/scripts/onboard_agent.sh && sh onboard_agent.sh -w "${OMS_WORKSPACE_ID}" -s "${OMS_PRIMARY_KEY}" -d opinsights.azure.com
+    log "Finished installing OMS Linux Agent!"
+  fi
+}
+
+function check_collectd_java_linking {
+  # https://github.com/collectd/collectd/issues/635
+  # Applied to both RHEL 7.5, Ubuntu 18.04 (but not 16.04)
+  [ -n "$(ldd /usr/lib/collectd/java.so | grep 'not found')" ] && log check_collectd_java_linking "CollectD Java linking error found!!"
+}
+
+function install_appinsights_collectd {
+  # Have moved collectd to run after BitBucket startup - doesn't start up well with all the mounting/remounting/Confluence not being up.
+  if [ -n "${APPINSIGHTS_INSTRUMENTATION_KEY}" ]
+  then
+    log  "Configuring collectd to publish BitBucket JMX"
+
+    log  "Configuring App Insights template: ${BBS_INSTALL_DIR}/app/WEB-INF/classes/ApplicationInsights.xml"
+    envsubst '$APPINSIGHTS_INSTRUMENTATION_KEY $APPINSIGHTS_VER' < bitbucket-collectd.conf.template > bitbucket-collectd.conf
+
+    if [[ -n ${IS_REDHAT} ]]
+    then
+      # https://bugs.centos.org/view.php?id=15495
+      apt-get -yq install collectd collectd-generic-jmx.x86_64 collectd-java.x86_64 collectd-sensors.x86_64 collectd-rrdtool.x86_64 glib2.x86_64
+      ln -sf /usr/lib64/collectd /usr/lib/collectd
+
+      # https://github.com/collectd/collectd/issues/635
+      ln -sf /etc/alternatives/jre/lib/amd64/server/libjvm.so /lib64
+      check_collectd_java_linking
+      cp -fp bitbucket-collectd.conf /etc/collectd.d
+      chmod +r /etc/collectd.d/*.conf
+
+      # Disable SELINUX - prevents Collectd logfile writing to /var/log
+      # https://serverfault.com/questions/797039/collectd-permission-denied-to-log-file
+      setenforce 0
+      sed --in-place=.bak 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+    else
+      apt-get -yq install collectd
+      ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      check_collectd_java_linking
+      cp -fp bitbucket-collectd.conf /etc/collectd/collectd.conf
+      chmod +r /etc/collectd/collectd.conf
+    fi
+
+    log  "Copying collectd appinsights jar to /usr/share/collectd/java"
+    cp -fp applicationinsights-collectd*.jar /usr/share/collectd/java/
+
+    log  "Starting collectd..."
+    systemctl start collectd
+    
+    # Bouncing collectd - cgroups issue with Azure wagent
+    sleep 5
+    systemctl restart collectd
+  fi
+}
+
+function download_appinsights_jars {
+  log  "Downloading MS AppInsight Jars"
+  JARS="applicationinsights-core-${APPINSIGHTS_VER}.jar applicationinsights-web-${APPINSIGHTS_VER}.jar applicationinsights-collectd-${APPINSIGHTS_VER}.jar" 
+  for aJar in $(echo $JARS)
+  do
+     curl -LO https://github.com/Microsoft/ApplicationInsights-Java/releases/download/${APPINSIGHTS_VER}/${aJar}
+     if [ $aJar != "applicationinsights-collectd-${APPINSIGHTS_VER}.jar" ]
+     then
+          log  "Copying appinsights jar: ${aJar} to ${1}"
+          cp -fp ${aJar} ${1}
+     fi
+  done
+}
+
 #########################
 # Installation sequence
 #########################
@@ -1224,6 +1326,8 @@ if systemctl -q is-active elasticsearch.service; then
   exit 0
 fi
 
+IS_REDHAT=$(cat /etc/os-release | egrep '^ID' | grep rhel)
+
 format_data_disks
 
 log "[apt-get] updating apt-get"
@@ -1231,6 +1335,8 @@ log "[apt-get] updating apt-get"
 log "[apt-get] updated apt-get"
 
 install_ntp
+
+install_oms_linux_agent
 
 install_java
 
@@ -1260,6 +1366,11 @@ configure_elasticsearch_yaml
 configure_elasticsearch
 
 configure_os_properties
+
+
+download_appinsights_jars `pwd`
+
+install_appinsights_collectd
 
 port_forward
 

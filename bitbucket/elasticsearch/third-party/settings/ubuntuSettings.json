@@ -2,36 +2,36 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located"
+      }
+    },
     "_artifactsLocationSasToken": {
       "type": "securestring",
       "metadata": {
-          "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
       },
       "defaultValue": ""
     },
-    "templateBaseUrl": {
-        "type": "string",
-        "metadata": {
-            "description": "The base url for templates"
-        }
-    },
     "esSettings": {
-        "type": "object",
-        "metadata": {
-            "description" : "The Elasticsearch settings"
-        }
+      "type": "object",
+      "metadata": {
+        "description": "The Elasticsearch settings"
+      }
     },
     "commonVmSettings": {
-        "type": "object",
-        "metadata": {
-            "description" : "Shared VM settings"
-        }
+      "type": "object",
+      "metadata": {
+        "description": "Shared VM settings"
+      }
     },
     "topologySettings": {
-        "type": "object",
-        "metadata": {
-            "description": "Aggregate for topology variable"
-        }
+      "type": "object",
+      "metadata": {
+        "description": "Aggregate for topology variable"
+      }
     },
     "networkSettings": {
       "type": "object",
@@ -42,13 +42,13 @@
     "azureCloudStorageAccount": {
       "type": "secureObject",
       "metadata": {
-          "description": "The storage settings for the Azure Cloud plugin"
+        "description": "The storage settings for the Azure Cloud plugin"
       }
     },
     "kibanaIp": {
       "type": "string",
       "metadata": {
-          "description": "The public IP address for Kibana"
+        "description": "The public IP address for Kibana"
       }
     },
     "sharedStorageAccount": {
@@ -72,7 +72,8 @@
     "doublequote": "\"",
     "backslash": "\\",
     "escapedQuote": "[concat(variables('quote'), variables('doublequote'), variables('quote'), variables('doublequote'), variables('quote'))]",
-    "nodesTemplateUrl": "[concat(parameters('templateBaseUrl'), 'partials/node-resources.json', parameters('_artifactsLocationSasToken'))]",
+    "templateBaseUrl": "[concat(uri(parameters('_artifactsLocation'), 'elasticsearch/third-party/'), '')]",
+    "nodesTemplateUrl": "[concat(variables('templateBaseUrl'), 'partials/node-resources.json', parameters('_artifactsLocationSasToken'))]",
     "namespacePrefix": "[parameters('topologySettings').vmHostNamePrefix]",
     "kibanaDomainName": "[if(not(empty(parameters('esSettings').samlMetadataUri)),if(not(empty(parameters('esSettings').samlServiceProviderUri)),parameters('esSettings').samlServiceProviderUri,parameters('kibanaIp')),'')]",
     "loadBalancerIp": "[concat(if(equals(parameters('networkSettings').https, 'Yes'), 'https', 'http'), '://', parameters('topologySettings').vNetLoadBalancerIp, ':9200')]",
@@ -100,13 +101,15 @@
     },
     "installPluginsShortOpt": "[variables('installPluginsShortOpts')[parameters('esSettings').installPlugins]]",
     "commonShortOpts": "[concat(variables('dedicatedMasterNodesShortOpt'),  variables('installPluginsShortOpt'), variables('installAzureCloudPluginShortOpt'), 'n ')]",
-    "commonInstallParams": "[concat(variables('quote'), parameters('esSettings').clusterName, variables('quote'), ' -v ', variables('quote'), parameters('esSettings').version, variables('quote'), ' -m ', parameters('esSettings').heapSize,' -A ', variables('quote'), replace(parameters('esSettings').securityAdminPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -R ', variables('quote'), replace(parameters('esSettings').securityReadPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -K ', variables('quote'), replace(parameters('esSettings').securityKibanaPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -S ', variables('quote'), replace(parameters('esSettings').securityLogstashPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -F ', variables('quote'), replace(parameters('esSettings').securityBeatsPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -B ', variables('quote'), replace(parameters('esSettings').securityBootstrapPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -Z ', parameters('topologySettings').vmDataNodeCount,' -p ', variables('quote'), variables('namespacePrefix'), variables('quote'), ' -a ', variables('quote'), variables('azureCloudStorageName'), variables('quote'), ' -k ', variables('quote'), variables('azureCloudStorageKey'), variables('quote'), ' -E ', variables('quote'), variables('azureCloudStorageSuffix'), variables('quote'), ' -L ', variables('quote'), parameters('esSettings').installAdditionalPlugins, variables('quote'), ' -C ', variables('quote'), replace(replace(parameters('esSettings').yamlConfiguration, variables('quote'), variables('escapedQuote')), concat(variables('backslash'), variables('doublequote')), variables('doublequote')), variables('quote'), ' -D ', variables('quote'), parameters('topologySettings').vNetLoadBalancerIp, variables('quote'), ' -H ', variables('quote'), parameters('esSettings').httpCertBlob,variables('quote'), ' -G ', variables('quote'), replace(parameters('esSettings').httpCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -V ', variables('quote'), parameters('esSettings').httpCaCertBlob, variables('quote'), ' -J ', variables('quote'), replace(parameters('esSettings').httpCaCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -T ', variables('quote'), parameters('esSettings').transportCaCertBlob, variables('quote'), ' -W ', variables('quote'), replace(parameters('esSettings').transportCaCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -N ', variables('quote'), replace(parameters('esSettings').transportCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -O ', variables('quote'), parameters('esSettings').samlMetadataUri, variables('quote'), ' -P ', variables('quote'), variables('kibanaDomainName'), variables('quote'))]",
+    "commonInstallParams": "[concat(variables('quote'), parameters('esSettings').clusterName, variables('quote'), ' -i ', variables('quote'), parameters('commonVmSettings').appInsightsInstrumentKey, variables('quote'), ' -f ', variables('quote'), parameters('commonVmSettings').workspaceSecondaryKey, variables('quote'), ' -e ', variables('quote'), parameters('commonVmSettings').workspacePrimaryKey, variables('quote'), ' -o ', variables('quote'), parameters('commonVmSettings').workspaceId, variables('quote'), ' -v ', variables('quote'), parameters('esSettings').version, variables('quote'), ' -m ', parameters('esSettings').heapSize,' -A ', variables('quote'), replace(parameters('esSettings').securityAdminPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -R ', variables('quote'), replace(parameters('esSettings').securityReadPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -K ', variables('quote'), replace(parameters('esSettings').securityKibanaPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -S ', variables('quote'), replace(parameters('esSettings').securityLogstashPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -F ', variables('quote'), replace(parameters('esSettings').securityBeatsPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -B ', variables('quote'), replace(parameters('esSettings').securityBootstrapPwd, variables('quote'), variables('escapedQuote')), variables('quote'), ' -Z ', parameters('topologySettings').vmDataNodeCount,' -p ', variables('quote'), variables('namespacePrefix'), variables('quote'), ' -a ', variables('quote'), variables('azureCloudStorageName'), variables('quote'), ' -k ', variables('quote'), variables('azureCloudStorageKey'), variables('quote'), ' -E ', variables('quote'), variables('azureCloudStorageSuffix'), variables('quote'), ' -L ', variables('quote'), parameters('esSettings').installAdditionalPlugins, variables('quote'), ' -C ', variables('quote'), replace(replace(parameters('esSettings').yamlConfiguration, variables('quote'), variables('escapedQuote')), concat(variables('backslash'), variables('doublequote')), variables('doublequote')), variables('quote'), ' -D ', variables('quote'), parameters('topologySettings').vNetLoadBalancerIp, variables('quote'), ' -H ', variables('quote'), parameters('esSettings').httpCertBlob,variables('quote'), ' -G ', variables('quote'), replace(parameters('esSettings').httpCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -V ', variables('quote'), parameters('esSettings').httpCaCertBlob, variables('quote'), ' -J ', variables('quote'), replace(parameters('esSettings').httpCaCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -T ', variables('quote'), parameters('esSettings').transportCaCertBlob, variables('quote'), ' -W ', variables('quote'), replace(parameters('esSettings').transportCaCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -N ', variables('quote'), replace(parameters('esSettings').transportCertPassword, variables('quote'), variables('escapedQuote')), variables('quote'), ' -O ', variables('quote'), parameters('esSettings').samlMetadataUri, variables('quote'), ' -P ', variables('quote'), variables('kibanaDomainName'), variables('quote'))]",
     "ubuntuScripts": [
-      "[concat(parameters('templateBaseUrl'), 'scripts/elasticsearch-install.sh')]",
-      "[concat(parameters('templateBaseUrl'), 'scripts/kibana-install.sh')]",
-      "[concat(parameters('templateBaseUrl'), 'scripts/logstash-install.sh')]",
-      "[concat(parameters('templateBaseUrl'), 'scripts/vm-disk-utils-0.1.sh')]",
-      "[concat(parameters('templateBaseUrl'), 'scripts/java-install.sh')]"
+      "[concat(variables('templateBaseUrl'), 'scripts/elasticsearch-install.sh')]",
+      "[concat(variables('templateBaseUrl'), 'scripts/kibana-install.sh')]",
+      "[concat(variables('templateBaseUrl'), 'scripts/logstash-install.sh')]",
+      "[concat(variables('templateBaseUrl'), 'scripts/vm-disk-utils-0.1.sh')]",
+      "[concat(variables('templateBaseUrl'), 'scripts/vm-disk-utils-0.1.sh')]",
+      "[concat(parameters('_artifactsLocation'), 'templates/bitbucket-collectd.conf.template')]",
+      "[concat(variables('templateBaseUrl'), 'scripts/java-install.sh')]"
     ],
     "ubuntuSettings": {
       "imageReference": {
@@ -185,7 +188,7 @@
       "name": "elasticsearch-nodes",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
-      "dependsOn": [ ],
+      "dependsOn": [],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -197,7 +200,7 @@
             "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "templateBaseUrl": {
-            "value": "[parameters('templateBaseUrl')]"
+            "value": "[variables('templateBaseUrl')]"
           },
           "osSettings": {
             "value": "[variables('ubuntuSettings')]"
@@ -222,6 +225,10 @@
     "jumpboxssh": {
       "value": "[reference('elasticsearch-nodes').outputs.jumpboxssh.value]",
       "type": "string"
+    },
+    "dataNodeCmd": {
+      "type": "string",
+      "value": "[concat('bash elasticsearch-install.sh -', variables('dataNodeShortOpt'), variables('commonShortOpts'), variables('commonInstallParams'))]"
     }
   }
 }

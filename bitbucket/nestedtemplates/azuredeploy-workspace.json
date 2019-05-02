@@ -10,7 +10,7 @@
         },
         "workspaceSku": {
             "type": "string",
-            "defaultValue": "Free",
+            "defaultValue": "PerGB2018",
             "allowedValues": [
                 "Free",
                 "PerNode",
