@@ -146,7 +146,7 @@
                 },
                 {
                     "apiVersion": "2015-11-01-preview",
-                    "type": "datasources",
+                    "type": "dataSources",
                     "name": "BitBucketLinuxPerf",
                     "dependsOn": [
                         "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
@@ -177,7 +177,45 @@
                 },
                 {
                     "apiVersion": "2015-11-01-preview",
-                    "type": "datasources",
+                    "type": "dataSources",
+                    "name": "BitBucketLinuxPerf2",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                    ],
+                    "kind": "LinuxPerformanceObject",
+                    "properties": {
+                        "performanceCounters": [
+                            {
+                                "counterName": "% Processor Time"
+                            }
+                        ],
+                        "objectName": "Processor",
+                        "instanceName": "*",
+                        "intervalSeconds": 30
+                    }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "dataSources",
+                    "name": "BitBucketLinuxPerf3",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                    ],
+                    "kind": "LinuxPerformanceObject",
+                    "properties": {
+                        "performanceCounters": [
+                            {
+                                "counterName": "% Used Memory"
+                            }
+                        ],
+                        "objectName": "Memory",
+                        "instanceName": "*",
+                        "intervalSeconds": 30
+                    }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "dataSources",
                     "name": "BitBucketLinuxPerfCollection",
                     "dependsOn": [
                         "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
@@ -185,6 +223,54 @@
                     "kind": "LinuxPerformanceCollection",
                     "properties": {
                         "state": "Enabled"
+                    }
+                },
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "dataSources",
+                    "name": "ElasticSearchLogs",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                    ],
+                    "kind": "CustomLog",
+                    "properties": {
+                        "customLogName": "ElasticSearchLogs",
+                        "description": "Captures all ES logs found at /var/log/elasticsearch",
+                        "inputs": [
+                            {
+                                "location": {
+                                    "fileSystemLocations": {
+                                        "linuxFileTypeLogPaths": [
+                                            "/var/log/elasticsearch/bitbucket-elasticsearch*.log"
+                                        ]
+                                    }
+                                },
+                                "recordDelimiter": {
+                                    "regexDelimiter": {
+                                        "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]",
+                                        "matchIndex": 0,
+                                        "matchIndexSpecified": true,
+                                        "numberedGroup": null
+                                    }
+                                }
+                            }
+                        ],
+                        "extractions": [
+                            {
+                                "extractionName": "TimeGenerated",
+                                "extractionType": "DateTime",
+                                "extractionProperties": {
+                                    "dateTimeExtraction": {
+                                        "regex": [
+                                            {
+                                                "matchIndex": 0,
+                                                "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
                     }
                 }
             ]
