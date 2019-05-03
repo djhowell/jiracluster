@@ -65,12 +65,44 @@
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
-                "Standard_DS3_v2",
+                "Standard_D4s_v3",
                 "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D32s_v3",
+                "Standard_D64s_v3",
+                "Standard_DS2_v2",
+                "Standard_DS3_v2",
                 "Standard_DS4_v2",
-                "Standard_E2s_v3",
-                "Standard_E4-2s_v3",
-                "Standard_E8-4s_v3"
+                "Standard_DS5_v2",
+                "Standard_DS2",
+                "Standard_DS3",
+                "Standard_DS4",
+                "Standard_B4ms",
+                "Standard_B8ms",
+                "Standard_F2s",
+                "Standard_F4s",
+                "Standard_F8s",
+                "Standard_F16s",
+                "Standard_E4s_v3",
+                "Standard_E8s_v3",
+                "Standard_E16s_v3",
+                "Standard_E32s_v3",
+                "Standard_E64s_v3",
+                "Standard_GS2",
+                "Standard_GS3",
+                "Standard_GS4",
+                "Standard_GS5",
+                "Standard_DS12_v2",
+                "Standard_DS13_v2",
+                "Standard_DS14_v2",
+                "Standard_DS15_v2",
+                "Standard_DS12",
+                "Standard_DS13",
+                "Standard_DS14",
+                "Standard_L4s",
+                "Standard_L8s",
+                "Standard_L16s",
+                "Standard_L32s"
             ],
             "metadata": {
                 "description": "The size of Bitbucket Server nodes vm"
@@ -99,7 +131,7 @@
         },
         "bbsDiskStorageType": {
             "type": "string",
-            "defaultValue": "Standard_LRS",
+            "defaultValue": "Premium_LRS",
             "metadata": {
                 "description": "The type of storage account used for logs on a Bitbucket Server node"
             }
@@ -306,16 +338,44 @@
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
-                "Standard_DS3_v2",
+                "Standard_D4s_v3",
                 "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D32s_v3",
+                "Standard_D64s_v3",
+                "Standard_DS2_v2",
+                "Standard_DS3_v2",
                 "Standard_DS4_v2",
-                "Standard_E8-4s_v3",
+                "Standard_DS5_v2",
+                "Standard_DS2",
+                "Standard_DS3",
+                "Standard_DS4",
+                "Standard_B4ms",
+                "Standard_B8ms",
+                "Standard_F2s",
+                "Standard_F4s",
+                "Standard_F8s",
+                "Standard_F16s",
+                "Standard_E4s_v3",
+                "Standard_E8s_v3",
+                "Standard_E16s_v3",
+                "Standard_E32s_v3",
+                "Standard_E64s_v3",
+                "Standard_GS2",
+                "Standard_GS3",
+                "Standard_GS4",
+                "Standard_GS5",
+                "Standard_DS12_v2",
+                "Standard_DS13_v2",
+                "Standard_DS14_v2",
+                "Standard_DS15_v2",
+                "Standard_DS12",
+                "Standard_DS13",
+                "Standard_DS14",
                 "Standard_L4s",
                 "Standard_L8s",
                 "Standard_L16s",
-                "Standard_L32s",
-                "Standard_D16_v3",
-                "Standard_E16s_v3"
+                "Standard_L32s"
             ],
             "metadata": {
                 "description": "The size of the VM that is used for NFS server."
@@ -444,12 +504,44 @@
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
-                "Standard_DS3_v2",
+                "Standard_D4s_v3",
                 "Standard_D8s_v3",
+                "Standard_D16s_v3",
+                "Standard_D32s_v3",
+                "Standard_D64s_v3",
+                "Standard_DS2_v2",
+                "Standard_DS3_v2",
                 "Standard_DS4_v2",
-                "Standard_E2s_v3",
-                "Standard_E4-2s_v3",
-                "Standard_E8-4s_v3"
+                "Standard_DS5_v2",
+                "Standard_DS2",
+                "Standard_DS3",
+                "Standard_DS4",
+                "Standard_B4ms",
+                "Standard_B8ms",
+                "Standard_F2s",
+                "Standard_F4s",
+                "Standard_F8s",
+                "Standard_F16s",
+                "Standard_E4s_v3",
+                "Standard_E8s_v3",
+                "Standard_E16s_v3",
+                "Standard_E32s_v3",
+                "Standard_E64s_v3",
+                "Standard_GS2",
+                "Standard_GS3",
+                "Standard_GS4",
+                "Standard_GS5",
+                "Standard_DS12_v2",
+                "Standard_DS13_v2",
+                "Standard_DS14_v2",
+                "Standard_DS15_v2",
+                "Standard_DS12",
+                "Standard_DS13",
+                "Standard_DS14",
+                "Standard_L4s",
+                "Standard_L8s",
+                "Standard_L16s",
+                "Standard_L32s"
             ],
             "metadata": {
                 "description": "The size of Elasticsearch nodes VM."
@@ -504,7 +596,7 @@
         },
         "workspaceSku": {
             "type": "string",
-            "defaultValue": "Free",
+            "defaultValue": "PerGB2018",
             "allowedValues": [
                 "Free",
                 "PerNode",
@@ -549,13 +641,9 @@
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "esTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-elasticsearch.json', parameters('_artifactsLocationSasToken')))]",
-        "elasticsearch": {
-            "dataDiskSize": "[parameters('esDataDiskSize')]",
-            "dataNodeCount": "[parameters('esDataNodeCount')]",
-            "dataVmSize": "[parameters('esNodeSize')]",
-            "lbIp": "10.0.5.99",
-            "templateBaseUrl": "[concat(uri(parameters('_artifactsLocation'), 'elasticsearch/third-party/'), '')]",
-            "version": "5.5.1"
+        "storage": {
+            "name": "[concat('bbstor', uniqueString(resourceGroup().id))]",
+            "esSnapshotContainerName": "elasticsearch-snapshots"
         },
         "workspace": {
             "name": "[concat(variables('namespace'), '-monitorworkspace-', uniqueString(resourceGroup().id))]",
@@ -571,6 +659,31 @@
         "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]"
     },
     "resources": [
+        {
+            "comments": "Storage account name must be between 3 and 24 characters in length and use numbers and lower-case letters only",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('storage').name]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "name": "[concat('default/', variables('storage').esSnapshotContainerName)]",
+                    "dependsOn": [
+                        "[variables('storage').name]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                }
+            ]
+        },
         {
             "apiVersion": "2018-05-01",
             "name": "workspaceTemplate",
@@ -929,6 +1042,9 @@
             "name": "elasticSearchTemplate",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storage').name)]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -936,23 +1052,23 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
                     },
                     "adminUsername": {
                         "value": "[parameters('adminUsername')]"
                     },
-                    "dataNodeCount": {
-                        "value": "[variables('elasticsearch').dataNodeCount]"
+                    "esDataDiskSize": {
+                        "value": "[parameters('esDataDiskSize')]"
                     },
-                    "dataDiskSize": {
-                        "value": "[variables('elasticsearch').dataDiskSize]"
+                    "esDataNodeCount": {
+                        "value": "[parameters('esDataNodeCount')]"
                     },
-                    "esTemplateBaseUrl": {
-                        "value": "[variables('elasticsearch').templateBaseUrl]"
-                    },
-                    "lbIp": {
-                        "value": "[variables('elasticsearch').lbIp]"
+                    "esNodeSize": {
+                        "value": "[parameters('esNodeSize')]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
@@ -963,17 +1079,29 @@
                     "tags": {
                         "value": "[variables('tags')]"
                     },
-                    "version": {
-                        "value": "[variables('elasticsearch').version]"
-                    },
-                    "vmSizeDataNodes": {
-                        "value": "[variables('elasticsearch').dataVmSize]"
-                    },
                     "vnetName": {
                         "value": "[parameters('vnetName')]"
                     },
                     "esSubnetName": {
                         "value": "[parameters('esSubnetName')]"
+                    },
+                    "workspaceId": {
+                        "value": "[if(parameters('enableAnalytics'), reference('workspaceTemplate').outputs.workspaceId.value, '')]"
+                    },
+                    "workspacePrimaryKey": {
+                        "value": "[if(parameters('enableAnalytics'), reference('workspaceTemplate').outputs.workspacePrimaryKey.value, '')]"
+                    },
+                    "workspaceSecondaryKey": {
+                        "value": "[if(parameters('enableAnalytics'), reference('workspaceTemplate').outputs.workspaceSecondaryKey.value, '')]"
+                    },
+                    "appInsightsInstrumentKey": {
+                        "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('storage').name]"
+                    },
+                    "storageAccessKey": {
+                        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').keys[0].value]"
                     }
                 }
             }
@@ -1160,6 +1288,10 @@
         "workspaceName": {
             "type": "string",
             "value": "[if(parameters('enableAnalytics'), variables('workspace').name, '')]"
+        },
+        "esLbName": {
+            "type": "string",
+            "value": "[reference('elasticSearchTemplate').outputs.esLbName.value]"
         }
     }
 }

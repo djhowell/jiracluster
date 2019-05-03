@@ -47,6 +47,9 @@
         },
         "sshLbName": {
             "type": "string"
+        },
+        "esLbName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -99,6 +102,25 @@
                 "name": "[concat(variables('namespace'), '-AlertSSHLBHealthCheck-', uniqueString(resourceGroup().id))]",
                 "description": "The Bitbucket SSH Git Load Balancer is experiencing health check issues.",
                 "severityLevel": 1
+            },
+            "esLoadBalancerHealthCheckAlert": {
+                "name": "[concat(variables('namespace'), '-AlertESLBHealthCheck-', uniqueString(resourceGroup().id))]",
+                "description": "The Bitbucket ElasticSearch Load Balancer is experiencing health check issues.",
+                "severityLevel": 1
+            },
+            "nodeFreeDiskCheckAlert": {
+                "name": "[concat(variables('namespace'), '-AlertFreeDiskSpaceCheck-', uniqueString(resourceGroup().id))]",
+                "description": "One or more nodes have been found which have disk space < 10% free.",
+                "severityLevel": 1,
+                "operator": "GreaterThan",
+                "threshold": "0"
+            },
+            "nodeHighCpuUsageCheckAlert": {
+                "name": "[concat(variables('namespace'), '-AlertHighCpuUsageCheck-', uniqueString(resourceGroup().id))]",
+                "description": "One or more nodes have been found which have High CPU Usgae > 80%.",
+                "severityLevel": 1,
+                "operator": "GreaterThan",
+                "threshold": "0"
             }
         },
         "webTestName": "[toLower(concat('AppHeartBeat-', parameters('appInsightsName')))]",
@@ -128,6 +150,72 @@
                 "voiceReceivers": [],
                 "logicAppReceivers": [],
                 "azureFunctionReceivers": []
+            }
+        },
+        {
+            "type": "Microsoft.Insights/scheduledQueryRules",
+            "apiVersion": "2018-04-16",
+            "name": "[variables('alerts').nodeHighCpuUsageCheckAlert.name]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
+            },
+            "properties": {
+                "description": "[variables('alerts').nodeHighCpuUsageCheckAlert.description]",
+                "enabled": "true",
+                "source": {
+                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
+                    "queryType": "ResultCount",
+                    "query": "Perf | where ObjectName == \"Processor\" and CounterName == \"% Processor Time\"  and InstanceName == \"_Total\" and CounterValue >= 80 | summarize cpuUtilization = max(CounterValue) by Computer"
+                },
+                "action": {
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+                    "severity": "[variables('alerts').nodeHighCpuUsageCheckAlert.severityLevel]",
+                    "aznsAction": {
+                        "actionGroup": "[array(resourceId('microsoft.insights/actionGroups', variables('supportTeam').name))]"
+                    },
+                    "trigger": {
+                        "thresholdOperator": "[variables('alerts').nodeHighCpuUsageCheckAlert.operator]",
+                        "threshold": "[variables('alerts').nodeHighCpuUsageCheckAlert.threshold]"
+                    }
+                },
+                "schedule": {
+                    "frequencyInMinutes": "5",
+                    "timeWindowInMinutes": "10"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Insights/scheduledQueryRules",
+            "apiVersion": "2018-04-16",
+            "name": "[variables('alerts').nodeFreeDiskCheckAlert.name]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
+            },
+            "properties": {
+                "description": "[variables('alerts').nodeFreeDiskCheckAlert.description]",
+                "enabled": "true",
+                "source": {
+                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
+                    "queryType": "ResultCount",
+                    "query": "Perf | where ObjectName == \"Logical Disk\" and CounterName == \"% Free Space\" and InstanceName  !in (\"_Total\", \"/mnt\", \"/boot/efi\") and CounterValue <10 | summarize free_disk_space = min(CounterValue) by Computer, InstanceName"
+                },
+                "action": {
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+                    "severity": "[variables('alerts').nodeFreeDiskCheckAlert.severityLevel]",
+                    "aznsAction": {
+                        "actionGroup": "[array(resourceId('microsoft.insights/actionGroups', variables('supportTeam').name))]"
+                    },
+                    "trigger": {
+                        "thresholdOperator": "[variables('alerts').nodeFreeDiskCheckAlert.operator]",
+                        "threshold": "[variables('alerts').nodeFreeDiskCheckAlert.threshold]"
+                    }
+                },
+                "schedule": {
+                    "frequencyInMinutes": "5",
+                    "timeWindowInMinutes": "10"
+                }
             }
         },
         {
@@ -207,6 +295,46 @@
                 "enabled": true,
                 "scopes": [
                     "[resourceId('Microsoft.Network/loadBalancers', parameters('sshLbName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "metricName": "DipAvailability",
+                            "metricNamespace": "microsoft.network/loadbalancers",
+                            "operator": "LessThanOrEqual",
+                            "timeAggregation": "Average",
+                            "name": "Metric1",
+                            "dimensions": [],
+                            "monitorTemplateType": "8",
+                            "criterionType": "StaticThresholdCriterion",
+                            "threshold": 95
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
+                        "webHookProperties": {}
+                    }
+                ]
+            }
+        },
+        {
+            "comments": "Disabled for now - need Standard ES LB for metrics instead of configured basic one atm. Reason ES LB remains basic is because you lose internet copnnectivity (to download template scripts) when plkaced behinf internal Standard LB.",
+            "type": "Microsoft.Insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[variables('alerts').esLoadBalancerHealthCheckAlert.name]",
+            "condition": false,
+            "location": "global",
+            "properties": {
+                "description": "[variables('alerts').esLoadBalancerHealthCheckAlert.description]",
+                "severity": "[variables('alerts').esLoadBalancerHealthCheckAlert.severityLevel]",
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Network/loadBalancers', parameters('esLbName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
