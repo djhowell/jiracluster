@@ -140,11 +140,17 @@
         "appInsightsInstrumentKey": {
             "type": "string",
             "defaultValue": ""
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "storageAccessKey": {
+            "type": "securestring"
         }
     },
     "variables": {
         "lbIp": "10.0.5.99",
-        "version": "5.5.1",
+        "version": "6.5.3",
         "password": {
             "type": "securestring",
             "defaultValue": "generate",
@@ -286,7 +292,10 @@
                     },
                     "azureCloudStorageAccount": {
                         "value": {
-                            "install": "No"
+                            "install": "Yes",
+                            "name": "[parameters('storageAccountName')]",
+                            "key": "[parameters('storageAccessKey')]",
+                            "suffix": "core.windows.net"
                         }
                     },
                     "commonVmSettings": {

@@ -641,6 +641,10 @@
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "esTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-elasticsearch.json', parameters('_artifactsLocationSasToken')))]",
+        "storage": {
+            "name": "[concat('bbstor', uniqueString(resourceGroup().id))]",
+            "esSnapshotContainerName": "elasticsearch-snapshots"
+        },
         "workspace": {
             "name": "[concat(variables('namespace'), '-monitorworkspace-', uniqueString(resourceGroup().id))]",
             "sku": "[parameters('workspaceSku')]",
@@ -655,6 +659,31 @@
         "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]"
     },
     "resources": [
+        {
+            "comments": "Storage account name must be between 3 and 24 characters in length and use numbers and lower-case letters only",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "name": "[variables('storage').name]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "resources": [
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "name": "[concat('default/', variables('storage').esSnapshotContainerName)]",
+                    "dependsOn": [
+                        "[variables('storage').name]"
+                    ],
+                    "properties": {
+                        "publicAccess": "None"
+                    }
+                }
+            ]
+        },
         {
             "apiVersion": "2018-05-01",
             "name": "workspaceTemplate",
@@ -1013,6 +1042,9 @@
             "name": "elasticSearchTemplate",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2017-05-10",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storage').name)]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1064,6 +1096,12 @@
                     },
                     "appInsightsInstrumentKey": {
                         "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('storage').name]"
+                    },
+                    "storageAccessKey": {
+                        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').keys[0].value]"
                     }
                 }
             }
