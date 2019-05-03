@@ -641,6 +641,7 @@
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "esTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-elasticsearch.json', parameters('_artifactsLocationSasToken')))]",
+        "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
         "storage": {
             "name": "[concat('bbstor', uniqueString(resourceGroup().id))]",
             "esSnapshotContainerName": "elasticsearch-snapshots"
@@ -683,6 +684,23 @@
                     }
                 }
             ]
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "recoveryVaultTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vaultTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
         },
         {
             "apiVersion": "2018-05-01",
@@ -1034,6 +1052,9 @@
                     },
                     "appInsightsInstrumentKey": {
                         "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
+                    },
+                    "vaultName": {
+                        "value": "[reference('recoveryVaultTemplate').outputs.vaultName.value]"
                     }
                 }
             }

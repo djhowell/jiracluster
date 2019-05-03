@@ -160,10 +160,14 @@
         "appInsightsInstrumentKey": {
             "type": "string",
             "defaultValue": ""
+        },
+        "vaultName": {
+            "type": "string"
         }
     },
     "variables": {
         "namespace": "bitbucket",
+        "nfsBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-bitbucket-nfs-backup.json', parameters('_artifactsLocationSasToken')))]",
         "vm": {
             "nfs": {
                 "name": "[concat(variables('namespace'), '-nfs')]",
@@ -171,26 +175,18 @@
                 "hostname": "bbsnfs"
             }
         },
-        "net": {
-            "nic": {
-                "nfs": {
-                    "name": "[concat(variables('namespace'), '-nfs-nic')]"
-                }
-            }
-        },
-        "env": {
-            "NFS": [
-                "[concat('BBS_VERSION', '=\"', parameters('bitbucketVersion'), '\" ')]",
-                "[concat('BBS_INSTALLER_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
-                "[concat('OMS_WORKSPACE_ID', '=\"', parameters('workspaceId'), '\" ')]",
-                "[concat('OMS_PRIMARY_KEY', '=\"', parameters('workspacePrimaryKey'), '\" ')]",
-                "[concat('OMS_SECONDARY_KEY', '=\"', parameters('workspaceSecondaryKey'), '\" ')]",
-                "[concat('APPINSIGHTS_VER', '=\"', '2.3.1', '\" ')]",
-                "[concat('APPINSIGHTS_INSTRUMENTATION_KEY', '=\"', parameters('appInsightsInstrumentKey'), '\" ')]"
-            ]
-        },
+        "nfs-nic-name": "[concat(variables('namespace'), '-nfs-nic')]",
+        "env.nfs": [
+            "[concat('BBS_VERSION', '=\"', parameters('bitbucketVersion'), '\" ')]",
+            "[concat('BBS_INSTALLER_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
+            "[concat('OMS_WORKSPACE_ID', '=\"', parameters('workspaceId'), '\" ')]",
+            "[concat('OMS_PRIMARY_KEY', '=\"', parameters('workspacePrimaryKey'), '\" ')]",
+            "[concat('OMS_SECONDARY_KEY', '=\"', parameters('workspaceSecondaryKey'), '\" ')]",
+            "[concat('APPINSIGHTS_VER', '=\"', '2.3.1', '\" ')]",
+            "[concat('APPINSIGHTS_INSTRUMENTATION_KEY', '=\"', parameters('appInsightsInstrumentKey'), '\" ')]"
+        ],
         "data": {
-            "NFS": "[replace(replace(replace(replace(string(variables('env').NFS), '[\"', ''), '\"]', ''), '\",\"', ''), '\\\"', '\"')]"
+            "NFS": "[replace(replace(replace(replace(string(variables('env.nfs')), '[\"', ''), '\"]', ''), '\",\"', ''), '\\\"', '\"')]"
         }
     },
     "resources": [
@@ -243,7 +239,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('net').nic.nfs.name)]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nfs-nic-name'))]"
                         }
                     ]
                 }
@@ -278,6 +274,26 @@
                     }
                 }
             ]
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "nfsBackupTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('nfsBackupTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vaultName": {
+                        "value": "[parameters('vaultName')]"
+                    },
+                    "nfsVmName": {
+                        "value": "[variables('vm').nfs.name]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
