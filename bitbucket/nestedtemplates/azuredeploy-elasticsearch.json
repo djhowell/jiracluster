@@ -15,7 +15,7 @@
             },
             "defaultValue": ""
         },
-        "adminUsername": {
+        "sshUserName": {
             "type": "string",
             "metadata": {
                 "description": "Username for SSH access to Elasticsearch nodes."
@@ -41,7 +41,7 @@
                 "description": "The size of the data disk for elasticsearch in GB."
             }
         },
-        "esNodeSize": {
+        "esNodeVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
@@ -160,7 +160,7 @@
         },
         "commonVmSettings": {
             "credentials": {
-                "adminUsername": "[parameters('adminUsername')]",
+                "adminUsername": "[parameters('sshUserName')]",
                 "password": "[variables('password')]",
                 "authenticationType": "sshPublicKey",
                 "sshPublicKey": "[parameters('sshKey')]"
@@ -231,7 +231,7 @@
             "vmDataNodeCount": "[parameters('esDataNodeCount')]",
             "vmDataNodeStorageAccountType": "Premium_LRS",
             "vmHostNamePrefix": "[parameters('namespace')]",
-            "vmSizeDataNodes": "[parameters('esNodeSize')]",
+            "vmSizeDataNodes": "[parameters('esNodeVmSize')]",
             "vmSizeKibana": "Standard_A6",
             "vNetLoadBalancerIp": ""
         },

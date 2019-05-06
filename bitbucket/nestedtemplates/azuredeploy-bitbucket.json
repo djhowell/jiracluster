@@ -36,7 +36,7 @@
                 "description": "Azure region (WestUS, CentralUs, AustraliaEast, etc) shared by all of the resources in the template"
             }
         },
-        "adminUsername": {
+        "sshUserName": {
             "type": "string",
             "metadata": {
                 "description": "Username for SSH access to Bitbucket Server nodes as well as for the jumpbox"
@@ -48,7 +48,7 @@
                 "description": "SSH key to allow access to jumpbox."
             }
         },
-        "bbsSize": {
+        "bbsVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
@@ -102,39 +102,11 @@
                 "description": "The amount of Bitbucket Server nodes to deploy"
             }
         },
-        "bbsNodePrefix": {
-            "type": "string",
-            "defaultValue": "bbsnode",
-            "metadata": {
-                "description": "Hostname prefix for nodes in Bitbucket Server cluster"
-            }
-        },
         "bbsDiskSize": {
             "type": "int",
             "defaultValue": 31,
             "metadata": {
                 "description": "The size (in GB) of the data disk that is used for logs on a Bitbucket Server node"
-            }
-        },
-        "bbsDiskStorageType": {
-            "type": "string",
-            "defaultValue": "Premium_LRS",
-            "metadata": {
-                "description": "The type of storage account used for logs on a Bitbucket Server node"
-            }
-        },
-        "bbsHazelcastTag": {
-            "type": "string",
-            "defaultValue": "HAZELCAST",
-            "metadata": {
-                "description": "Hazelcast tag for nodes in Bitbucket Server cluster"
-            }
-        },
-        "bbsHazelcastPort": {
-            "type": "string",
-            "defaultValue": "5701",
-            "metadata": {
-                "description": "Internal port that Bitbucket Server uses for Hazelcast communication"
             }
         },
         "dbCreateNew": {
@@ -439,13 +411,6 @@
                 "description": "The password of the certificate for SSL termination."
             }
         },
-        "license": {
-            "type": "securestring",
-            "defaultValue": "AAABpg0ODAoPeNp1kUtP20AUhff+FVfqLtI4DkkgRLLUYA+UqtiR7SzawmLiXPBQe8aaR9r013ewDYG2LGZzH2fO+e6HorKQyD0ECwhmy/lsOZ3D1U0BJ8Fk4SW22aJK7zcalQ7JxIukMKw0CWswfDSVbJj+yEzNtOZM+KVsPG2YrvwvvEShsTi02M3mxSoraPZv96WztqqsmMaYGQyfPieTCQkW3ntKQ53+ark6dEvr6fT007NDesN4/Y7FHNUe1XUcXtAzSmbxtxNymn4+I1fT88Xg0AmyCIVBFRpl0cvtVpeKt4ZL0VdGo1GSFuQyzcg6S+NNVFynCdnk1DXCSKFztIPtAUyFMHgFKkq5QwWtko9YGvheGdPeLsfjB+m/sTiu+w2C/cadD7EEIQ3suDaKb61Bp8w1GAml1UY27kC+50I7z4KJ8jUYR/N8oNmnc3z4Hl9yRBldFTQmF1+fvP+f2RDBQduIH0L+FF5Ok9A9Mg8CL1UPTHDNOjyr31YhxNjW8tA4hl5Hw3X+Pm2MR6Z0z2rbTcGQHe6lgl5rd9Q6zvX2/wDFKfAUMCsCFH8cSCeQYWgwBdkxpTeUqGiTfg2qAhNxOHcjUrs7UMuuXFQw4T4+mxFqX02k8",
-            "metadata": {
-                "description": "Bitbucket Data Center 14 days evaluation license."
-            }
-        },
         "bitbucketAdminUsername": {
             "type": "string",
             "defaultValue": "ssh",
@@ -459,7 +424,7 @@
                 "description": "Password for Bitbucket Server administrator user."
             }
         },
-        "bitbucketAdminName": {
+        "bitbucketAdminFullName": {
             "type": "string",
             "defaultValue": "John Doe",
             "metadata": {
@@ -487,7 +452,7 @@
                 "description": "The size of the data disk for elasticsearch in GB."
             }
         },
-        "esNodeSize": {
+        "esNodeVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
@@ -1007,8 +972,8 @@
                     "customDownloadUrl": {
                         "value": "[parameters('customDownloadUrl')]"
                     },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
@@ -1060,8 +1025,8 @@
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
                     },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "esDataDiskSize": {
                         "value": "[parameters('esDataDiskSize')]"
@@ -1069,8 +1034,8 @@
                     "esDataNodeCount": {
                         "value": "[parameters('esDataNodeCount')]"
                     },
-                    "esNodeSize": {
-                        "value": "[parameters('esNodeSize')]"
+                    "esNodeVmSize": {
+                        "value": "[parameters('esNodeVmSize')]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
@@ -1140,8 +1105,8 @@
                     "customDownloadUrl": {
                         "value": "[parameters('customDownloadUrl')]"
                     },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "dbType": {
                         "value": "[parameters('dbType')]"
@@ -1158,38 +1123,23 @@
                     "bbsDiskSize": {
                         "value": "[parameters('bbsDiskSize')]"
                     },
-                    "bbsDiskStorageType": {
-                        "value": "[parameters('bbsDiskStorageType')]"
-                    },
-                    "bbsHazelcastPort": {
-                        "value": "[parameters('bbsHazelcastPort')]"
-                    },
-                    "bbsHazelcastTag": {
-                        "value": "[parameters('bbsHazelcastTag')]"
-                    },
                     "bbsNodeCount": {
                         "value": "[parameters('bbsNodeCount')]"
                     },
-                    "bbsNodePrefix": {
-                        "value": "[parameters('bbsNodePrefix')]"
-                    },
-                    "bbsSize": {
-                        "value": "[parameters('bbsSize')]"
+                    "bbsVmSize": {
+                        "value": "[parameters('bbsVmSize')]"
                     },
                     "bitbucketAdminEmail": {
                         "value": "[parameters('bitbucketAdminEmail')]"
                     },
-                    "bitbucketAdminName": {
-                        "value": "[parameters('bitbucketAdminName')]"
+                    "bitbucketAdminFullName": {
+                        "value": "[parameters('bitbucketAdminFullName')]"
                     },
                     "bitbucketAdminPassword": {
                         "value": "[parameters('bitbucketAdminPassword')]"
                     },
                     "bitbucketAdminUsername": {
                         "value": "[parameters('bitbucketAdminUsername')]"
-                    },
-                    "license": {
-                        "value": "[parameters('license')]"
                     },
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
@@ -1261,7 +1211,7 @@
         },
         "ssh": {
             "type": "string",
-            "value": "[concat('ssh ', parameters('adminUsername'), '@', parameters('lbFqdn'))]"
+            "value": "[concat('ssh ', parameters('sshUserName'), '@', parameters('lbFqdn'))]"
         },
         "jumpbox": {
             "type": "string",

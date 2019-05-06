@@ -492,20 +492,20 @@
         "outputs": {
             "location": "[location()]",
             "bitbucketAdminEmail": "[steps('administrator').email]",
-            "bitbucketAdminName": "[steps('administrator').fullname]",
+            "bitbucketAdminFullName": "[steps('administrator').fullname]",
             "bitbucketAdminUsername": "[steps('administrator').username]",
             "bitbucketAdminPassword": "[steps('administrator').password]",
             "bbsNodeCount": "[int(steps('cluster').nodeCount)]",
-            "bbsSize": "[steps('cluster').nodeSize]",
+            "bbsVmSize": "[steps('cluster').nodeSize]",
             "nfsDiskSize": "[int(steps('fileServer').nfsDiskSize)]",
             "nfsVmSize": "[steps('fileServer').nfsVMSize]",
             "dbUsername": "[steps('database').username]",
             "dbPassword": "[steps('database').password]",
             "dbTierSize": "[steps('database').sqlTier]",
             "esDataDiskSize": "[int(steps('elasticsearch').esDiskSize)]",
-            "esNodeSize": "[steps('elasticsearch').esVMSize]",
+            "esNodeVmSize": "[steps('elasticsearch').esVMSize]",
             "esDataNodeCount": "[int(steps('elasticsearch').esNodeCount)]",
-            "adminUsername": "[steps('jumpbox').username]",
+            "sshUserName": "[steps('jumpbox').username]",
             "sshKey": "[steps('jumpbox').credentials.sshPublicKey]"
         }
     }

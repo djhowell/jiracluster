@@ -37,7 +37,7 @@
                 "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the bitbucketVersion parameter."
             }
         },
-        "adminUsername": {
+        "sshUserName": {
             "type": "string",
             "metadata": {
                 "description": "Username for SSH access to Bitbucket Server nodes as well as for the jumpbox"
@@ -49,7 +49,7 @@
                 "description": "SSH key to allow access to jumpbox."
             }
         },
-        "bbsSize": {
+        "bbsVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
             "allowedValues": [
@@ -158,7 +158,7 @@
                 "description": "Password for Bitbucket Server administrator user."
             }
         },
-        "bitbucketAdminName": {
+        "bitbucketAdminFullName": {
             "type": "string",
             "defaultValue": "John Doe",
             "metadata": {
@@ -267,7 +267,7 @@
         "vm": {
             "bbs": {
                 "name": "[concat(variables('namespace'), 'bbs-nodes')]",
-                "size": "[parameters('bbsSize')]",
+                "size": "[parameters('bbsVmSize')]",
                 "count": "[parameters('bbsNodeCount')]",
                 "hostname": "[parameters('bbsNodePrefix')]",
                 "hazelcastTag": {
@@ -280,7 +280,7 @@
                 }
             }
         },
-        "username": "[if(equals(parameters('bitbucketAdminUsername'),'ssh'), parameters('adminUsername'), parameters('bitbucketAdminUsername'))]",
+        "username": "[if(equals(parameters('bitbucketAdminUsername'),'ssh'), parameters('sshUserName'), parameters('bitbucketAdminUsername'))]",
         "jdbcDriver": "[if(equals(parameters('dbType'), 'sqlserver'), 'com.microsoft.sqlserver.jdbc.SQLServerDriver', 'org.postgresql.Driver')]",
         "env": {
             "SQL": [
@@ -294,7 +294,7 @@
                 "[concat('BBS_CUSTOM_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
                 "[concat('BBS_ADMIN', '=\"', variables('username'), '\" ')]",
                 "[concat('BBS_PASS', '=\"', parameters('bitbucketAdminPassword'), '\" ')]",
-                "[concat('BBS_NAME', '=\"', parameters('bitbucketAdminName'), '\" ')]",
+                "[concat('BBS_NAME', '=\"', parameters('bitbucketAdminFullName'), '\" ')]",
                 "[concat('BBS_EMAIL', '=\"', parameters('bitbucketAdminEmail'), '\" ')]",
                 "[concat('BBS_LICENSE', '=\"', parameters('license'), '\" ')]",
                 "[concat('BBS_HAZELCAST_PORT', '=\"', parameters('bbsHazelcastPort'), '\" ')]",
@@ -346,13 +346,13 @@
                 "virtualMachineProfile": {
                     "osProfile": {
                         "computerNamePrefix": "[variables('vm').bbs.hostname]",
-                        "adminUsername": "[parameters('adminUsername')]",
+                        "adminUsername": "[parameters('sshUserName')]",
                         "linuxConfiguration": {
                             "disablePasswordAuthentication": true,
                             "ssh": {
                                 "publicKeys": [
                                     {
-                                        "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                        "path": "[concat('/home/', parameters('sshUserName'), '/.ssh/authorized_keys')]",
                                         "keyData": "[parameters('sshKey')]"
                                     }
                                 ]
