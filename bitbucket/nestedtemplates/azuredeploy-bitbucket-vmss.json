@@ -9,26 +9,12 @@
                 "description": "Azure region (WestUS, CentralUs, AustraliaEast, etc) shared by all of the resources in the template"
             }
         },
-        "scriptsBranch": {
-            "type": "string",
-            "defaultValue": "master",
-            "metadata": {
-                "description": "A branch in the repository to download scripts from. We want to be able to override it during development."
-            }
-        },
-        "repositoryLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "The base URI where the source of the template are located"
-            },
-            "defaultValue": "[concat('https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/', parameters('scriptsBranch'), '/')]"
-        },
         "_artifactsLocation": {
             "type": "string",
+            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
-            },
-            "defaultValue": "[parameters('repositoryLocation')]"
+            }
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
@@ -36,6 +22,20 @@
                 "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
             },
             "defaultValue": ""
+        },
+        "bitbucketVersion": {
+            "type": "string",
+            "defaultValue": "latest",
+            "metadata": {
+                "description": "The Bitbucket software product version to install. You can also specify 'latest' to download the latest version available. If using with customDownloadUrl you have to specify the correct version."
+            }
+        },
+        "customDownloadUrl": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the bitbucketVersion parameter."
+            }
         },
         "adminUsername": {
             "type": "string",
@@ -290,6 +290,8 @@
                 "[concat('JDBC_USER', '=\"', parameters('jdbcUserName'), '\" ')]"
             ],
             "BBS": [
+                "[concat('BBS_VERSION', '=\"', parameters('bitbucketVersion'), '\" ')]",
+                "[concat('BBS_CUSTOM_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
                 "[concat('BBS_ADMIN', '=\"', variables('username'), '\" ')]",
                 "[concat('BBS_PASS', '=\"', parameters('bitbucketAdminPassword'), '\" ')]",
                 "[concat('BBS_NAME', '=\"', parameters('bitbucketAdminName'), '\" ')]",

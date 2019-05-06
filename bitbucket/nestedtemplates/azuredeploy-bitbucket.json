@@ -2,22 +2,9 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "scriptsBranch": {
-            "type": "string",
-            "defaultValue": "master",
-            "metadata": {
-                "description": "A branch in the repository to download scripts from. We want to be able to override it during development."
-            }
-        },
-        "repositoryLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "The base URI where the source of the template are located"
-            },
-            "defaultValue": "[concat('https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/', parameters('scriptsBranch'), '/')]"
-        },
         "_artifactsLocation": {
             "type": "string",
+            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
             }
@@ -1008,12 +995,6 @@
                     "location": {
                         "value": "[parameters('location')]"
                     },
-                    "repositoryLocation": {
-                        "value": "[parameters('repositoryLocation')]"
-                    },
-                    "scriptsBranch": {
-                        "value": "[parameters('scriptsBranch')]"
-                    },
                     "_artifactsLocation": {
                         "value": "[parameters('_artifactsLocation')]"
                     },
@@ -1153,6 +1134,12 @@
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
                     },
+                    "bitbucketVersion": {
+                        "value": "[parameters('bitbucketVersion')]"
+                    },
+                    "customDownloadUrl": {
+                        "value": "[parameters('customDownloadUrl')]"
+                    },
                     "adminUsername": {
                         "value": "[parameters('adminUsername')]"
                     },
@@ -1203,12 +1190,6 @@
                     },
                     "license": {
                         "value": "[parameters('license')]"
-                    },
-                    "repositoryLocation": {
-                        "value": "[parameters('repositoryLocation')]"
-                    },
-                    "scriptsBranch": {
-                        "value": "[parameters('scriptsBranch')]"
                     },
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
