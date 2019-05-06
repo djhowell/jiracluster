@@ -9,26 +9,12 @@
                 "description": "Azure region (WestUS, CentralUs, AustraliaEast, etc) shared by all of the resources in the template"
             }
         },
-        "scriptsBranch": {
-            "type": "string",
-            "defaultValue": "master",
-            "metadata": {
-                "description": "A branch in the repository to download scripts from. We want to be able to override it during development."
-            }
-        },
-        "repositoryLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "The base URI where the source of the template are located"
-            },
-            "defaultValue": "[concat('https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/', parameters('scriptsBranch'), '/')]"
-        },
         "_artifactsLocation": {
             "type": "string",
+            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
-            },
-            "defaultValue": "[parameters('repositoryLocation')]"
+            }
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
@@ -178,7 +164,7 @@
         "nfs-nic-name": "[concat(variables('namespace'), '-nfs-nic')]",
         "env.nfs": [
             "[concat('BBS_VERSION', '=\"', parameters('bitbucketVersion'), '\" ')]",
-            "[concat('BBS_INSTALLER_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
+            "[concat('BBS_CUSTOM_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
             "[concat('OMS_WORKSPACE_ID', '=\"', parameters('workspaceId'), '\" ')]",
             "[concat('OMS_PRIMARY_KEY', '=\"', parameters('workspacePrimaryKey'), '\" ')]",
             "[concat('OMS_SECONDARY_KEY', '=\"', parameters('workspaceSecondaryKey'), '\" ')]",

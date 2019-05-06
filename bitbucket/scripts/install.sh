@@ -300,41 +300,36 @@ function bbs_configure_shared_home {
 }
 
 function bbs_download_installer {
-    local base="${BBS_INSTALLER_BASE}"
-    local bucket="${BBS_INSTALLER_BUCKET}"
-    local path="${BBS_INSTALLER_PATH}"
-    local version="${BBS_INSTALLER_VERSION}"
 
-    if [[ "${version}" = "latest" ]];
+    if [ ! -n "${BBS_CUSTOM_DOWNLOAD_URL}" ]
     then
-        local file="atlassian-bitbucket-linux-x64.bin"
-    else
-        local file="atlassian-bitbucket-${version}-linux-x64.bin"
+        log "Will use version: ${BBS_VERSION} but first retrieving latest bitbucket version info from Atlassian..."
+        LATEST_INFO=$(curl -L -f --silent https://my.atlassian.com/download/feeds/current/stash.json | sed 's/^downloads(//g' | sed 's/)$//g')
+        if [ "$?" -ne "0" ]; then
+        error "Could not get latest info installer description from https://my.atlassian.com/download/feeds/current/stash.json"
+        fi
+
+        LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g')
+        LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g')
+        log "Latest bitbucket info: $LATEST_VERSION and download URL: $LATEST_VERSION_URL"
     fi
 
-    if [[ -n "${BBS_INSTALLER_DOWNLOAD_URL}" ]];
-    then
-        local url="${BBS_INSTALLER_DOWNLOAD_URL}"
-        log "Downloading Bitbucket Server installer from [url=${url}]"
-    else
-        local url="${base}/${bucket}/${path}/${version}/${file}"
-        log "Downloading Bitbucket Server installer [base=${base}, bucket=${bucket}, path=${path}, version=${version}, file=${file}] from [url=${url}]"
-    fi
+    [ ${BBS_VERSION} = 'latest' ] && bitbucket_version="${LATEST_VERSION}" || bitbucket_version="${BBS_VERSION}"
 
+    [ -n "${BBS_CUSTOM_DOWNLOAD_URL}" ] && local bitbucket_installer_url="${BBS_CUSTOM_DOWNLOAD_URL}/atlassian-bitbucket-${BBS_VERSION}-x64.bin"  || local bitbucket_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${bitbucket_version}/g")
+    log "Downloading ${ATL_CONFLUENCE_PRODUCT} installer from ${bitbucket_installer_url}"
 
     local target="${NFS_INSTALLER_DIR}/installer"
-
-    if ! curl -L -f --silent "${url}" \
-       -o "${target}" 2>&1
+    if ! curl -L -f --silent "${bitbucket_installer_url}" -o "${target}" 2>&1
     then
-        error "Could not download Bitbucket Server installer from [url=${url}]"
+        error "Could not download Bitbucket Server installer from [url=${bitbucket_installer_url}]"
         exit 1
     else
         log "Making Bitbucket Server installer executable..."
         chmod +x "${target}"
     fi
 
-    log "Done downloading Bitbucket Server installer from [url=${url}]"
+    log "Done downloading Bitbucket Server installer from [url=${bitbucket_installer_url}]"
 }
 
 function bbs_prepare_installer_settings {
