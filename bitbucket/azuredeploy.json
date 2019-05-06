@@ -469,21 +469,6 @@
                 "description": "The password of the certificate for SSL termination."
             }
         },
-        "httpGatewaySize": {
-            "type": "string",
-            "allowedValues": [
-                "Standard_D2s_v3",
-                "Standard_D4s_v3",
-                "Standard_D8s_v3",
-                "Standard_D16s_v3",
-                "Standard_D32s_v3",
-                "Standard_D64s_v3"
-            ],
-            "defaultValue": "Standard_D2s_v3",
-            "metadata": {
-                "description": "VM type which used for forwarding HTTP traffic from Load Balancer to Application Gateway"
-            }
-        },
         "license": {
             "type": "securestring",
             "defaultValue": "AAABpg0ODAoPeNp1kUtP20AUhff+FVfqLtI4DkkgRLLUYA+UqtiR7SzawmLiXPBQe8aaR9r013ewDYG2LGZzH2fO+e6HorKQyD0ECwhmy/lsOZ3D1U0BJ8Fk4SW22aJK7zcalQ7JxIukMKw0CWswfDSVbJj+yEzNtOZM+KVsPG2YrvwvvEShsTi02M3mxSoraPZv96WztqqsmMaYGQyfPieTCQkW3ntKQ53+ark6dEvr6fT007NDesN4/Y7FHNUe1XUcXtAzSmbxtxNymn4+I1fT88Xg0AmyCIVBFRpl0cvtVpeKt4ZL0VdGo1GSFuQyzcg6S+NNVFynCdnk1DXCSKFztIPtAUyFMHgFKkq5QwWtko9YGvheGdPeLsfjB+m/sTiu+w2C/cadD7EEIQ3suDaKb61Bp8w1GAml1UY27kC+50I7z4KJ8jUYR/N8oNmnc3z4Hl9yRBldFTQmF1+fvP+f2RDBQduIH0L+FF5Ok9A9Mg8CL1UPTHDNOjyr31YhxNjW8tA4hl5Hw3X+Pm2MR6Z0z2rbTcGQHe6lgl5rd9Q6zvX2/wDFKfAUMCsCFH8cSCeQYWgwBdkxpTeUqGiTfg2qAhNxOHcjUrs7UMuuXFQw4T4+mxFqX02k8",
@@ -664,9 +649,6 @@
                     },
                     "bbsHazelcastPort": {
                         "value": "[parameters('bbsHazelcastPort')]"
-                    },
-                    "httpGatewaySize": {
-                        "value": "[parameters('httpGatewaySize')]"
                     },
                     "jumpboxHostname": {
                         "value": "[parameters('jumpboxHostname')]"

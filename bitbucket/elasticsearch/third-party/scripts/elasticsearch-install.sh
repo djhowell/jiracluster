@@ -1367,7 +1367,6 @@ configure_elasticsearch
 
 configure_os_properties
 
-
 download_appinsights_jars `pwd`
 
 install_appinsights_collectd
