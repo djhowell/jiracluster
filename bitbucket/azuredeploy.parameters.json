@@ -8,7 +8,7 @@
                 "_artifactsLocationSasToken": {
                         "value": ""
                 },
-                "adminUsername": {
+                "sshUserName": {
                         "value": "bbadmin"
                 },
                 "dbUsername": {

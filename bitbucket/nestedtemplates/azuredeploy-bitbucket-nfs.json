@@ -37,7 +37,7 @@
                 "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the bitbucketVersion parameter."
             }
         },
-        "adminUsername": {
+        "sshUserName": {
             "type": "string",
             "metadata": {
                 "description": "Username for SSH access to Bitbucket Server nodes as well as for the jumpbox"
@@ -187,13 +187,13 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('vm').nfs.hostname]",
-                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminUsername": "[parameters('sshUserName')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "path": "[concat('/home/', parameters('sshUserName'), '/.ssh/authorized_keys')]",
                                     "keyData": "[parameters('sshKey')]"
                                 }
                             ]

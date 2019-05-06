@@ -42,7 +42,7 @@
                 "description": "Address space for the private subnet with Application Gateways"
             }
         },
-        "adminUsername": {
+        "sshUserName": {
             "type": "string",
             "metadata": {
                 "description": "Username for SSH access to Bitbucket Server nodes as well as for the jumpbox"
@@ -73,13 +73,6 @@
             "defaultValue": "Standard_B1s",
             "metadata": {
                 "description": "The size of jumpbox VM"
-            }
-        },
-        "jumpboxHostname": {
-            "type": "string",
-            "defaultValue": "jumpbox",
-            "metadata": {
-                "description": "The hostname for jumpbox. Does not affect it's DNS name"
             }
         },
         "bbsHttpPort": {
@@ -194,8 +187,7 @@
         },
         "vm": {
             "jumpbox": {
-                "name": "[concat(variables('namespace'), 'jumpbox')]",
-                "hostname": "[parameters('jumpboxHostname')]"
+                "name": "[concat(variables('namespace'), 'jumpbox')]"
             }
         }
     },
@@ -661,13 +653,13 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('vm').jumpbox.name]",
-                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminUsername": "[parameters('sshUserName')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
                                 {
-                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "path": "[concat('/home/', parameters('sshUserName'), '/.ssh/authorized_keys')]",
                                     "keyData": "[parameters('sshKey')]"
                                 }
                             ]
