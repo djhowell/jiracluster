@@ -575,6 +575,27 @@
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
+        },
+        "bbsHazelcastClientId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Client Id for User-assigned Managed Identities."
+            }
+        },
+        "bbsHazelcastClientSecret": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Client Secret for User-assigned Managed Identities."
+            }
+        },
+        "bbsHazelcastTenantId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Tenant Id for User-assigned Managed Identities."
+            }
         }
     },
     "variables": {
@@ -1179,6 +1200,15 @@
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "bbsHazelcastClientId": {
+                        "value": "[parameters('bbsHazelcastClientId')]"
+                    },
+                    "bbsHazelcastClientSecret": {
+                        "value": "[parameters('bbsHazelcastClientSecret')]"
+                    },
+                    "bbsHazelcastTenantId": {
+                        "value": "[parameters('bbsHazelcastTenantId')]"
                     }
                 }
             }

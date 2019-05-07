@@ -411,6 +411,17 @@ server.secure=${secure}
 jmx.enabled=true
 EOT
 
+    # Do we have Hazelcast USMI?
+    if [[ -n ${BBS_HAZELCAST_CLIENT_ID} ]]; then
+        atl_log bbs_prepare_properties "Appending Azure UserAssign Manged Identity Info to props:"
+
+        cat <<EOF >> "${file_temp}"
+hazelcast.network.azure.client.id=${BBS_HAZELCAST_CLIENT_ID}
+hazelcast.network.azure.client.secret=${BBS_HAZELCAST_CLIENT_SECRET}
+hazelcast.network.azure.tenant.id=${BBS_HAZELCAST_TENANT_ID}
+EOF
+    fi
+    
     chown "${BBS_USER}":"${BBS_GROUP}" "${file_temp}"
     sudo -u "${BBS_USER}" mv -n "${file_temp}" "${file_target}"
 

@@ -529,6 +529,27 @@
                 "description": "Workspace SKU Pricing Tier. Options depend upon when Azure Subscription created. If after 2018, use 'PerGB2018' otherwise 'Free'."
             }
         },
+        "bbsHazelcastClientId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Client Id for User-assigned Managed Identities."
+            }
+        },
+        "bbsHazelcastClientSecret": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Client Secret for User-assigned Managed Identities."
+            }
+        },
+        "bbsHazelcastTenantId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Tenant Id for User-assigned Managed Identities."
+            }
+        },
         "enableAnalytics": {
             "type": "bool",
             "defaultValue": true,
@@ -759,6 +780,15 @@
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "bbsHazelcastClientId": {
+                        "value": "[parameters('bbsHazelcastClientId')]"
+                    },
+                    "bbsHazelcastClientSecret": {
+                        "value": "[parameters('bbsHazelcastClientSecret')]"
+                    },
+                    "bbsHazelcastTenantId": {
+                        "value": "[parameters('bbsHazelcastTenantId')]"
                     }
                 }
             }
