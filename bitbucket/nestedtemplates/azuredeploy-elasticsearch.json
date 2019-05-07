@@ -41,6 +41,14 @@
                 "description": "The size of the data disk for elasticsearch in GB."
             }
         },
+        "esVmDiskCount": {
+            "type": "int",
+            "defaultValue": 8,
+            "maxValue": 32,
+            "metadata": {
+                "description": "The requested ElasticSearch Data node disks will be striped for performance. Essentially the desired disk size will be divided by the esVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
+            }
+        },
         "esNodeVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
@@ -207,8 +215,8 @@
             "dataNodesAreMasterEligible": "Yes",
             "dataNodeStorageSettings": {
                 "accountType": "Premium_LRS",
-                "diskSize": "[parameters('esDataDiskSize')]",
-                "dataDisks": 1
+                "diskSize": "[if(greater(div(parameters('esDataDiskSize'), parameters('esVmDiskCount')), 1020), 1020, div(parameters('esDataDiskSize'), parameters('esVmDiskCount')))]",
+                "dataDisks": "[parameters('esVmDiskCount')]"
             },
             "jumpbox": "No",
             "kibana": "No",

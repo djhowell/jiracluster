@@ -111,6 +111,14 @@
                 "description": "The size of the data disk for Git repositories in GB"
             }
         },
+        "nfsVmDiskCount": {
+            "type": "int",
+            "defaultValue": 8,
+            "maxValue": 32,
+            "metadata": {
+                "description": "The requested BitBucket NFS disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
+            }
+        },
         "workspaceId": {
             "type": "string",
             "metadata": {
@@ -210,14 +218,18 @@
                     "osDisk": {
                         "createOption": "FromImage"
                     },
-                    "dataDisks": [
+                    "copy": [
                         {
-                            "lun": 0,
-                            "diskSizeGB": "[parameters('nfsDiskSize')]",
-                            "createOption": "Empty",
-                            "caching": "None",
-                            "managedDisk": {
-                                "storageAccountType": "Premium_LRS"
+                            "name": "dataDisks",
+                            "count": "[parameters('nfsVmDiskCount')]",
+                            "input": {
+                                "lun": "[copyIndex('dataDisks')]",
+                                "caching": "None",
+                                "createOption": "Empty",
+                                "diskSizeGB": "[if(greater(div(parameters('nfsDiskSize'), parameters('nfsVmDiskCount')), 1020), 1020, div(parameters('nfsDiskSize'), parameters('nfsVmDiskCount')))]",
+                                "managedDisk": {
+                                    "storageAccountType": "Premium_LRS"
+                                }
                             }
                         }
                     ]
