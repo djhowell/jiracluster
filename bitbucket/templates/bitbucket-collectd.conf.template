@@ -129,14 +129,15 @@ LoadPlugin swap
 LoadPlugin java
 <Plugin java>
     JVMArg "-verbose:jni"
-    JVMArg "-Djava.class.path=/usr/share/collectd/java/applicationinsights-collectd-2.3.1.jar:/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
+    JVMArg "-Djava.class.path=/usr/share/collectd/java/jaxb-api-2.3.1.jar:/usr/share/collectd/java/applicationinsights-collectd-${APPINSIGHTS_VER}.jar:/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
 
     # Enabling Application Insights plugin
     LoadPlugin "com.microsoft.applicationinsights.collectd.ApplicationInsightsWriter"
 
     # Configuring Application Insights plugin
     <Plugin ApplicationInsightsWriter>
-        InstrumentationKey "b7b86cd5-d9fc-4389-927c-57717040d3ba"
+        InstrumentationKey "${APPINSIGHTS_INSTRUMENTATION_KEY}"
+        SDKLogger true
     </Plugin>
 
     # Collect JMX statistics

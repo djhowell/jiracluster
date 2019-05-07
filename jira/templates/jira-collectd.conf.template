@@ -65,7 +65,7 @@ LoadPlugin users
 
 <Plugin java>
    JVMArg "-verbose:jni"
-   JVMArg "-Djava.class.path=/usr/share/collectd/java/applicationinsights-collectd-${appinsights.ver}.jar:/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
+   JVMArg "-Djava.class.path=/usr/share/collectd/java/jaxb-api-2.3.1.jar:/usr/share/collectd/java/applicationinsights-collectd-${appinsights.ver}.jar:/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
    
    # Enabling Application Insights plugin
    LoadPlugin "com.microsoft.applicationinsights.collectd.ApplicationInsightsWriter"
@@ -73,6 +73,7 @@ LoadPlugin users
    # Configuring Application Insights plugin
    <Plugin ApplicationInsightsWriter>
       InstrumentationKey "${appinsights.instrumentation.key}"
+      SDKLogger true
    </Plugin>
    
    LoadPlugin "org.collectd.java.GenericJMX"
