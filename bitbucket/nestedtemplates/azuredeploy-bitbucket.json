@@ -1212,6 +1212,9 @@
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "blobStorageUri": {
+                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }
