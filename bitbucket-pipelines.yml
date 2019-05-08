@@ -145,7 +145,7 @@ pipelines:
             after-script:
               - VAULT_NAME=$(az backup vault list --resource-group $(cat outputs/resourcegroup) --query '[].name' -otsv)
               - echo "Deleting recovery vault ${VAULT_NAME} first"
-              - az backup vault delete --force --resource-group $(cat outputs/resourcegroup) --name ${VAULT_NAME}
+              - az backup vault delete --force --resource-group $(cat outputs/resourcegroup) --name ${VAULT_NAME} --yes
               - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait              
 
 
