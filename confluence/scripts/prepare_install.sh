@@ -26,7 +26,7 @@ function log {
 
 function error {
   atl_error "${FUNCNAME[1]}" "$1"
-  exit 3
+  exit 1
 }
 
 function tune_tcp_keepalive_for_azure {
@@ -103,6 +103,11 @@ function install_core_dependencies {
   pacapt install --noconfirm netcat
   pacapt install --noconfirm jq
 
+  # If any of the commands fail above due to locks etc it'll fail at one above.
+  if [ "$?" -ne "0" ]; then
+      error "Error downloading core dependencies!"
+  fi
+
   # nc/nmap-ncat needed on RHEL jumpbox for SSH proxying
   [ -n "${IS_REDHAT}" ] && pacapt install --noconfirm java-1.8.0-openjdk-headless nc || pacapt install --noconfirm openjdk-8-jre-headless
 }
@@ -113,10 +118,10 @@ function prepare_password_generator {
 
 function install_password_generator {
   atl_log install_password_generator "Downloading Password Generator Jars"
-  JARS="https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/security/atlassian-password-encoder/3.2.3/atlassian-password-encoder-3.2.3.jar \
+  JARS="https://packages.atlassian.com/mvn/maven-external/com/atlassian/extras/atlassian-extras/3.3.0/atlassian-extras-3.3.0.jar \
 	  http://central.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
 	  http://central.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
-	  https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/extras/atlassian-extras/3.2/atlassian-extras-3.2.jar \
+	  https://packages.atlassian.com/mvn/maven-external/com/atlassian/security/atlassian-password-encoder/3.2.3/atlassian-password-encoder-3.2.3.jar \
     http://central.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
     http://central.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
 
@@ -131,6 +136,9 @@ function install_password_generator {
 
 function run_password_generator {
   jjs -cp atlassian-password-encoder-3.2.3.jar:commons-lang-2.6.jar:commons-codec-1.9.jar:bcprov-jdk15on-1.50.jar generate-password.js -- $1
+  if [ "$?" -ne "0" ]; then
+      error "Error running the password generator!"
+  fi
 }
 
 function prepare_server_id_generator {
@@ -140,7 +148,10 @@ function prepare_server_id_generator {
 }
 
 function generate_server_id {
-  jjs -cp atlassian-extras-3.2.jar generate-serverid.js
+  jjs -cp atlassian-extras-3.3.0.jar generate-serverid.js
+  if [ "$?" -ne "0" ]; then
+      error "Error running the server id generator!"
+  fi
 }
 
 function generate_jwt_keypair {
@@ -822,7 +833,6 @@ function disable_rhel_firewall {
 function preloadDatabase {
   atl_log preloadDatabase  "Preloading new database"
   prepare_password_generator
-  install_password_generator
   prepare_database
   apply_database_dump
   atl_log preloadDatabase "ready to hydrate db dump"
@@ -835,6 +845,7 @@ function prepare_install {
   prepare_share
   download_installer
   preserve_installer
+  install_password_generator
   prepare_server_id_generator
   prepare_jwt_keypair_generator
   hydrate_shared_config
