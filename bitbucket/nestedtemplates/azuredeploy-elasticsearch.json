@@ -154,10 +154,12 @@
         },
         "storageAccessKey": {
             "type": "securestring"
+        },
+        "esLoadBalancerPrivateIp": {
+            "type": "string"
         }
     },
     "variables": {
-        "lbIp": "10.0.5.99",
         "version": "6.5.3",
         "password": {
             "type": "securestring",
@@ -249,7 +251,7 @@
             "name": "[parameters('vNetName')]",
             "resourceGroup": "[resourceGroup().name]",
             "subnet": {
-                "loadbalancerIp": "[variables('lbIp')]",
+                "loadbalancerIp": "[parameters('esLoadBalancerPrivateIp')]",
                 "name": "[parameters('esSubnetName')]"
             }
         }

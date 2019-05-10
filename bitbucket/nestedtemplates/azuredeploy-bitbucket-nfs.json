@@ -157,6 +157,9 @@
         },
         "vaultName": {
             "type": "string"
+        },
+        "esLoadBalancerPrivateIp": {
+            "type": "string"
         }
     },
     "variables": {
@@ -173,6 +176,7 @@
         "env.nfs": [
             "[concat('BBS_VERSION', '=\"', parameters('bitbucketVersion'), '\" ')]",
             "[concat('BBS_CUSTOM_DOWNLOAD_URL', '=\"', parameters('customDownloadUrl'), '\" ')]",
+            "[concat('ES_LOAD_BALANCER_IP', '=\"', parameters('esLoadBalancerPrivateIp'), '\" ')]",
             "[concat('OMS_WORKSPACE_ID', '=\"', parameters('workspaceId'), '\" ')]",
             "[concat('OMS_PRIMARY_KEY', '=\"', parameters('workspacePrimaryKey'), '\" ')]",
             "[concat('OMS_SECONDARY_KEY', '=\"', parameters('workspaceSecondaryKey'), '\" ')]",
