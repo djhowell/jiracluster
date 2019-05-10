@@ -572,6 +572,22 @@ function install_common {
     create_bb_owner
 }
 
+function esbackup_scheduled_job {
+    # Bit of a hack - prob should be Azure lambda
+    cat <<EOF > /usr/local/bin/esbackup
+#!/bin/bash
+curl -i -XPUT -H 'Content-Type:application/json' http://${ES_LOAD_BALANCER_IP}:9200/_snapshot/azureesrepo -d '{ "type" : "azure", "settings": {"compress":true} }'
+curl -i -XPUT -H 'Content-Type:application/json' http://${ES_LOAD_BALANCER_IP}:9200/_snapshot/azureesrepo/bbkupsnapshot-\$(date '+%F_%T')
+EOF
+
+    chmod +x /usr/local/bin/esbackup
+
+    crontab -l > /tmp/$$.crontab.tmp
+    printf '0 * * * * bash /usr/local/bin/esbackup 2>&1\n' >> /tmp/$$.crontab.tmp
+    crontab /tmp/$$.crontab.tmp
+}
+
+
 function install_nfs {
     log "Configuring NFS node..."
 
@@ -586,6 +602,8 @@ function install_nfs {
 
     download_appinsights_jars `pwd`
     install_appinsights_collectd
+
+    esbackup_scheduled_job
     log "Done configuring NFS node!"
 }
 

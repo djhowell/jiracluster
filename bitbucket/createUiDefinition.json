@@ -165,19 +165,6 @@
                         "visible": "[equals('yes', steps('database').hasDatabase)]"
                     },
                     {
-                        "name": "dbSchema",
-                        "label": "Database Schema",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The name of an existing Jira Azure database schema.",
-                        "defaultValue": "bbschema",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z0-9]*$",
-                            "validationMessage": "Expected a database schema"
-                        },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
-                    },
-                    {
                         "name": "dbUsername",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Database Username",
@@ -921,7 +908,6 @@
             "dbDatabase": "[steps('database').dbDatabase]",
             "dbHost": "[steps('database').dbHost]",
             "dbPort": "[steps('database').dbPort]",
-            "dbSchema": "[steps('database').dbSchema]",
             "dbType": "[steps('database').dbType]",
             "sshUserName": "[steps('ssh').username]",
             "sshKey": "[steps('ssh').credentials.sshPublicKey]",
