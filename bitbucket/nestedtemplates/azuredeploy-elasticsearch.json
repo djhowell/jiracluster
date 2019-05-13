@@ -160,6 +160,8 @@
         }
     },
     "variables": {
+        "esLoadBalancerTemplateUri": "[uri(parameters('_artifactsLocation'), concat('elasticsearch/third-party/loadbalancers/internal-lb-resources.json', parameters('_artifactsLocationSasToken')))]",
+        "esUbuntuNodeTemplateUri": "[uri(parameters('_artifactsLocation'), concat('elasticsearch/third-party/settings/ubuntuSettings.json', parameters('_artifactsLocationSasToken')))]",
         "version": "6.5.3",
         "password": {
             "type": "securestring",
@@ -264,7 +266,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), 'elasticsearch/third-party/loadbalancers/internal-lb-resources.json', parameters('_artifactsLocationSasToken'))]",
+                    "uri": "[variables('esLoadBalancerTemplateUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -290,7 +292,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), 'elasticsearch/third-party/settings/ubuntuSettings.json', parameters('_artifactsLocationSasToken'))]",
+                    "uri": "[variables('esUbuntuNodeTemplateUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
