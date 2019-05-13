@@ -109,6 +109,7 @@
         },
         "sshUserName": {
             "type": "string",
+            "defaultValue": "bbadmin",
             "metadata": {
                 "description": "Username for SSH access to Bitbucket Server nodes as well as for the jumpbox"
             }
@@ -311,7 +312,7 @@
             "defaultValue": 8,
             "maxValue": 32,
             "metadata": {
-                "description": "The requested BitBucket Node disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The clusterVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
+                "description": "The requested BitBucket Node disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The bbsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
             }
         },
         "nfsVmSize": {
@@ -403,7 +404,7 @@
             "defaultValue": 8,
             "maxValue": 32,
             "metadata": {
-                "description": "The requested ElasticSearch Data node disks will be striped for performance. Essentially the desired disk size will be divided by the esVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
+                "description": "The requested ElasticSearch Data node disks will be striped for performance. Essentially the desired disk size will be divided by the esVmDiskCount and can't exceed 1023 GB. The esVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
             }
         },
         "esNodeVmSize": {
