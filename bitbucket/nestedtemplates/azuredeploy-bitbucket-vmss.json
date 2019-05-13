@@ -4,7 +4,6 @@
     "parameters": {
         "location": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "Azure region (WestUS, CentralUs, AustraliaEast, etc) shared by all of the resources in the template"
             }
@@ -144,13 +143,6 @@
             "defaultValue": "HAZELCAST",
             "metadata": {
                 "description": "Hazelcast tag for nodes in Bitbucket Server cluster"
-            }
-        },
-        "license": {
-            "type": "securestring",
-            "defaultValue": "AAABpg0ODAoPeNp1kUtP20AUhff+FVfqLtI4DkkgRLLUYA+UqtiR7SzawmLiXPBQe8aaR9r013ewDYG2LGZzH2fO+e6HorKQyD0ECwhmy/lsOZ3D1U0BJ8Fk4SW22aJK7zcalQ7JxIukMKw0CWswfDSVbJj+yEzNtOZM+KVsPG2YrvwvvEShsTi02M3mxSoraPZv96WztqqsmMaYGQyfPieTCQkW3ntKQ53+ark6dEvr6fT007NDesN4/Y7FHNUe1XUcXtAzSmbxtxNymn4+I1fT88Xg0AmyCIVBFRpl0cvtVpeKt4ZL0VdGo1GSFuQyzcg6S+NNVFynCdnk1DXCSKFztIPtAUyFMHgFKkq5QwWtko9YGvheGdPeLsfjB+m/sTiu+w2C/cadD7EEIQ3suDaKb61Bp8w1GAml1UY27kC+50I7z4KJ8jUYR/N8oNmnc3z4Hl9yRBldFTQmF1+fvP+f2RDBQduIH0L+FF5Ok9A9Mg8CL1UPTHDNOjyr31YhxNjW8tA4hl5Hw3X+Pm2MR6Z0z2rbTcGQHe6lgl5rd9Q6zvX2/wDFKfAUMCsCFH8cSCeQYWgwBdkxpTeUqGiTfg2qAhNxOHcjUrs7UMuuXFQw4T4+mxFqX02k8",
-            "metadata": {
-                "description": "Bitbucket Data Center 14 days evaluation license."
             }
         },
         "bitbucketAdminUsername": {
@@ -293,6 +285,7 @@
         },
         "username": "[if(equals(parameters('bitbucketAdminUsername'),'ssh'), parameters('sshUserName'), parameters('bitbucketAdminUsername'))]",
         "jdbcDriver": "[if(equals(parameters('dbType'), 'sqlserver'), 'com.microsoft.sqlserver.jdbc.SQLServerDriver', 'org.postgresql.Driver')]",
+        "license": "AAABpg0ODAoPeNp1kUtP20AUhff+FVfqLtI4DkkgRLLUYA+UqtiR7SzawmLiXPBQe8aaR9r013ewDYG2LGZzH2fO+e6HorKQyD0ECwhmy/lsOZ3D1U0BJ8Fk4SW22aJK7zcalQ7JxIukMKw0CWswfDSVbJj+yEzNtOZM+KVsPG2YrvwvvEShsTi02M3mxSoraPZv96WztqqsmMaYGQyfPieTCQkW3ntKQ53+ark6dEvr6fT007NDesN4/Y7FHNUe1XUcXtAzSmbxtxNymn4+I1fT88Xg0AmyCIVBFRpl0cvtVpeKt4ZL0VdGo1GSFuQyzcg6S+NNVFynCdnk1DXCSKFztIPtAUyFMHgFKkq5QwWtko9YGvheGdPeLsfjB+m/sTiu+w2C/cadD7EEIQ3suDaKb61Bp8w1GAml1UY27kC+50I7z4KJ8jUYR/N8oNmnc3z4Hl9yRBldFTQmF1+fvP+f2RDBQduIH0L+FF5Ok9A9Mg8CL1UPTHDNOjyr31YhxNjW8tA4hl5Hw3X+Pm2MR6Z0z2rbTcGQHe6lgl5rd9Q6zvX2/wDFKfAUMCsCFH8cSCeQYWgwBdkxpTeUqGiTfg2qAhNxOHcjUrs7UMuuXFQw4T4+mxFqX02k8",
         "env": {
             "SQL": [
                 "[concat('SQL_PASS', '=\"', parameters('dbPassword'), '\" ')]",
@@ -307,7 +300,7 @@
                 "[concat('BBS_PASS', '=\"', parameters('bitbucketAdminPassword'), '\" ')]",
                 "[concat('BBS_NAME', '=\"', parameters('bitbucketAdminFullName'), '\" ')]",
                 "[concat('BBS_EMAIL', '=\"', parameters('bitbucketAdminEmail'), '\" ')]",
-                "[concat('BBS_LICENSE', '=\"', parameters('license'), '\" ')]",
+                "[concat('BBS_LICENSE', '=\"', variables('license'), '\" ')]",
                 "[concat('BBS_HAZELCAST_PORT', '=\"', parameters('bbsHazelcastPort'), '\" ')]",
                 "[concat('BBS_HAZELCAST_CLUSTER_ID', '=\"', parameters('bbsHazelcastTag'), '\" ')]",
                 "[concat('BBS_HAZELCAST_GROUP_NAME', '=\"', resourceGroup().name, '\" ')]",

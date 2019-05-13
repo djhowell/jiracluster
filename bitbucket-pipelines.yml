@@ -39,7 +39,7 @@ pipelines:
               AZURE_LOCATION: $AZURE_LOCATION
               AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
               AZURE_DEPLOYMENT_MODE: 'Complete'
-              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/azuredeploy.json'
+              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/mainTemplate.json'
               AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/azuredeploy.parameters.json --parameters @jumpboxParam.json'
           
           # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping
@@ -85,7 +85,7 @@ pipelines:
               AZURE_LOCATION: $AZURE_LOCATION
               AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
               AZURE_DEPLOYMENT_MODE: 'Complete'
-              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/azuredeploy.json'
+              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/mainTemplate.json'
               AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/azuredeploy.parameters.json --parameters @jumpboxParam.json'
           
           # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping
@@ -130,7 +130,7 @@ pipelines:
                   AZURE_LOCATION: $AZURE_LOCATION
                   AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
                   AZURE_DEPLOYMENT_MODE: 'Complete'
-                  AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/azuredeploy.json'
+                  AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/mainTemplate.json'
                   AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/azuredeploy.parameters.json --parameters @jumpboxParam.json'
               
               # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping

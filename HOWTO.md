@@ -1,6 +1,6 @@
 # Deployment customizations
 
-The [Jira Software](jira/azuredeploy.json), [Jira Service Desk](servicedesk/azuredeploy.json), and [Confluence](confluence/azuredeploy.json) templates in this repository provide common parameters for customizing your deployment.
+The [Jira Software](jira/mainTemplate.json), [Jira Service Desk](servicedesk/mainTemplate.json), and [Confluence](confluence/mainTemplate.json) templates in this repository provide common parameters for customizing your deployment.
 
 ## Basic customizations
 
