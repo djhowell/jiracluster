@@ -90,7 +90,7 @@ function publish (prepareResources = () => {}, processResources = () => {}, flat
   prepareResources(pkg)
 
   shell.cp(
-    path.resolve(pkg.source, 'azuredeploy.json'),
+    path.resolve(pkg.source, 'mainTemplate.json'),
     path.resolve(pkg.target, MAIN_TEMPLATE_NAME))
   shell.cp(
     path.resolve(pkg.source, 'createUIDefinition.json'),
@@ -133,7 +133,7 @@ function getDeploymentParametersPath () {
 }
 
 function getDeploymentPath () {
-  return path.join(__dirname, product(), 'azuredeploy.json')
+  return path.join(__dirname, product(), 'mainTemplate.json')
 }
 
 function applyTasks (gulp) {

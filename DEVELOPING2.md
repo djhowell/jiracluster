@@ -130,7 +130,7 @@ cd ~/git/atlassian-azure-deployment/jira
 
 ```
 az group create --resource-group mydeployresourcegroup --location canadacentral
-~/atlassian/bin/azupload && az group deployment create --resource-group mydeployresourcegroup --template-file azuredeploy.json --parameters ~/atlassian/templates/myparameterstemplate.json
+~/atlassian/bin/azupload && az group deployment create --resource-group mydeployresourcegroup --template-file mainTemplate.json --parameters ~/atlassian/templates/myparameterstemplate.json
 ```
 
 ## Deleting a Deployment  
