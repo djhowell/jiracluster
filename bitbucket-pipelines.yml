@@ -49,6 +49,9 @@ pipelines:
           - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
           - echo "Testing app heartbeat at $APP_ENDPOINT/status"
           - curl -isSf --retry 5 --retry-connrefused $APP_ENDPOINT/status
+          
+          # Hit API to ensure user is configured correctly
+          - curl -isSf --retry 5 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/2/project
         artifacts:
           - outputs/**
         after-script:
@@ -95,6 +98,9 @@ pipelines:
           - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
           - echo "Testing app heartbeat at $APP_ENDPOINT/status"
           - curl -isSf --retry 5 --retry-connrefused $APP_ENDPOINT/status
+          
+          # Hit API to ensure user is configured correctly
+          - curl -isSf --retry 5 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/space
         artifacts:
           - outputs/**
         after-script:
@@ -140,6 +146,9 @@ pipelines:
               - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
               - echo "Testing app heartbeat at $APP_ENDPOINT/status"
               - curl -isSf --retry 5 --retry-connrefused $APP_ENDPOINT/status
+              
+              # Hit API to ensure user is configured correctly
+              - curl -isSf --retry 5 --retry-connrefused -u bbadmin:admin $APP_ENDPOINT/rest/api/1.0/projects
             artifacts:
               - outputs/**
             after-script:
