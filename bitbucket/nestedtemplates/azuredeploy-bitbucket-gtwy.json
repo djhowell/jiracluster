@@ -197,7 +197,7 @@
                             "CookieBasedAffinity": "Enabled",
                             "pickHostNameFromBackendAddress": false,
                             "affinityCookieName": "AZURESESSIONID",
-                            "requestTimeout": 360
+                            "requestTimeout": 1800
                         }
                     }
                 ],
@@ -379,7 +379,7 @@
                             "CookieBasedAffinity": "Enabled",
                             "pickHostNameFromBackendAddress": false,
                             "affinityCookieName": "AZURESESSIONID",
-                            "requestTimeout": 360
+                            "requestTimeout": 1800
                         },
                         "type": "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
                     }
