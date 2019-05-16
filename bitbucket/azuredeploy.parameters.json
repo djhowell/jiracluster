@@ -14,6 +14,9 @@
                 "dbUsername": {
                         "value": "bbsqluser"
                 },
+                "bitbucketAdminUserName": {
+                        "value": "bbadmin"
+                },
                 "dbPassword": {
                         "value": "P@55w0rd"
                 },

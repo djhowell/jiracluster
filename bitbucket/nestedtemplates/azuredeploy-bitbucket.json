@@ -1031,7 +1031,7 @@
         {
             "name": "elasticSearchTemplate",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2018-05-01",
             "dependsOn": [
                 "[concat('Microsoft.Storage/storageAccounts/', variables('storage').name)]"
             ],

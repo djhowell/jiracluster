@@ -79,7 +79,6 @@
         },
         "bitbucketAdminUserName": {
             "type": "string",
-            "defaultValue": "bbadmin",
             "minLength": 5,
             "metadata": {
                 "description": "Username for Bitbucket Server administrator user."
@@ -109,7 +108,6 @@
         },
         "sshUserName": {
             "type": "string",
-            "defaultValue": "bbadmin",
             "metadata": {
                 "description": "Username for SSH access to Bitbucket Server nodes as well as for the jumpbox"
             }
