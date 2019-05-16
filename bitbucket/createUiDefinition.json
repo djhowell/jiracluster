@@ -210,7 +210,6 @@
                             "required": true,
                             "validationMessage": "You must specify an SSH username"
                         },
-                        "defaultValue": "bbadmin",
                         "osPlatform": "Linux"
                     },
                     {

@@ -185,7 +185,7 @@
         {
             "name": "[variables('sql').server.name]",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2017-03-01-preview",
+            "apiVersion": "2018-06-01-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "administratorLogin": "[variables('sql').server.username]",
