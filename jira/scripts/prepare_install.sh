@@ -101,7 +101,11 @@ function install_redhat_epel_if_needed {
 }
 
 function install_core_dependencies {
+  # Seeing consistent issues on Azure where apt/yum not get full list of azure repos and then not able to install dependencies.
   pacapt update --noconfirm
+  sleep 5
+  pacapt update --noconfirm
+
   # Packages done on different lines as yum command will fail if unknown package defined. Some future proofing.
   pacapt install --noconfirm cifs-utils
   pacapt install --noconfirm curl
