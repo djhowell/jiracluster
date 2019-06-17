@@ -67,7 +67,7 @@
     },
     "variables": {
         "dbName": "[split(parameters('dbServerName'),'.')[0]]",
-        "mssqlJdbcUrl": "[concat('jdbc:', parameters('dbType'), '://', parameters('dbServerName'), ':', parameters('dbPort'), ';database=', parameters('dbDatabaseName'), ';encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;')]",
+        "mssqlJdbcUrl": "[concat('jdbc:', parameters('dbType'), '://', parameters('dbServerName'), ':', parameters('dbPort'), ';database=', parameters('dbDatabaseName'))]",
         "postgresJdbcUrl": "[concat('jdbc:postgresql://', parameters('dbServerName'), ':', parameters('dbPort'), '/', parameters('dbDatabaseName'), '&ssl=true')]"
     },
     "resources": [

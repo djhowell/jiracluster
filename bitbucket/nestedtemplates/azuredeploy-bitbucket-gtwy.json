@@ -4,7 +4,6 @@
     "parameters": {
         "location": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "Azure region (WestUS, CentralUs, AustraliaEast, etc) shared by all of the resources in the template"
             }
@@ -198,7 +197,7 @@
                             "CookieBasedAffinity": "Enabled",
                             "pickHostNameFromBackendAddress": false,
                             "affinityCookieName": "AZURESESSIONID",
-                            "requestTimeout": 30
+                            "requestTimeout": 1800
                         }
                     }
                 ],
@@ -380,7 +379,7 @@
                             "CookieBasedAffinity": "Enabled",
                             "pickHostNameFromBackendAddress": false,
                             "affinityCookieName": "AZURESESSIONID",
-                            "requestTimeout": 30
+                            "requestTimeout": 1800
                         },
                         "type": "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
                     }

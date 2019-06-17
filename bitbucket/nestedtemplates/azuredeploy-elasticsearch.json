@@ -154,10 +154,14 @@
         },
         "storageAccessKey": {
             "type": "securestring"
+        },
+        "esLoadBalancerPrivateIp": {
+            "type": "string"
         }
     },
     "variables": {
-        "lbIp": "10.0.5.99",
+        "esLoadBalancerTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/third-party/loadbalancers/internal-lb-resources.json', parameters('_artifactsLocationSasToken')))]",
+        "esUbuntuNodeTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/third-party/settings/ubuntuSettings.json', parameters('_artifactsLocationSasToken')))]",
         "version": "6.5.3",
         "password": {
             "type": "securestring",
@@ -249,7 +253,7 @@
             "name": "[parameters('vNetName')]",
             "resourceGroup": "[resourceGroup().name]",
             "subnet": {
-                "loadbalancerIp": "[variables('lbIp')]",
+                "loadbalancerIp": "[parameters('esLoadBalancerPrivateIp')]",
                 "name": "[parameters('esSubnetName')]"
             }
         }
@@ -258,11 +262,11 @@
         {
             "name": "esLoadBalancerTemplate",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2018-05-01",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), 'elasticsearch/third-party/loadbalancers/internal-lb-resources.json', parameters('_artifactsLocationSasToken'))]",
+                    "uri": "[variables('esLoadBalancerTemplateUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -281,14 +285,14 @@
         {
             "name": "esNodeTemplate",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
+            "apiVersion": "2018-05-01",
             "dependsOn": [
                 "esLoadBalancerTemplate"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('_artifactsLocation'), 'elasticsearch/third-party/settings/ubuntuSettings.json', parameters('_artifactsLocationSasToken'))]",
+                    "uri": "[variables('esUbuntuNodeTemplateUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

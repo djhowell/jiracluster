@@ -141,15 +141,7 @@
                         "name": "BBEmailAction_-EmailAction-",
                         "emailAddress": "[parameters('adminUserEmail')]"
                     }
-                ],
-                "smsReceivers": [],
-                "webhookReceivers": [],
-                "itsmReceivers": [],
-                "azureAppPushReceivers": [],
-                "automationRunbookReceivers": [],
-                "voiceReceivers": [],
-                "logicAppReceivers": [],
-                "azureFunctionReceivers": []
+                ]
             }
         },
         {

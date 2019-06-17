@@ -62,7 +62,7 @@ function create_bb_owner {
 
 function prepare_datadisks {
   log "Preparing data disks, striping, adding to fstab"
-  ./vm-disk-utils-0.1.sh -b "/datadisks" -o "noatime,nodiratime,nodev,noexec,nosuid,nofail,barrier=0"
+  ./vm-disk-utils-0.1.sh -b "/datadisks" -o "noatime,nodiratime,nodev,noexec,nosuid,nofail,barrier=0" -s
   log "Done preparing and configuring data disks"
 }
 
@@ -583,6 +583,22 @@ function install_common {
     create_bb_owner
 }
 
+function esbackup_scheduled_job {
+    # Bit of a hack - prob should be Azure lambda
+    cat <<EOF > /usr/local/bin/esbackup
+#!/bin/bash
+curl -i -XPUT -H 'Content-Type:application/json' http://${ES_LOAD_BALANCER_IP}:9200/_snapshot/azureesrepo -d '{ "type" : "azure", "settings": {"compress":true} }'
+curl -i -XPUT -H 'Content-Type:application/json' http://${ES_LOAD_BALANCER_IP}:9200/_snapshot/azureesrepo/bbkupsnapshot-\$(date '+%F_%T')
+EOF
+
+    chmod +x /usr/local/bin/esbackup
+
+    crontab -l > /tmp/$$.crontab.tmp
+    printf '0 * * * * bash /usr/local/bin/esbackup 2>&1\n' >> /tmp/$$.crontab.tmp
+    crontab /tmp/$$.crontab.tmp
+}
+
+
 function install_nfs {
     log "Configuring NFS node..."
 
@@ -597,6 +613,8 @@ function install_nfs {
 
     download_appinsights_jars `pwd`
     install_appinsights_collectd
+
+    esbackup_scheduled_job
     log "Done configuring NFS node!"
 }
 
@@ -666,7 +684,11 @@ function install_redhat_epel_if_needed {
 }
 
 function install_core_dependencies {
+  # Seeing consistent issues on Azure where apt/yum not get full list of azure repos and then not able to install dependencies.
   pacapt update --noconfirm
+  sleep 5
+  pacapt update --noconfirm
+  
   # Packages done on different lines as yum command will fail if unknown package defined. Some future proofing.
   pacapt install --noconfirm cifs-utils
   pacapt install --noconfirm nfs-utils

@@ -39,7 +39,7 @@ pipelines:
               AZURE_LOCATION: $AZURE_LOCATION
               AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
               AZURE_DEPLOYMENT_MODE: 'Complete'
-              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/azuredeploy.json'
+              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/mainTemplate.json'
               AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/azuredeploy.parameters.json --parameters @jumpboxParam.json'
           
           # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping
@@ -49,6 +49,9 @@ pipelines:
           - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
           - echo "Testing app heartbeat at $APP_ENDPOINT/status"
           - curl -isSf --retry 5 --retry-connrefused $APP_ENDPOINT/status
+          
+          # Hit API to ensure user is configured correctly
+          - curl -isSf --retry 5 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/2/project
         artifacts:
           - outputs/**
         after-script:
@@ -85,7 +88,7 @@ pipelines:
               AZURE_LOCATION: $AZURE_LOCATION
               AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
               AZURE_DEPLOYMENT_MODE: 'Complete'
-              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/azuredeploy.json'
+              AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/mainTemplate.json'
               AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/azuredeploy.parameters.json --parameters @jumpboxParam.json'
           
           # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping
@@ -95,6 +98,9 @@ pipelines:
           - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
           - echo "Testing app heartbeat at $APP_ENDPOINT/status"
           - curl -isSf --retry 5 --retry-connrefused $APP_ENDPOINT/status
+          
+          # Hit API to ensure user is configured correctly
+          - curl -isSf --retry 5 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/space
         artifacts:
           - outputs/**
         after-script:
@@ -130,7 +136,7 @@ pipelines:
                   AZURE_LOCATION: $AZURE_LOCATION
                   AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
                   AZURE_DEPLOYMENT_MODE: 'Complete'
-                  AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/azuredeploy.json'
+                  AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/mainTemplate.json'
                   AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/azuredeploy.parameters.json --parameters @jumpboxParam.json'
               
               # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping
@@ -140,9 +146,15 @@ pipelines:
               - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
               - echo "Testing app heartbeat at $APP_ENDPOINT/status"
               - curl -isSf --retry 5 --retry-connrefused $APP_ENDPOINT/status
+              
+              # Hit API to ensure user is configured correctly
+              - curl -isSf --retry 5 --retry-connrefused -u bbadmin:admin $APP_ENDPOINT/rest/api/1.0/projects
             artifacts:
               - outputs/**
             after-script:
+              - VAULT_NAME=$(az backup vault list --resource-group $(cat outputs/resourcegroup) --query '[].name' -otsv)
+              - echo "Deleting recovery vault ${VAULT_NAME} first"
+              - az backup vault delete --force --resource-group $(cat outputs/resourcegroup) --name ${VAULT_NAME} --yes
               - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait              
 
 
