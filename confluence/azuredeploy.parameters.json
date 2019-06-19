@@ -5,11 +5,11 @@
         "confClusterSize": {
             "value": "small"
         },
-        "clusterSshPassword": {
-            "value": "CONFLUENCE@dmin"
-        },
         "dbPassword": {
             "value": ".Jkv435jxaDKL2345KA7YpbLyWJLPmocWx43rcn69"
+        },
+        "sshUserName": {
+            "value": "confluenceadmin"
         },
         "confAdminUserPassword": {
             "value": "admin"

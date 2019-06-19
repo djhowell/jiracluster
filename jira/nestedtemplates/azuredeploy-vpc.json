@@ -16,14 +16,14 @@
                 "description": "The size of the virtual machine to use for the Jumpbox."
             }
         },
-        "jumpboxSshKey": {
+        "sshKey": {
             "type": "string",
             "metadata": {
                 "description": "The SSH public key to use to access the Jumpbox."
             },
             "minLength": 300
         },
-        "jumpboxSshUser": {
+        "sshUserName": {
             "type": "string",
             "defaultValue": "jiraadmin",
             "metadata": {
@@ -74,8 +74,8 @@
             },
             "vm": {
                 "size": "[parameters('jumpboxVmSize')]",
-                "user": "[parameters('jumpboxSshUser')]",
-                "key": "[parameters('jumpboxSshKey')]",
+                "user": "[parameters('sshUserName')]",
+                "key": "[parameters('sshKey')]",
                 "image": {
                     "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
                     "offer": "[split(parameters('linuxOsType'), ':')[1]]",

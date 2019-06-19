@@ -641,7 +641,7 @@
             "type": "Microsoft.Common.Section",
             "elements": [
               {
-                "name": "jumpboxSshKey",
+                "name": "sshKey",
                 "type": "Microsoft.Compute.CredentialsCombo",
                 "label": {
                   "authenticationType": "Authentication type",
@@ -676,26 +676,11 @@
                 "label": "Node SSH Username",
                 "type": "Microsoft.Compute.UserNameTextBox",
                 "toolTip": "The SSH username to use to access the Jira nodes from the Jumpbox. Note that this is the only way to access the Jira nodes.",
-                "defaultValue": "jiraadmin",
                 "constraints": {
                   "required": true,
                   "validationMessage": "You must specify a username."
                 },
                 "osPlatform": "Linux"
-              },
-              {
-                "name": "nodePassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Node SSH Password",
-                  "confirmPassword": "Confirm Node SSH Password"
-                },
-                "toolTip": "The SSH password of the SSH user needed to access the Jira nodes from the Jumpbox.",
-                "constraints": {
-                  "required": true,
-                  "regex": "^(?=.*[A-Z])(?=.*[!@#$%])(?=.*[0-9])(?=.*[a-z]).{6,72}$",
-                  "validationMessage": "This password must be between 6 and 72 characters long, and must contain at least one uppercase letter, one lowercase letter, one number (0-9), and one non-alphanumeric character (!, $, #, %, etc.)."
-                }
               }
             ]
           }
@@ -975,9 +960,8 @@
       "dbPort": "[steps('database').dbPort]",
       "dbSchema": "[steps('database').dbSchema]",
       "dbType": "[steps('database').dbType]",
-      "jumpboxSshKey": "[steps('ssh').jumpboxSshSection.jumpboxSshKey.sshPublicKey]",
-      "clusterSshUser": "[steps('ssh').nodeSshSection.nodeUsername]",
-      "clusterSshPassword": "[steps('ssh').nodeSshSection.nodePassword]",
+      "sshKey": "[steps('ssh').jumpboxSshSection.sshKey.sshPublicKey]",
+      "sshUserName": "[steps('ssh').nodeSshSection.nodeUsername]",
       "cname": "[steps('domain').cnameSection.cname]",
       "sslBase64EncodedPfxCertificate": "[steps('domain').sslSection.sslBase64EncodedPfxCertificate]",
       "sslPfxCertificatePassword": "[steps('domain').sslSection.sslPfxCertificatePassword]",
