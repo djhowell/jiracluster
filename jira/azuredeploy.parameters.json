@@ -11,11 +11,11 @@
         "_artifactsLocationSasToken": {
             "value": ""
         },
+        "sshUserName": {
+            "value": "jiraadmin"
+        },
         "jiraClusterSize": {
             "value": "small"
-        },
-        "clusterSshPassword": {
-            "value": "JIRA@dmin"
         },
         "dbPassword": {
             "value": "P@55w0rd"

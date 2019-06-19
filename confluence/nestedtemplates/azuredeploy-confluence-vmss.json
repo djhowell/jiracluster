@@ -62,17 +62,18 @@
                 "description": "The size of the virtual machine used for each Confluence node."
             }
         },
-        "clusterSshUser": {
+        "sshKey": {
+            "type": "string",
+            "metadata": {
+                "description": "The SSH public key to use to access the Jumpbox."
+            },
+            "minLength": 300
+        },
+        "sshUserName": {
             "type": "string",
             "defaultValue": "confadmin",
             "metadata": {
                 "description": "The username used to SSH into each Confluence node from the jumpbox."
-            }
-        },
-        "clusterSshPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The password used to SSH into each Confluence node from the jumpbox."
             }
         },
         "dbPort": {
@@ -365,8 +366,6 @@
                 "capacity": "[parameters('clusterSize')]",
                 "vm": {
                     "size": "[parameters('clusterVmSize')]",
-                    "user": "[parameters('clusterSshUser')]",
-                    "pass": "[parameters('clusterSshPassword')]",
                     "image": {
                         "publisher": "[split(parameters('linuxOsType'), ':')[0]]",
                         "offer": "[split(parameters('linuxOsType'), ':')[1]]",
@@ -573,7 +572,7 @@
                 },
                 {
                     "name": "SERVER_SSH_USER",
-                    "value": "[parameters('clusterSshUser')]"
+                    "value": "[parameters('sshUserName')]"
                 },
                 {
                     "name": "APPINSIGHTS_VER",
@@ -780,10 +779,17 @@
                 "virtualMachineProfile": {
                     "osProfile": {
                         "computerNamePrefix": "confluencenode-",
-                        "adminUsername": "[variables('confluence').cluster.vm.user]",
-                        "adminPassword": "[variables('confluence').cluster.vm.pass]",
+                        "adminUsername": "[parameters('sshUserName')]",
                         "linuxConfiguration": {
-                            "disablePasswordAuthentication": false
+                            "disablePasswordAuthentication": true,
+                            "ssh": {
+                                "publicKeys": [
+                                    {
+                                        "path": "[concat('/home/', parameters('sshUserName'), '/.ssh/authorized_keys')]",
+                                        "keyData": "[parameters('sshKey')]"
+                                    }
+                                ]
+                            }
                         }
                     },
                     "storageProfile": {

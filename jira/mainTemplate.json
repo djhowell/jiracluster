@@ -110,12 +110,19 @@
                 "description": "The password of the certificate for SSL termination on the Azure Application Gateway."
             }
         },
-        "jumpboxSshKey": {
+        "sshKey": {
             "type": "string",
             "metadata": {
                 "description": "The SSH public key to use to access the Jumpbox."
             },
             "minLength": 300
+        },
+        "sshUserName": {
+            "type": "string",
+            "minLength": 5,
+            "metadata": {
+                "description": "The SSH username to use to access the Jira nodes from the Jumpbox. Note that access to the Jira nodes can only be made in this way."
+            }
         },
         "jiraAdminUserName": {
             "type": "string",
@@ -154,27 +161,6 @@
             "metadata": {
                 "description": "The name of the Jira site."
             }
-        },
-        "jumpboxSshUser": {
-            "type": "string",
-            "defaultValue": "jiraadmin",
-            "metadata": {
-                "description": "The username used to SSH into the jumpbox."
-            }
-        },
-        "clusterSshUser": {
-            "type": "string",
-            "defaultValue": "jiraadmin",
-            "metadata": {
-                "description": "The SSH username to use to access the Jira nodes from the Jumpbox. Note that access to the Jira nodes can only be made in this way."
-            }
-        },
-        "clusterSshPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The SSH password of the SSH user needed to access the Jira nodes from the Jumpbox."
-            },
-            "minLength": 5
         },
         "dbHost": {
             "type": "string",
@@ -608,11 +594,11 @@
                     "jumpboxVmSize": {
                         "value": "[if(variables('isJiraClusterSizeUsed'), variables('clusterLookup').jumpboxVmSize[parameters('jiraClusterSize')], parameters('jumpboxVmSize'))]"
                     },
-                    "jumpboxSshKey": {
-                        "value": "[parameters('jumpboxSshKey')]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
                     },
-                    "jumpboxSshUser": {
-                        "value": "[parameters('jumpboxSshUser')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
@@ -688,11 +674,11 @@
                     "jiraAppTitle": {
                         "value": "[parameters('jiraAppTitle')]"
                     },
-                    "clusterSshUser": {
-                        "value": "[parameters('clusterSshUser')]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
                     },
-                    "clusterSshPassword": {
-                        "value": "[parameters('clusterSshPassword')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "cname": {
                         "value": "[if(greater(length(parameters('cname')), 0), concat(if(variables('isJiraProduct'), 'jira.', 'servicedesk.'), parameters('cname')), parameters('cname'))]"

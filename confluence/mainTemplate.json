@@ -99,12 +99,19 @@
                 "description": "The certificate password to be used for SSL termination on the Azure Application Gateway."
             }
         },
-        "jumpboxSshKey": {
+        "sshKey": {
             "type": "string",
             "metadata": {
                 "description": "The SSH public key to use to access the Jumpbox."
             },
             "minLength": 300
+        },
+        "sshUserName": {
+            "type": "string",
+            "minLength": 5,
+            "metadata": {
+                "description": "The SSH username to use to access the Confluence nodes from the Jumpbox. Note that access to the Confluence nodes can only be made in this way."
+            }
         },
         "confAdminUserName": {
             "type": "string",
@@ -143,27 +150,6 @@
             "metadata": {
                 "description": "The name of the Confluence site."
             }
-        },
-        "jumpboxSshUser": {
-            "type": "string",
-            "defaultValue": "confluenceadmin",
-            "metadata": {
-                "description": "The username used to SSH into the Jumpbox."
-            }
-        },
-        "clusterSshUser": {
-            "type": "string",
-            "defaultValue": "confluenceadmin",
-            "metadata": {
-                "description": "The SSH username to use to access the Confluence nodes from the Jumpbox. Note that access to the Confluence nodes can only be made in this way."
-            }
-        },
-        "clusterSshPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The SSH password of the SSH user needed to access the Confluence nodes from the Jumpbox."
-            },
-            "minLength": 5
         },
         "dbHost": {
             "type": "string",
@@ -610,11 +596,11 @@
                     "jumpboxVmSize": {
                         "value": "[if(variables('isConfClusterSizeUsed'), variables('clusterLookup').jumpboxVmSize[parameters('confClusterSize')], parameters('jumpboxVmSize'))]"
                     },
-                    "jumpboxSshKey": {
-                        "value": "[parameters('jumpboxSshKey')]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
                     },
-                    "jumpboxSshUser": {
-                        "value": "[parameters('jumpboxSshUser')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
@@ -663,11 +649,11 @@
                     "appGtwyTier": {
                         "value": "[if(variables('isConfClusterSizeUsed'), variables('clusterLookup').appGtwyTier[parameters('confClusterSize')], parameters('appGtwyTier'))]"
                     },
-                    "clusterSshUser": {
-                        "value": "[parameters('clusterSshUser')]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
                     },
-                    "clusterSshPassword": {
-                        "value": "[parameters('clusterSshPassword')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "dbCreateNew": {
                         "value": "[parameters('dbCreateNew')]"
