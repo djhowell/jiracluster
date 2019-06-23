@@ -52,25 +52,15 @@ If you prefer a more customized deployment, you're welcome to use the templates 
 Both methods contain recommendations for overriding default deployment configurations through a _custom parameters template_. You can review the `mainTemplate.json` file in each product directory to see what parameters you can override to customize your deployment.
 
 ### Jumpbox SSH Key configuration
-Regardless of what you're installing, you'll *always* need to specify your _jumpbox key_. Do this through the `jumpboxSshKey` parameter (for all products except Bitbucket). This will allow you to connect via SSH to the jumpbox/bastion node (and then onto the cluster nodes). This key is your device's SSH public key (normally found at `~/.ssh/id_rsa.pub`). Cut/paste this value into the `jumpboxSshKey` parameter of your custom parameters template, like so:
+Regardless of what you're installing, you'll *always* need to specify your _jumpbox SSH key_. Do this through the `sshKey` parameter. This will allow you to connect via SSH to the jumpbox/bastion node (and then onto the cluster nodes). This key is your device's SSH public key (normally found at `~/.ssh/id_rsa.pub`). Cut/paste this value into the `sshKey` parameter of your custom parameters template, like so:
 ```
     {
         "parameters": {
-            "jumpboxSshKey": {
+            "sshKey": {
                 "value": "ssh-rsa AAAAo2D7KUiFoodDCJ4VhimXqG..."
             }
         }
     }
-```
-With Bitbucket, it's slightly different. Set your jumpbox key through `sshKey` instead of `jumpboxSshKey`:
-```
-{
-    "parameters": {
-        "sshKey": {
-            "value": "ssh-rsa AAAAo2D7KUiFoodDCJ4VhimXqG..."
-        }
-    }
-}
 ```
 
 ### Deployment customizations

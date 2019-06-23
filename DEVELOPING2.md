@@ -83,7 +83,7 @@ Before you can use your parameters template in a deployment, open it first and u
 
 * `_artifactsLocationSasToken`: the SAS token you generated in step 3.
 
-* `jumpboxSshKey`: your SSH public key (for example, `~/.ssh/id_rsa.pub`).
+* `sshKey`: your SSH public key (for example, `~/.ssh/id_rsa.pub`).
 
 For example:
 ```
@@ -103,16 +103,13 @@ For example:
         "jiraClusterSize": {
             "value": "small"
         },
-        "clusterSshPassword": {
-            "value": "JIRA@dmin"
-        },
         "dbPassword": {
             "value": "P@55w0rd"
         },
         "jiraAdminUserPassword": {
             "value": "admin"
         }
-        "jumpboxSshKey": {
+        "sshKey": {
                 "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABA...."
         }
     }

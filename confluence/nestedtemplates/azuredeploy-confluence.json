@@ -113,19 +113,19 @@
                 "description": "The name of the Confluence site."
             }
         },
-        "clusterSshUser": {
+        "sshKey": {
+            "type": "string",
+            "metadata": {
+                "description": "The SSH public key to use to access the Jumpbox."
+            },
+            "minLength": 300
+        },
+        "sshUserName": {
             "type": "string",
             "defaultValue": "confluenceadmin",
             "metadata": {
                 "description": "The SSH username to use to access the Confluence nodes from the Jumpbox. Note that access to the Confluence nodes can only be made in this way."
             }
-        },
-        "clusterSshPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The SSH password of the SSH user needed to access the Confluence nodes from the Jumpbox."
-            },
-            "minLength": 5
         },
         "dbHost": {
             "type": "string",
@@ -781,11 +781,11 @@
                     "clusterVmSize": {
                         "value": "[parameters('clusterVmSize')]"
                     },
-                    "clusterSshUser": {
-                        "value": "[parameters('clusterSshUser')]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
                     },
-                    "clusterSshPassword": {
-                        "value": "[parameters('clusterSshPassword')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
                     "cname": {
                         "value": "[parameters('cname')]"

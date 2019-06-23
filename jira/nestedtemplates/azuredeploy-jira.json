@@ -53,19 +53,19 @@
                 "description": "The size of the virtual machine to use for each Jira node in the cluster."
             }
         },
-        "clusterSshUser": {
+        "sshKey": {
+            "type": "string",
+            "metadata": {
+                "description": "The SSH public key to use to access the Jumpbox."
+            },
+            "minLength": 300
+        },
+        "sshUserName": {
             "type": "string",
             "defaultValue": "jiraadmin",
             "metadata": {
                 "description": "The SSH username to use to access the Jira nodes from the Jumpbox. Note that this is the only way to access the Jira nodes."
             }
-        },
-        "clusterSshPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The SSH password of the SSH user needed to access the Jira nodes from the Jumpbox."
-            },
-            "minLength": 5
         },
         "cname": {
             "type": "string",
@@ -808,11 +808,11 @@
                     "clusterVmSize": {
                         "value": "[parameters('clusterVmSize')]"
                     },
-                    "clusterSshUser": {
-                        "value": "[parameters('clusterSshUser')]"
+                    "sshUserName": {
+                        "value": "[parameters('sshUserName')]"
                     },
-                    "clusterSshPassword": {
-                        "value": "[parameters('clusterSshPassword')]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
                     },
                     "cname": {
                         "value": "[parameters('cname')]"
