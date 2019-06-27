@@ -636,6 +636,24 @@
 				},
 				"elements": [
 					{
+						"name": "nodeSshSection",
+						"label": "Setup SSH Access to the Confluence Nodes",
+						"type": "Microsoft.Common.Section",
+						"elements": [
+							{
+								"name": "nodeUsername",
+								"label": "Node SSH Username",
+								"type": "Microsoft.Compute.UserNameTextBox",
+								"toolTip": "The SSH username to use to access the Confluence nodes from the Jumpbox. Note that this is the only way to access the Confluence nodes.",
+								"constraints": {
+									"required": true,
+									"validationMessage": "You must specify a username."
+								},
+								"osPlatform": "Linux"
+							}
+						]
+					},
+					{
 						"name": "jumpboxSshSection",
 						"label": "Setup SSH Access to the Jumpbox",
 						"type": "Microsoft.Common.Section",
@@ -647,7 +665,7 @@
 									"authenticationType": "Authentication type",
 									"password": "Password",
 									"confirmPassword": "Confirm password",
-									"sshPublicKey": "Jumpbox SSH public key"
+									"sshPublicKey": "Jumpbox SSH Public Key"
 								},
 								"toolTip": {
 									"authenticationType": "",
@@ -663,24 +681,6 @@
 								},
 								"osPlatform": "Linux",
 								"visible": true
-							}
-						]
-					},
-					{
-						"name": "nodeSshSection",
-						"label": "Setup SSH Access to the Confluence Nodes",
-						"type": "Microsoft.Common.Section",
-						"elements": [
-							{
-								"name": "nodeUsername",
-								"label": "Node SSH Username",
-								"type": "Microsoft.Compute.UserNameTextBox",
-								"toolTip": "The SSH username to use to access the Confluence nodes from the Jumpbox. Note that this is the only way to access the Confluence nodes.",
-								"constraints": {
-									"required": true,
-									"validationMessage": "You must specify a username."
-								},
-								"osPlatform": "Linux"
 							}
 						]
 					}
