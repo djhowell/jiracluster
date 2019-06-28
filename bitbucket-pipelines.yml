@@ -116,6 +116,8 @@ pipelines:
               - pip install --upgrade pip
               - pip install setuptools -U
               - pip install azure-cli
+              - apt-get update
+              - apt-get -y install netcat
               - mkdir -p $BITBUCKET_CLONE_DIR/outputs
 
               # Have to use artifact file because env variables don't carry over to after-script
