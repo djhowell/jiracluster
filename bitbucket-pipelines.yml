@@ -152,6 +152,14 @@ pipelines:
             artifacts:
               - outputs/**
             after-script:
+              # Get app logs
+              - printf "Host *\nStrictHostKeyChecking no" > ~/.ssh/config
+              - SSH_URL=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.ssh.value' | sed 's/"//g')
+              - mkdir -p outputs/10.0.4.5 outputs/10.0.4.6
+              - scp -o "ProxyCommand=${SSH_URL} nc %h %p" bbadmin@10.0.4.5:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.5
+              - scp -o "ProxyCommand=${SSH_URL} nc %h %p" bbadmin@10.0.4.6:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.6
+              
+              # Have to delete backup items in vault before we can tear down RG completedly
               - VAULT_NAME=$(az backup vault list --resource-group $(cat outputs/resourcegroup) --query '[].name' -otsv)
               - echo "Deleting recovery vault ${VAULT_NAME} first"
               - az backup vault delete --force --resource-group $(cat outputs/resourcegroup) --name ${VAULT_NAME} --yes
