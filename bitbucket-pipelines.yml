@@ -154,12 +154,18 @@ pipelines:
             artifacts:
               - outputs/**
             after-script:
+              # Get the deployment results again - if deployment error wouldn't get it from happy path above
+              - az group deployment show --resource-group $AZURE_PIPELINE_RG --name $AZURE_PIPELINE_RG > $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json
+              
               # Get app logs
               - printf "Host *\nStrictHostKeyChecking no" > ~/.ssh/config
-              - SSH_URL=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.ssh.value' | sed 's/"//g')
+              - echo $JUMPBOX_SSH_KEY > ~/.ssh/azure.pub
+              - ls -al ~/.ssh
+              
+              - SSH_URL=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.ssh.value' | sed 's/ssh//g' | sed 's/"//g')
               - mkdir -p outputs/10.0.4.5 outputs/10.0.4.6
-              - scp -o "ProxyCommand=${SSH_URL} nc %h %p" bbadmin@10.0.4.5:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.5 || true
-              - scp -o "ProxyCommand=${SSH_URL} nc %h %p" bbadmin@10.0.4.6:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.6 || true
+              - scp -o "ProxyCommand=ssh -i ~/.ssh/azure.pub ${SSH_URL} nc %h %p" bbadmin@10.0.4.5:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.5 || true
+              - scp -o "ProxyCommand=ssh -i ~/.ssh/azure.pub ${SSH_URL} nc %h %p" bbadmin@10.0.4.6:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.6 || true
               
               # Have to delete backup items in vault before we can tear down RG completedly
               - VAULT_NAME=$(az backup vault list --resource-group $(cat outputs/resourcegroup) --query '[].name' -otsv)
