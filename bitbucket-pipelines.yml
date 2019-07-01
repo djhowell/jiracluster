@@ -155,6 +155,7 @@ pipelines:
               - outputs/**
             after-script:
               # Get the deployment results again - if deployment error wouldn't get it from happy path above
+              - AZURE_PIPELINE_RG=$(cat outputs/resourcegroup)
               - az group deployment show --resource-group $AZURE_PIPELINE_RG --name $AZURE_PIPELINE_RG > $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json
               
               # Get app logs
