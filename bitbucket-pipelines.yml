@@ -154,6 +154,8 @@ pipelines:
             artifacts:
               - outputs/**
             after-script:
+              - echo "Starting to clean up after success/failure of Azure deployment"
+              
               # Get the deployment results again - if deployment error wouldn't get it from happy path above
               - az group deployment show --resource-group $(cat outputs/resourcegroup) --name $(cat outputs/resourcegroup) > outputs/azureDeployOutput.json
               
@@ -161,7 +163,7 @@ pipelines:
               - printf "Host *\nStrictHostKeyChecking no" > ~/.ssh/config
               - echo $JUMPBOX_SSH_KEY > ~/.ssh/azure.pub
               
-              - SSH_URL=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.ssh.value' | sed 's/^ssh//' | sed 's/"//g')
+              - SSH_URL=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.ssh.value' | sed 's/"//g' | sed 's/^ssh//')
               - mkdir -p outputs/10.0.4.5 outputs/10.0.4.6
               - scp -o "ProxyCommand=ssh -i ~/.ssh/azure.pub ${SSH_URL} nc %h %p" bbadmin@10.0.4.5:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.5 || true
               - scp -o "ProxyCommand=ssh -i ~/.ssh/azure.pub ${SSH_URL} nc %h %p" bbadmin@10.0.4.6:/var/atlassian/application-data/bitbucket/log/atlassian-*.log outputs/10.0.4.6 || true
