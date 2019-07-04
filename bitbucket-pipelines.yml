@@ -162,6 +162,7 @@ pipelines:
               # Get app logs
               - printf "Host *\nStrictHostKeyChecking no" > ~/.ssh/config
               - echo $JUMPBOX_SSH_KEY > ~/.ssh/azure.pub
+              - chmod 600 ~/.ssh/azure.pub
               
               - SSH_URL=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.ssh.value' | sed 's/"//g' | sed 's/^ssh//')
               - mkdir -p outputs/10.0.4.5 outputs/10.0.4.6
