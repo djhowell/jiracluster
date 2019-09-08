@@ -467,7 +467,11 @@ function install_appinsights_collectd {
       sed --in-place=.bak 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     else
       pacapt install --noconfirm collectd
-      ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      
+      # Use JDK11 libjvm.so if exists or fall back on Java 8 to plug gaps in collectd library path issues.
+      [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      [ -f /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /lib/x86_64-linux-gnu/
+      
       check_collectd_java_linking
       cp -fp bitbucket-collectd.conf /etc/collectd/collectd.conf
       chmod +r /etc/collectd/collectd.conf

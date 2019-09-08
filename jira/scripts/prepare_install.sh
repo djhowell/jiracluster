@@ -520,7 +520,7 @@ function prepare_installer {
 # Details see https://github.com/AdoptOpenJDK/openjdk-build/issues/693
 function prepare_fontconfig {
   log "Installing fontconfig package..."
-  apt update && apt install -y fontconfig
+  pacapt install --noconfirm fontconfig
 
   log "Font config is ready!"
 }
@@ -582,8 +582,11 @@ function install_appinsights {
      atl_log install_appinsights "Switching on Jira JMX"
      echo "jira.monitoring.jmx.enabled=true" >> ${ATL_JIRA_HOME}/jira-config.properties
 
+     # Tomcat/Jira config files seem to be be reworked between different versions of Jira ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
      cp -fp ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh.orig
+     cp -fp ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh.orig
      sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"\nexport CATALINA_OPTS/' ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh.orig > ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh
+     sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"\nexport CATALINA_OPTS/' ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh.orig > ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh
   fi
 }
 
@@ -616,7 +619,10 @@ function install_appinsights_collectd {
       sed --in-place=.bak 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     else
       pacapt install --noconfirm collectd
-      ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+
+      # Use JDK11 libjvm.so if exists or fall back on Java 8 to plug gaps in collectd library path issues.
+      [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      [ -f /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /lib/x86_64-linux-gnu/
       check_collectd_java_linking
       cp -fp ${ATL_JIRA_SHARED_HOME}/jira-collectd.conf /etc/collectd/collectd.conf
       chmod +r /etc/collectd/collectd.conf

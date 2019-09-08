@@ -315,100 +315,121 @@
             ]
         },
         {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('alerts').dbCpuPercentage.name]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[concat(variables('alerts').dbCpuPercentage.name,'-sqlserver')]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
             "condition": "[and(not(empty(parameters('appInsightsName'))), equals(parameters('dbType'), 'sqlserver'))]",
             "properties": {
                 "name": "[variables('alerts').dbCpuPercentage.name]",
                 "description": "[variables('alerts').dbCpuPercentage.description]",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]",
-                        "metricName": "cpu_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 80,
-                    "windowSize": "PT5M"
+                "severity": 1,
+                "enabled": true,
+                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                    "allOf": [
+                        {
+                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "metricName": "cpu_percent",
+                            "dimensions":[],
+                            "operator": "GreaterThan",
+                            "threshold" : "80",
+                            "timeAggregation": "Average"
+                        }
+                    ]
                 },
                 "actions": [
                     {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                        "sendToServiceOwners": false,
-                        "customEmails": [
-                            "[parameters('adminUserEmail')]"
-                        ]
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
+                        "webHookProperties": {}
                     }
                 ]
-            }
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         },
         {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('alerts').dbDtuPercentage.name]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[concat(variables('alerts').dbDtuPercentage.name,'-sqlserver')]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
             "condition": "[and(and(not(empty(parameters('appInsightsName'))), equals(parameters('dbType'), 'sqlserver')), not(parameters('isDbVCoreModel')))]",
             "properties": {
-                "name": "[variables('alerts').dbDtuPercentage.name]",
-                "description": "[variables('alerts').dbDtuPercentage.description]",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]",
-                        "metricName": "dtu_consumption_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 80,
-                    "windowSize": "PT5M"
+                "name": "[variables('alerts').dbCpuPercentage.name]",
+                "description": "[variables('alerts').dbCpuPercentage.description]",
+                "severity": 1,
+                "enabled": true,
+                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                    "allOf": [
+                        {
+                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "metricName": "dtu_consumption_percent",
+                            "dimensions":[],
+                            "operator": "GreaterThan",
+                            "threshold" : "80",
+                            "timeAggregation": "Average"
+                        }
+                    ]
                 },
                 "actions": [
                     {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                        "sendToServiceOwners": false,
-                        "customEmails": [
-                            "[parameters('adminUserEmail')]"
-                        ]
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
+                        "webHookProperties": {}
                     }
                 ]
-            }
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         },
         {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('alerts').dbSizePercentage.name]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[concat(variables('alerts').dbSizePercentage.name,'-sqlserver')]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
             "condition": "[and(not(empty(parameters('appInsightsName'))), equals(parameters('dbType'), 'sqlserver'))]",
             "properties": {
                 "name": "[variables('alerts').dbSizePercentage.name]",
                 "description": "[variables('alerts').dbSizePercentage.description]",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]",
-                        "metricName": "storage_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 80,
-                    "windowSize": "PT5M"
+                "severity": 1,
+                "enabled": true,
+                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                    "allOf": [
+                        {
+                            "name" : "[variables('alerts').dbSizePercentage.name]",
+                            "metricName": "storage_percent",
+                            "dimensions":[],
+                            "operator": "GreaterThan",
+                            "threshold" : "80",
+                            "timeAggregation": "Average"
+                        }
+                    ]
                 },
                 "actions": [
                     {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                        "sendToServiceOwners": false,
-                        "customEmails": [
-                            "[parameters('adminUserEmail')]"
-                        ]
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
+                        "webHookProperties": {}
                     }
                 ]
-            }
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         },
         {
             "type": "microsoft.insights/metricAlerts",
