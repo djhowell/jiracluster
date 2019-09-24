@@ -362,7 +362,6 @@
                         {
                             "name" : "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "cpu_percent",
-                            "dimensions":[],
                             "operator": "GreaterThan",
                             "threshold" : "80",
                             "timeAggregation": "Average"
@@ -401,7 +400,6 @@
                         {
                             "name" : "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "dtu_consumption_percent",
-                            "dimensions":[],
                             "operator": "GreaterThan",
                             "threshold" : "80",
                             "timeAggregation": "Average"
@@ -440,7 +438,6 @@
                         {
                             "name" : "[variables('alerts').dbSizePercentage.name]",
                             "metricName": "storage_percent",
-                            "dimensions":[],
                             "operator": "GreaterThan",
                             "threshold" : "80",
                             "timeAggregation": "Average"
@@ -479,7 +476,6 @@
                         {
                             "name" : "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "cpu_percent",
-                            "dimensions":[],
                             "operator": "GreaterThan",
                             "threshold" : "80",
                             "timeAggregation": "Average"
@@ -518,7 +514,6 @@
                         {
                             "name" : "[variables('alerts').dbIoConsumptionPercentage.name]",
                             "metricName": "io_consumption_percent",
-                            "dimensions":[],
                             "operator": "GreaterThan",
                             "threshold" : "80",
                             "timeAggregation": "Average"
@@ -557,7 +552,6 @@
                         {
                             "name" : "[variables('alerts').dbSizePercentage.name]",
                             "metricName": "storage_percent",
-                            "dimensions":[],
                             "operator": "GreaterThan",
                             "threshold" : "80",
                             "timeAggregation": "Average"
