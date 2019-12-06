@@ -133,7 +133,7 @@
         },
         "administratorLogin": "[variables('postgresql').server.username]",
         "administratorLoginPassword": "[variables('postgresql').server.password]",
-        "version": "9.6",
+        "version": "10",
         "sslEnforcement": "Enabled"
       },
       "resources": [
