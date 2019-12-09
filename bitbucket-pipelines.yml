@@ -99,7 +99,8 @@ pipelines:
               - curl -isSf --retry 15 --retry-connrefused $APP_ENDPOINT/status
 
               # Hit API to ensure user is configured correctly
-              - curl -isSf --retry 15 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/2/project
+              # Diabled due to collation startup check failing with Postgres + Windows https://getsupport.atlassian.com/browse/CSP-245642
+              # curl -isSf --retry 15 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/2/project
             artifacts:
               - outputs/**
             after-script:
