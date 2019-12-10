@@ -98,6 +98,8 @@
         "bbsNodeCount": {
             "type": "int",
             "defaultValue": 2,
+            "minValue": 1,
+            "maxValue": 6,
             "metadata": {
                 "description": "The amount of Bitbucket Server nodes to deploy"
             }

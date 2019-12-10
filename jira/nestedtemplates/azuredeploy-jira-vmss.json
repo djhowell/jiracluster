@@ -17,7 +17,7 @@
             }
         },
         "_artifactsLocationSasToken": {
-            "type": "string",
+            "type": "securestring",
             "defaultValue": "",
             "metadata": {
                 "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
@@ -29,7 +29,8 @@
             "metadata": {
                 "description": "The number of nodes in the Jira cluster."
             },
-            "minValue": 1
+            "minValue": 1,
+            "maxValue": 6
         },
         "clusterVmSize": {
             "type": "string",

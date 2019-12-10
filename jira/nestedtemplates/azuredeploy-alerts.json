@@ -140,7 +140,6 @@
             "name": "[variables('alerts').jiraNodeOffline.name]",
             "apiVersion": "2018-03-01",
             "location": "global",
-            "tags": {},
             "scale": null,
             "properties": {
                 "description": "A Jira node has just became unhealthly/gone offline. ",
@@ -149,7 +148,6 @@
                 "windowSize": "PT5M",
                 "evaluationFrequency": "PT1M",
                 "templateType": "8",
-                "templateSpecificParameters": {},
                 "scopes": [
                     "[resourceId('Microsoft.Network/applicationGateways/', parameters('gtwyName'))]"
                 ],
@@ -170,8 +168,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -191,7 +188,6 @@
                 "windowSize": "PT1H",
                 "evaluationFrequency": "PT1M",
                 "templateType": "8",
-                "templateSpecificParameters": {},
                 "scopes": [
                     "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]"
                 ],
@@ -212,8 +208,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -233,7 +228,6 @@
                 "windowSize": "PT5M",
                 "evaluationFrequency": "PT1M",
                 "templateType": "8",
-                "templateSpecificParameters": {},
                 "scopes": [
                     "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('clusterName'))]"
                 ],
@@ -262,8 +256,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -340,8 +333,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -378,8 +370,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -416,8 +407,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -454,8 +444,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -492,8 +481,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -530,8 +518,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
