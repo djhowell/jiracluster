@@ -25,6 +25,8 @@
                 6
             ],
             "defaultValue": 2,
+            "minValue": 1,
+            "maxValue": 6,
             "metadata": {
                 "description": "The number of nodes for the App Gateway cluster"
             }

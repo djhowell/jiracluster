@@ -34,7 +34,7 @@
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "name": "[parameters('workspaceName')]",
-            "apiVersion": "2015-11-01-preview",
+            "apiVersion": "2017-04-26-preview",
             "location": "[parameters('location')]",
             "scale": null,
             "properties": {
@@ -112,11 +112,11 @@
             "type": "string"
         },
         "workspacePrimaryKey": {
-            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2015-11-01-preview').primarySharedKey]",
+            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2017-04-26-preview').primarySharedKey]",
             "type": "string"
         },
         "workspaceSecondaryKey": {
-            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2015-11-01-preview').secondarySharedKey]",
+            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2017-04-26-preview').secondarySharedKey]",
             "type": "string"
         }
     }
