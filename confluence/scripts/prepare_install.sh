@@ -6,8 +6,8 @@ ATL_GENERATE_JWT_KEYPAIR_SCRIPT='var keypairgen = java.security.KeyPairGenerator
 
 ATL_TEMP_DIR="/tmp"
 ATL_CONFLUENCE_VARFILE="${ATL_CONFLUENCE_SHARED_HOME}/confluence.varfile"
-ATL_MSSQL_DRIVER_URL="http://central.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.3.0.jre8-preview/mssql-jdbc-6.3.0.jre8-preview.jar"
-ATL_POSTGRES_DRIVER_URL="http://central.maven.org/maven2/org/postgresql/postgresql/9.4.1211/postgresql-9.4.1211.jar"
+ATL_MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/7.2.1.jre8/mssql-jdbc-7.2.1.jre8.jar"
+ATL_POSTGRES_DRIVER_URL="http://central.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar"
 
 function atl_log {
   local scope=$1
@@ -319,7 +319,7 @@ function hydrate_shared_config {
   case $DB_TYPE in
      sqlserver)
          export DB_CONFIG_TYPE="mssql"
-         export DB_DRIVER_JAR="mssql-jdbc-6.3.0.jre8-preview.jar"
+         export DB_DRIVER_JAR="$(basename ${ATL_MSSQL_DRIVER_URL})"
          export DB_DRIVER_CLASS="com.microsoft.sqlserver.jdbc.SQLServerDriver"
          export DB_DRIVER_DIALECT="com.atlassian.confluence.impl.hibernate.dialect.SQLServerDialect"
          export DB_JDBCURL="jdbc:sqlserver://${DB_SERVER_NAME}:${DB_PORT};database=${DB_NAME};encrypt=true;trustServerCertificate=false;hostNameInCertificate=${DB_TRUSTED_HOST}"
@@ -327,7 +327,7 @@ function hydrate_shared_config {
          ;;
      postgres)
          export DB_CONFIG_TYPE="postgres72"
-         export DB_DRIVER_JAR="postgresql-9.4.1211.jar"
+         export DB_DRIVER_JAR="$(basename ${ATL_POSTGRES_DRIVER_URL})"
          export DB_DRIVER_CLASS="org.postgresql.Driver"
          export DB_DRIVER_DIALECT="com.atlassian.confluence.impl.hibernate.dialect.PostgreSQLDialect"
          export DB_USER="$DB_USER@$(echo ${DB_SERVER_NAME} | cut -d '.' -f1)"
@@ -555,6 +555,7 @@ function perform_install {
   log "${ATL_CONFLUENCE_PDORUCT} installation completed"
 }
 
+# Still need to install Postgres/MSSQL jars for prepopulation of DB in prepare script.
 function install_jdbc_drivers {
   local install_location="${1:-${ATL_CONFLUENCE_INSTALL_DIR}/lib}"
 
@@ -568,6 +569,24 @@ function install_jdbc_drivers {
   done
 
   atl_log install_jdbc_drivers 'JDBC drivers has been copied.'
+}
+
+function install_postgres_cert_if_needed {
+    atl_log install_postgres_cert_if_needed "Got DB Type: $DB_TYPE"
+    
+    if [[ $DB_TYPE == 'postgres' ]]
+    then
+        atl_log install_postgres_cert_if_needed "Downloading + configuring Azure Postgres cert"
+        # https://docs.microsoft.com/en-us/azure/postgresql/concepts-ssl-connection-security
+        curl -LO https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt
+        openssl x509 -inform DER -in BaltimoreCyberTrustRoot.crt -text -out root.crt
+
+        # Preinstall runs liquibase as root, node install runs as jira/confluence user created in install.
+        mkdir -p /home/confluence/.postgresql ~root/.postgresql
+        cp -fp root.crt /home/confluence/.postgresql
+        cp -fp root.crt ~root/.postgresql
+        chown confluence:confluence -R /home/confluence/.postgresql
+    fi
 }
 
 function get_node_ip {
@@ -770,6 +789,10 @@ function configure_confluence {
   configure_cluster
   log "Done configuring cluster!"
 
+  log "Configuring Postgres SSL..."
+  install_postgres_cert_if_needed
+  log "Done configuring Postgres SSL!"
+
   atl_log configure_confluence "Configuring app insights..."
   install_appinsights
   atl_log configure_confluence "Done app insights!"
@@ -861,6 +884,7 @@ function prepare_install {
   prepare_jwt_keypair_generator
   hydrate_shared_config
   install_jdbc_drivers "`pwd`"
+  install_postgres_cert_if_needed
 
   log "Going to preload database: ${DB_CREATE}"
   if [ "$DB_CREATE" = 'true' ]; then
