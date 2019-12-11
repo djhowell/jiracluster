@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -422,6 +422,18 @@
                 "description": "The SKU (Stock Keeping Unit) name of the PostgresSQL instance. Follows the convention {pricing tier}{compute generation}{vCores} eg General Purpose, Generation 5, 4 cores is GP_Gen5_4. Note that if the 'confClusterSize' parameter is used this value will be ignored."
             }
         },
+        "postgresDbVersion": {
+            "type": "string",
+            "defaultValue": "9.6",
+            "allowedValues": [
+                "9.6",
+                "10",
+                "11"
+            ],
+            "metadata": {
+                "description": "The PostgresSQL DB version to use."
+            }
+        },
         "postgresDbStorage": {
             "type": "int",
             "defaultValue": 102400,
@@ -666,6 +678,9 @@
                     },
                     "postgresDbSku": {
                         "value": "[if(variables('isConfClusterSizeUsed'), variables('clusterLookup').postgresDbSku[parameters('confClusterSize')], parameters('postgresDbSku'))]"
+                    },
+                    "postgresDbVersion": {
+                        "value": "[parameters('postgresDbVersion')]"
                     },
                     "postgresDbStorage": {
                         "value": "[if(variables('isConfClusterSizeUsed'), variables('clusterLookup').postgresDbStorageSize[parameters('confClusterSize')], parameters('postgresDbStorage'))]"
