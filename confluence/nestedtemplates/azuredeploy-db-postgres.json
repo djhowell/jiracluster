@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
@@ -46,6 +46,18 @@
       ],
       "metadata": {
         "description": "The name of the sku (stock keeping unit) of the PostgresSQL Managed Database. Follows the convention {pricing tier}{compute generation}{vCores} in shorthand. For example General Purpose, Generation 5, 4 cores is GP_Gen5_4"
+      }
+    },
+    "postgresDbVersion": {
+      "type": "string",
+      "defaultValue": "9.6",
+      "allowedValues": [
+        "9.6",
+        "10",
+        "11"
+      ],
+      "metadata": {
+        "description": "The PostgresSQL DB version to use."
       }
     },
     "postgresDbStorage": {
@@ -133,8 +145,9 @@
         },
         "administratorLogin": "[variables('postgresql').server.username]",
         "administratorLoginPassword": "[variables('postgresql').server.password]",
-        "version": "9.6",
-        "sslEnforcement": "Enabled"
+        "version": "[parameters('postgresDbVersion')]",
+        "sslEnforcement": "Enabled",
+        "createMode": "Default"
       },
       "resources": [
         {
