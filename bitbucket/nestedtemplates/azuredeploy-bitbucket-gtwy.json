@@ -207,10 +207,10 @@
                         "name": "[variables('applicationGateway').frontend.httpListener.name]",
                         "properties": {
                             "FrontendIPConfiguration": {
-                                "Id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/frontendIPConfigurations/', variables('applicationGateway').frontend.ipConfiguration.name)]"
+                                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations/', variables('applicationGateway').name, variables('applicationGateway').frontend.ipConfiguration.name)]"
                             },
                             "FrontendPort": {
-                                "Id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/frontendPorts/', variables('applicationGateway').frontend.portConfiguration.name)]"
+                                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts/', variables('applicationGateway').name, variables('applicationGateway').frontend.portConfiguration.name)]"
                             },
                             "Protocol": "Http",
                             "requireServerNameIndication": false
@@ -244,13 +244,13 @@
                         "properties": {
                             "RuleType": "Basic",
                             "httpListener": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/httpListeners/', variables('applicationGateway').frontend.httpListener.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners/', variables('applicationGateway').name, variables('applicationGateway').frontend.httpListener.name)]"
                             },
                             "backendAddressPool": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/backendAddressPools/', variables('applicationGateway').backend.addressPool.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/backendAddressPools/', variables('applicationGateway').name, variables('applicationGateway').backend.addressPool.name)]"
                             },
                             "backendHttpSettings": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/backendHttpSettingsCollection/', variables('applicationGateway').backend.httpConfiguration.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection/', variables('applicationGateway').name, variables('applicationGateway').backend.httpConfiguration.name)]"
                             }
                         }
                     }
@@ -390,10 +390,10 @@
                         "name": "[variables('applicationGateway').frontend.httpListener.name]",
                         "properties": {
                             "FrontendIPConfiguration": {
-                                "Id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/frontendIPConfigurations/', variables('applicationGateway').frontend.ipConfiguration.name)]"
+                                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations/', variables('applicationGateway').name, variables('applicationGateway').frontend.ipConfiguration.name)]"
                             },
                             "FrontendPort": {
-                                "Id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/frontendPorts/', variables('applicationGateway').frontend.portConfiguration.name)]"
+                                "Id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts/', variables('applicationGateway').name, variables('applicationGateway').frontend.portConfiguration.name)]"
                             },
                             "Protocol": "Http",
                             "requireServerNameIndication": false
@@ -404,14 +404,14 @@
                         "name": "[variables('applicationGateway').frontend.httpsListener.name]",
                         "properties": {
                             "frontendIPConfiguration": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/frontendIPConfigurations/', variables('applicationGateway').frontend.ipConfiguration.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations/', variables('applicationGateway').name, variables('applicationGateway').frontend.ipConfiguration.name)]"
                             },
                             "frontendPort": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/frontendPorts/', variables('applicationGateway').frontend.portHttpsConfiguration.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts/', variables('applicationGateway').name, variables('applicationGateway').frontend.portHttpsConfiguration.name)]"
                             },
                             "protocol": "Https",
                             "sslCertificate": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/sslCertificates/', variables('applicationGateway').sslCert.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/sslCertificates/', variables('applicationGateway').name, variables('applicationGateway').sslCert.name)]"
                             },
                             "requireServerNameIndication": false
                         }
@@ -423,13 +423,13 @@
                         "properties": {
                             "ruleType": "Basic",
                             "httpListener": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/httpListeners/', variables('applicationGateway').frontend.httpsListener.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners/', variables('applicationGateway').name, variables('applicationGateway').frontend.httpsListener.name)]"
                             },
                             "backendAddressPool": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/backendAddressPools/', variables('applicationGateway').backend.addressPool.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/backendAddressPools/', variables('applicationGateway').name, variables('applicationGateway').backend.addressPool.name)]"
                             },
                             "backendHttpSettings": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/backendHttpSettingsCollection/', variables('applicationGateway').backend.httpConfiguration.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection/', variables('applicationGateway').name, variables('applicationGateway').backend.httpConfiguration.name)]"
                             }
                         }
                     },
@@ -438,10 +438,10 @@
                         "properties": {
                             "ruleType": "Basic",
                             "httpListener": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/httpListeners/', variables('applicationGateway').frontend.httpListener.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners/', variables('applicationGateway').name, variables('applicationGateway').frontend.httpListener.name)]"
                             },
                             "redirectConfiguration": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/redirectConfigurations/', variables('applicationGateway').redirect.config.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/redirectConfigurations/', variables('applicationGateway').name, variables('applicationGateway').redirect.config.name)]"
                             }
                         },
                         "type": "Microsoft.Network/applicationGateways/requestRoutingRules"
@@ -474,13 +474,13 @@
                         "properties": {
                             "redirectType": "Permanent",
                             "targetListener": {
-                                "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/httpListeners/', variables('applicationGateway').frontend.httpsListener.name)]"
+                                "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners/', variables('applicationGateway').name, variables('applicationGateway').frontend.httpsListener.name)]"
                             },
                             "includePath": true,
                             "includeQueryString": true,
                             "requestRoutingRules": [
                                 {
-                                    "id": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGateway').name), '/requestRoutingRules/', variables('applicationGateway').redirect.rule.name)]"
+                                    "id": "[resourceId('Microsoft.Network/applicationGateways/requestRoutingRules/', variables('applicationGateway').name, variables('applicationGateway').redirect.rule.name)]"
                                 }
                             ]
                         },
