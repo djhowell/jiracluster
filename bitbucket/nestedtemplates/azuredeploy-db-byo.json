@@ -77,7 +77,7 @@
             "condition": "[equals(parameters('dbType'), 'sqlserver')]",
             "apiVersion": "2015-05-01-preview",
             "properties": {
-                "virtualNetworkSubnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('bbsSubnetName'))]",
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('bbsSubnetName'))]",
                 "ignoreMissingVnetServiceEndpoint": false
             }
         },
@@ -87,7 +87,7 @@
             "condition": "[equals(parameters('dbType'), 'postgres')]",
             "apiVersion": "2017-12-01",
             "properties": {
-                "virtualNetworkSubnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('bbsSubnetName'))]",
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('bbsSubnetName'))]",
                 "ignoreMissingVnetServiceEndpoint": false
             }
         }

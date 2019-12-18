@@ -318,7 +318,7 @@
             "name": "[concat(parameters('dbServerName'), '/', 'allowClusterDbAccess')]",
             "apiVersion": "2015-05-01-preview",
             "properties": {
-                "virtualNetworkSubnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('bbsSubnetName'))]",
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('bbsSubnetName'))]",
                 "ignoreMissingVnetServiceEndpoint": false
             },
             "dependsOn": [
