@@ -380,6 +380,7 @@
             ],
             "defaultValue": 2,
             "minValue": 1,
+            "maxValue": 6,
             "metadata": {
                 "description": "The number of nodes for the Application Gateway cluster"
             }
@@ -902,7 +903,7 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "blobStorageUri": {
-                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
+                        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }

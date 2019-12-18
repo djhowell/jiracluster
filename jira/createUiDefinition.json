@@ -724,6 +724,7 @@
                 "name": "cname",
                 "label": "Existing CNAME",
                 "type": "Microsoft.Common.TextBox",
+                "toolTip": "The CNAME or domain name for your organization",
                 "constraints": {
                   "required": true,
                   "regex": ".+\\..+",

@@ -213,7 +213,7 @@
         "topologySettings": {
             "dataLoadBalancerBackEndPools": [
                 {
-                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers','es-internal-lb'),'/backendAddressPools/LBBE')]"
+                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools/LBBE','es-internal-lb')]"
                 }
             ],
             "dataNodesAreMasterEligible": "Yes",
