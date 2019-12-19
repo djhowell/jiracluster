@@ -466,7 +466,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[variables('reader-role')]",
-                "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets/providers/Microsoft.ManagedIdentity/Identities/default', variables('vm').bbs.name,'2015-08-31-PREVIEW')).principalId]",
+                "principalId": "[reference(concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/', variables('vm').bbs.name),'/providers/Microsoft.ManagedIdentity/Identities/default'),'2015-08-31-PREVIEW').principalId]",
                 "scope": "[resourceGroup().id]"
             }
         }
