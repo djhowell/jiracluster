@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -278,6 +278,18 @@
                 "description": "The SKU (stock keeping unit) name of the PostgresSQL instance. Follows the convention {pricing tier}{compute generation}{vCores} eg General Purpose, Generation 5, 4 cores is GP_Gen5_4."
             }
         },
+        "postgresDbVersion": {
+            "type": "string",
+            "defaultValue": "9.6",
+            "allowedValues": [
+                "9.6",
+                "10",
+                "11"
+            ],
+            "metadata": {
+                "description": "The PostgresSQL DB version to use."
+            }
+        },
         "postgresDbStorage": {
             "type": "int",
             "defaultValue": 102400,
@@ -368,6 +380,7 @@
             ],
             "defaultValue": 2,
             "minValue": 1,
+            "maxValue": 6,
             "metadata": {
                 "description": "The number of nodes for the Application Gateway cluster"
             }
@@ -609,6 +622,9 @@
                     },
                     "postgresDbSku": {
                         "value": "[parameters('postgresDbSku')]"
+                    },
+                    "postgresDbVersion": {
+                        "value": "[parameters('postgresDbVersion')]"
                     },
                     "postgresDbStorage": {
                         "value": "[parameters('postgresDbStorage')]"
@@ -887,7 +903,7 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "blobStorageUri": {
-                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
+                        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -11,7 +11,6 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://confluencedcresources.blob.core.windows.net/installfiles",
             "metadata": {
                 "description": "The URL specifying the location of the installation files."
             }
@@ -194,24 +193,10 @@
             "type": "string"
         },
         "workspacePrimaryKey": {
-            "type": "string"
+            "type": "securestring"
         },
         "workspaceSecondaryKey": {
-            "type": "string"
-        },
-        "releaseDownloadBaseUrl": {
-            "type": "string",
-            "defaultValue": "https://downloads.atlassian.com/software/confluence/downloads",
-            "metadata": {
-                "description": "Base URL for downloading the confluence artifact."
-            }
-        },
-        "atlassianMavenRepositoryUrl": {
-            "type": "string",
-            "defaultValue": "https://packages.atlassian.com/maven/repository/public/",
-            "metadata": {
-                "description": "The url to the Atlassian public Maven repository. Customize this if you wish to download artifacts from your own repository (must be publically accessible)."
-            }
+            "type": "securestring"
         },
         "confluenceVersion": {
             "type": "string",
@@ -685,14 +670,6 @@
                 {
                     "name": "ATL_CONFLUENCE_SHARED_HOME_NAME",
                     "value": "confluence-shared-home"
-                },
-                {
-                    "name": "ATL_CONFLUENCE_RELEASES_BASE_URL",
-                    "value": "[parameters('releaseDownloadBaseUrl')]"
-                },
-                {
-                    "name": "ATLASSIAN_MAVEN_REPOSITORY_URL",
-                    "value": "[parameters('atlassianMavenRepositoryUrl')]"
                 },
                 {
                     "name": "ATL_CONFLUENCE_PRODUCT",

@@ -214,7 +214,7 @@
       "apiVersion": "2017-12-01",
       "scale": null,
       "properties": {
-        "virtualNetworkSubnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('bbsSubnetName'))]",
+        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('bbsSubnetName'))]",
         "ignoreMissingVnetServiceEndpoint": false
       },
       "dependsOn": [

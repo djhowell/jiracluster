@@ -528,17 +528,17 @@
                         "name": "[variables('net').lb.names.ruleGit]",
                         "properties": {
                             "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/frontendIPConfigurations/', variables('net').lb.names.fendIpConfig)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations/', variables('net').lb.name, variables('net').lb.names.fendIpConfig)]"
                             },
                             "backendAddressPool": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/backendAddressPools/', variables('net').lb.names.bendGit)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools/', variables('net').lb.name, variables('net').lb.names.bendGit)]"
                             },
                             "frontendPort": 7999,
                             "backendPort": 7999,
                             "protocol": "Tcp",
                             "idleTimeoutInMinutes": 30,
                             "probe": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/probes/', variables('net').lb.names.probeGit)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/probes/', variables('net').lb.name, variables('net').lb.names.probeGit)]"
                             }
                         }
                     },
@@ -546,17 +546,17 @@
                         "name": "[variables('net').lb.names.ruleSsh]",
                         "properties": {
                             "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/frontendIPConfigurations/', variables('net').lb.names.fendIpConfig)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations/', variables('net').lb.name, variables('net').lb.names.fendIpConfig)]"
                             },
                             "backendAddressPool": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/backendAddressPools/', variables('net').lb.names.bendSsh)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools/', variables('net').lb.name, variables('net').lb.names.bendSsh)]"
                             },
                             "frontendPort": 22,
                             "backendPort": 22,
                             "protocol": "Tcp",
                             "idleTimeoutInMinutes": 30,
                             "probe": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/probes/', variables('net').lb.names.probeSsh)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/probes/', variables('net').lb.name, variables('net').lb.names.probeSsh)]"
                             }
                         }
                     }
@@ -605,7 +605,7 @@
                             },
                             "loadBalancerBackendAddressPools": [
                                 {
-                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('net').lb.name), '/backendAddressPools/', variables('net').lb.names.bendSsh)]"
+                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools/', variables('net').lb.name, variables('net').lb.names.bendSsh)]"
                                 }
                             ]
                         }
