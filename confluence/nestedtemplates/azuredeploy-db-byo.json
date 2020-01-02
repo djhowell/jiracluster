@@ -23,7 +23,7 @@
         "dbDatabaseName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the Jira database."
+                "description": "The name of the Confluence database."
             }
         },
         "dbPort": {
@@ -48,20 +48,20 @@
         "vnetName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the Jira virtual network."
+                "description": "The name of the Confluence virtual network."
             }
         },
         "appSubnetName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the subnet within the Jira virtual network where the Jira cluster is located."
+                "description": "The name of the subnet within the Confluence virtual network where the Confluence cluster is located."
             }
         },
         "clusterDbAccessNetworkRule": {
             "type": "string",
             "defaultValue": "allowClusterDbAccess",
             "metadata": {
-                "description": "The name of the network rule that enables the Jira cluster to access the database."
+                "description": "The name of the network rule that enables the Confluence cluster to access the database."
             }
         }
     },

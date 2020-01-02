@@ -611,7 +611,7 @@ function install_appinsights {
 
      cp -fp ${ATL_CONFLUENCE_SHARED_HOME}/ApplicationInsights.xml ${ATL_CONFLUENCE_INSTALL_DIR}/confluence/WEB-INF/classes
 
-     # Tomcat/Jira config files seem to be be reworked between different versions of Jira ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
+     # Tomcat/Confluence config files seem to be be reworked between different versions of Jira ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
      cp -fp ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh.orig
      cp -fp ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh.orig
      sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dconfluence.hazelcast.jmx.enable=true -Dconfluence.hibernate.jmx.enable=true"\nexport CATALINA_OPTS/' ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh.orig > ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh
