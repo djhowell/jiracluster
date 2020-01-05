@@ -56,7 +56,7 @@ function preserve_installer {
 
 function download_installer {
   
-  if [ ! -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ]
+  if [ ! -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ]
   then
     log "Will use version: ${ATL_CONFLUENCE_VERSION} but first retrieving latest confluence version info from Atlassian..."
     LATEST_INFO=$(curl -L -f --silent https://my.atlassian.com/download/feeds/current/confluence.json | sed 's/^downloads(//g' | sed 's/)$//g')
@@ -72,7 +72,7 @@ function download_installer {
   [ ${ATL_CONFLUENCE_VERSION} = 'latest' ] &&  echo -n "${LATEST_VERSION}" > version || echo -n "${ATL_CONFLUENCE_VERSION}" > version
 
   local confluence_version=$(cat version)
-  [ -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ] && local confluence_installer_url="${ATL_JIRA_CUSTOM_DOWNLOAD_URL}/atlassian-confluence-${ATL_CONFLUENCE_VERSION}-x64.bin"  || local confluence_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${confluence_version}/g")
+  [ -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ] && local confluence_installer_url="${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}/atlassian-confluence-${ATL_CONFLUENCE_VERSION}-x64.bin"  || local confluence_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${confluence_version}/g")
   log "Downloading ${ATL_CONFLUENCE_PRODUCT} installer from ${confluence_installer_url}"
 
   if ! curl -L -f --silent "${confluence_installer_url}" -o "installer" 2>&1
@@ -581,7 +581,7 @@ function install_postgres_cert_if_needed {
         curl -LO https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt
         openssl x509 -inform DER -in BaltimoreCyberTrustRoot.crt -text -out root.crt
 
-        # Preinstall runs liquibase as root, node install runs as jira/confluence user created in install.
+        # Preinstall runs liquibase as root, node install runs as confluence user created in install.
         mkdir -p /home/confluence/.postgresql ~root/.postgresql
         cp -fp root.crt /home/confluence/.postgresql
         cp -fp root.crt ~root/.postgresql
@@ -611,7 +611,7 @@ function install_appinsights {
 
      cp -fp ${ATL_CONFLUENCE_SHARED_HOME}/ApplicationInsights.xml ${ATL_CONFLUENCE_INSTALL_DIR}/confluence/WEB-INF/classes
 
-     # Tomcat/Confluence config files seem to be be reworked between different versions of Jira ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
+     # Tomcat/Confluence config files seem to be be reworked between different versions of Confluence ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
      cp -fp ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh.orig
      cp -fp ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh.orig
      sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dconfluence.hazelcast.jmx.enable=true -Dconfluence.hibernate.jmx.enable=true"\nexport CATALINA_OPTS/' ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh.orig > ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh

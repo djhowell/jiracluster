@@ -684,7 +684,7 @@
                     "value": "[string(parameters('clusterSize'))]"
                 },
                 {
-                    "name": "ATL_JIRA_CUSTOM_DOWNLOAD_URL",
+                    "name": "ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL",
                     "value": "[parameters('customDownloadUrl')]"
                 }
             ]
