@@ -269,13 +269,13 @@
             }
         },
         "workspacePrimaryKey": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "The primary key of the Azure Operations Management Suite (OMS) workspace."
             }
         },
         "workspaceSecondaryKey": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "The secondary key of the Azure Operations Management Suite (OMS) workspace."
             }

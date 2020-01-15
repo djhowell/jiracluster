@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -459,7 +459,6 @@
         "byodbTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-byodb.json', parameters('_artifactsLocationSasToken')))]",
         "appGtwyTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-jira-gtwy.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
-        "workspaceTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-workspace.json', parameters('_artifactsLocationSasToken')))]",
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
         "tags": {
             "vendor": "Atlassian",
@@ -483,28 +482,81 @@
     },
     "resources": [
         {
-            "apiVersion": "2018-05-01",
-            "name": "workspaceTemplate",
-            "type": "Microsoft.Resources/deployments",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "name": "[variables('workspace').name]",
             "condition": "[parameters('enableAnalytics')]",
+            "apiVersion": "2017-04-26-preview",
+            "location": "[parameters('location')]",
+            "scale": null,
             "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('workspaceTemplateUri')]",
-                    "contentVersion": "1.0.0.0"
+                "sku": {
+                    "name": "[variables('workspace').sku]"
+                }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "dataSources",
+                    "name": "JiraLogs",
+                    "condition": "[parameters('enableAnalytics')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                    ],
+                    "kind": "CustomLog",
+                    "properties": {
+                        "customLogName": "JiraLogs",
+                        "description": "Captures all Atlassian logs found at /var/atlassian/application-data/jira/log",
+                        "inputs": [
+                            {
+                                "location": {
+                                    "fileSystemLocations": {
+                                        "linuxFileTypeLogPaths": [
+                                            "/var/atlassian/application-data/jira/log/atlassian*.log"
+                                        ]
+                                    }
+                                },
+                                "recordDelimiter": {
+                                    "regexDelimiter": {
+                                        "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]",
+                                        "matchIndex": 0,
+                                        "matchIndexSpecified": true,
+                                        "numberedGroup": null
+                                    }
+                                }
+                            }
+                        ],
+                        "extractions": [
+                            {
+                                "extractionName": "TimeGenerated",
+                                "extractionType": "DateTime",
+                                "extractionProperties": {
+                                    "dateTimeExtraction": {
+                                        "regex": [
+                                            {
+                                                "matchIndex": 0,
+                                                "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
                 },
-                "parameters": {
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "workspaceName": {
-                        "value": "[variables('workspace').name]"
-                    },
-                    "workspaceSku": {
-                        "value": "[parameters('workspaceSku')]"
+                {
+                    "apiVersion": "2015-11-01-preview",
+                    "type": "dataSources",
+                    "name": "jiraLogCollection",
+                    "condition": "[parameters('enableAnalytics')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                    ],
+                    "kind": "CustomLogCollection",
+                    "properties": {
+                        "state": "LinuxLogsEnabled"
                     }
                 }
-            }
+            ]
         },
         {
             "apiVersion": "2018-05-01",
@@ -512,7 +564,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'sqlserver'))]",
             "dependsOn": [
-                "workspaceTemplate"
+                "[variables('workspace').name]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -566,7 +618,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'postgres'))]",
             "dependsOn": [
-                "workspaceTemplate"
+                "[variables('workspace').name]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -620,7 +672,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[not(parameters('dbCreateNew'))]",
             "dependsOn": [
-                "workspaceTemplate"
+                "[variables('workspace').name]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -662,7 +714,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
             "dependsOn": [
-                "workspaceTemplate",
+                "[variables('workspace').name]",
                 "[variables('dbTemplate')]"
             ],
             "properties": {
@@ -684,7 +736,7 @@
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableAnalytics')]",
             "dependsOn": [
-                "workspaceTemplate",
+                "[variables('workspace').name]",
                 "[variables('dbTemplate')]"
             ],
             "properties": {
@@ -728,7 +780,7 @@
             "name": "appGtwyTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "workspaceTemplate",
+                "[variables('workspace').name]",
                 "[variables('gtwyIpName')]"
             ],
             "properties": {
@@ -896,13 +948,13 @@
                         "value": "[parameters('enableAcceleratedNetworking')]"
                     },
                     "workspaceId": {
-                        "value": "[if(parameters('enableAnalytics'), reference('workspaceTemplate').outputs.workspaceId.value, '')]"
+                        "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
                     },
                     "workspacePrimaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), reference('workspaceTemplate').outputs.workspacePrimaryKey.value, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
                     },
                     "workspaceSecondaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), reference('workspaceTemplate').outputs.workspaceSecondaryKey.value, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
                     },
                     "clusterVmDiskSize" : {
                         "value": "[parameters('clusterVmDiskSize')]"
