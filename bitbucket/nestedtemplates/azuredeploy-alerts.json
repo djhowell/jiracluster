@@ -148,6 +148,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nodeHighCpuUsageCheckAlert.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -181,6 +182,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nodeFreeDiskCheckAlert.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -214,6 +216,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nfsNodeOffline.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -247,6 +250,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nfsSharedFreeSpace.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
