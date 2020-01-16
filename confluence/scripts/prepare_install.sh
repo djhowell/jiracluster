@@ -7,7 +7,7 @@ ATL_GENERATE_JWT_KEYPAIR_SCRIPT='var keypairgen = java.security.KeyPairGenerator
 ATL_TEMP_DIR="/tmp"
 ATL_CONFLUENCE_VARFILE="${ATL_CONFLUENCE_SHARED_HOME}/confluence.varfile"
 ATL_MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/7.2.1.jre8/mssql-jdbc-7.2.1.jre8.jar"
-ATL_POSTGRES_DRIVER_URL="http://central.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar"
+ATL_POSTGRES_DRIVER_URL="https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar"
 
 function atl_log {
   local scope=$1
@@ -123,11 +123,11 @@ function prepare_password_generator {
 function install_password_generator {
   atl_log install_password_generator "Downloading Password Generator Jars"
   JARS="https://packages.atlassian.com/mvn/maven-external/com/atlassian/extras/atlassian-extras/3.3.0/atlassian-extras-3.3.0.jar \
-	  http://central.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
-	  http://central.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
+	  https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
+    https://repo1.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
 	  https://packages.atlassian.com/mvn/maven-external/com/atlassian/security/atlassian-password-encoder/3.2.3/atlassian-password-encoder-3.2.3.jar \
-    http://central.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
-    http://central.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
+    https://repo1.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
+    https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
 
   for aJar in $(echo $JARS)
   do
@@ -158,8 +158,17 @@ function generate_server_id {
   fi
 }
 
+function prepare_jwt_keypair_generator {
+  log "Preparing JWT keypair generation script"
+  echo "${ATL_GENERATE_JWT_KEYPAIR_SCRIPT}" > genkeypair.js
+  log "JWT keypair generation script is ready"
+}
+
 function generate_jwt_keypair {
   jjs -cp commons-codec-1.9.jar genkeypair.js
+  if [ "$?" -ne "0" ]; then
+      error "Error running the JWT keypair generator!"
+  fi
 }
 
 # issue_signed_request
@@ -659,7 +668,7 @@ function install_appinsights_collectd {
     fi
 
     # JAXB now required for JDK > 8 for AppInsights + Collectd. Ubuntu Collectd now compiled/using JDK 11 as no choice
-    curl -LO http://central.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
+    curl -LO https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
 
     atl_log install_appinsights_collectd "Copying collectd appinsights jar to /usr/share/collectd/java"
     cp -fp applicationinsights-collectd*.jar jaxb-api-2.3.1.jar /usr/share/collectd/java/
