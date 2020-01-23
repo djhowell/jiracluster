@@ -16,7 +16,7 @@ do
 	printf "Creating zip for product: $product at $PRODUCT_ZIP\n"
 
 	cd $DEPLOY_DIR/atlassian-azure-deployment/$product
-	zip -qr $PRODUCT_ZIP azuredeploy.parameters.json createUiDefinition.json mainTemplate.json nestedtemplates scripts templates
+	zip -qr $PRODUCT_ZIP createUiDefinition.json mainTemplate.json nestedtemplates scripts templates
 done
 
 rm -fr $DEPLOY_DIR
