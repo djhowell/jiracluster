@@ -16,7 +16,7 @@
             }
         },
         "_artifactsLocationSasToken": {
-            "type": "string",
+            "type": "securestring",
             "defaultValue": "",
             "metadata": {
                 "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
@@ -28,7 +28,8 @@
             "metadata": {
                 "description": "The number of nodes in the Jira cluster."
             },
-            "minValue": 1
+            "minValue": 1,
+            "maxValue": 6
         },
         "clusterVmSize": {
             "type": "string",
@@ -266,16 +267,16 @@
             "type": "string",
             "defaultValue": "latest",
             "metadata": {
-                 "description": "The Jira software product version to install. By default the deployment will download and use the latest version published."
-             }
-         },
-         "customDownloadUrl": {
+                "description": "The Jira software product version to install. By default the deployment will download and use the latest version published."
+            }
+        },
+        "customDownloadUrl": {
             "type": "string",
             "defaultValue": "",
             "metadata": {
-                 "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the jiraVersion parameter."
-             }
-         },
+                "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the jiraVersion parameter."
+            }
+        },
         "jiraAdminUserName": {
             "type": "string",
             "defaultValue": "admin",
@@ -324,6 +325,7 @@
             ],
             "defaultValue": 2,
             "minValue": 1,
+            "maxValue": 6,
             "metadata": {
                 "description": "The number of nodes in the Application Gateway cluster."
             }
@@ -421,14 +423,14 @@
                 "description": "Workspace SKU Pricing Tier. Options depend upon when Azure Subscription created. If after 2018, use 'PerGB2018' otherwise 'Free'."
             }
         },
-        "clusterVmDiskSize" : {
+        "clusterVmDiskSize": {
             "type": "int",
             "defaultValue": 1000,
             "metadata": {
                 "description": "The desired size of the Cluster Node's allocation disk in GB"
             }
         },
-        "clusterVmDiskCount" : {
+        "clusterVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
             "minValue": 8,
@@ -766,7 +768,6 @@
             "sku": {
                 "name": "Basic"
             },
-            "zones": [],
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
@@ -956,10 +957,10 @@
                     "workspaceSecondaryKey": {
                         "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
                     },
-                    "clusterVmDiskSize" : {
+                    "clusterVmDiskSize": {
                         "value": "[parameters('clusterVmDiskSize')]"
                     },
-                    "clusterVmDiskCount" : {
+                    "clusterVmDiskCount": {
                         "value": "[parameters('clusterVmDiskCount')]"
                     },
                     "linuxOsType": {
@@ -981,7 +982,6 @@
                 "tier": "Standard"
             },
             "kind": "StorageV2",
-            "properties": {},
             "tags": "[variables('tags')]"
         }
     ],

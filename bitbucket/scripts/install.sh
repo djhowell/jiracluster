@@ -317,7 +317,7 @@ function bbs_download_installer {
     [ ${BBS_VERSION} = 'latest' ] && bitbucket_version="${LATEST_VERSION}" || bitbucket_version="${BBS_VERSION}"
 
     [ -n "${BBS_CUSTOM_DOWNLOAD_URL}" ] && local bitbucket_installer_url="${BBS_CUSTOM_DOWNLOAD_URL}/atlassian-bitbucket-${BBS_VERSION}-x64.bin"  || local bitbucket_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${bitbucket_version}/g")
-    log "Downloading ${ATL_CONFLUENCE_PRODUCT} installer from ${bitbucket_installer_url}"
+    log "Downloading BBS installer from ${bitbucket_installer_url}"
 
     local target="${NFS_INSTALLER_DIR}/installer"
     if ! curl -L -f --silent "${bitbucket_installer_url}" -o "${target}" 2>&1
