@@ -362,7 +362,7 @@ function hydrate_shared_config {
 }
 
 function copy_artefacts {
-  local excluded_files=(std* version installer *.bin *.jar prepare_install.sh *.py *.template *.sql *.js *.xsl oms*sh onboard*sh vm-disk-utils*.sh)
+  local excluded_files=(version installer *.bin *.jar prepare_install.sh *.py *.template *.sql *.js *.xsl oms*sh onboard*sh vm-disk-utils*.sh)
 
   local exclude_rules=""
   for file in ${excluded_files[@]};
