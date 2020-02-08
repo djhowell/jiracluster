@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -124,7 +124,6 @@
             }
         },
         "webTestName": "[toLower(concat('AppHeartBeat-', parameters('appInsightsName')))]",
-        "webTestAlertName": "[concat(variables('webTestName'), guid(resourceGroup().id))]",
         "webTest": "[concat('<WebTest Name=\"AppHeartBeat\" Id=\"', guid(resourceGroup().id), '\" Enabled=\"True\" CssProjectStructure=\"\" CssIteration=\"\" Timeout=\"120\" WorkItemIds=\"\" xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\" Description=\"\" CredentialUserName=\"\" CredentialPassword=\"\" PreAuthenticate=\"True\" Proxy=\"default\" StopOnError=\"False\" RecordedResultFile=\"\" ResultsLocale=\"\"> <Items><Request Method=\"GET\" Guid=\"a07aa756-7c4b-c73e-876f-d7edcc469051\" Version=\"1.1\" Url=\"', parameters('statusCheckUrl') ,'\" ThinkTime=\"0\" Timeout=\"120\" ParseDependentRequests=\"False\" FollowRedirects=\"True\" RecordResult=\"True\" Cache=\"False\" ResponseTimeGoal=\"0\" Encoding=\"utf-8\" ExpectedHttpStatusCode=\"200\" ExpectedResponseUrl=\"\" ReportingName=\"\" IgnoreHttpStatusCode=\"False\" /></Items><ValidationRules><ValidationRule Classname=\"Microsoft.VisualStudio.TestTools.WebTesting.Rules.ValidationRuleFindText, Microsoft.VisualStudio.QualityTools.WebTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a\" DisplayName=\"Find Text\" Description=\"Verifies the existence of the specified text in the response.\" Level=\"High\" ExectuionOrder=\"BeforeDependents\"><RuleParameters><RuleParameter Name=\"FindText\" Value=\"&#x7B;&#x22;state&#x22;&#x3A;&#x22;RUNNING&#x22;&#x7D;\" /><RuleParameter Name=\"IgnoreCase\" Value=\"False\" /><RuleParameter Name=\"UseRegularExpression\" Value=\"False\" /><RuleParameter Name=\"PassIfTextFound\" Value=\"True\" /></RuleParameters></ValidationRule></ValidationRules> </WebTest>')]"
     },
     "resources": [
@@ -149,6 +148,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nodeHighCpuUsageCheckAlert.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -182,6 +182,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nodeFreeDiskCheckAlert.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -215,6 +216,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nfsNodeOffline.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -248,6 +250,7 @@
             "apiVersion": "2018-04-16",
             "name": "[variables('alerts').nfsSharedFreeSpace.name]",
             "location": "[parameters('location')]",
+            "condition": "[not(empty(parameters('workspaceName')))]",
             "tags": {
                 "[concat('hidden-link:', resourceId('microsoft.insights/components/', parameters('workspaceName')))]": "Resource"
             },
@@ -308,8 +311,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             }
@@ -348,8 +350,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             }
@@ -359,7 +360,6 @@
             "name": "[variables('alerts').bbNodeOffline.name]",
             "apiVersion": "2018-03-01",
             "location": "global",
-            "tags": {},
             "scale": null,
             "properties": {
                 "description": "A BitBucket node has just became unhealthly/gone offline. ",
@@ -368,7 +368,6 @@
                 "windowSize": "PT5M",
                 "evaluationFrequency": "PT1M",
                 "templateType": "8",
-                "templateSpecificParameters": {},
                 "scopes": [
                     "[resourceId('Microsoft.Network/applicationGateways/', parameters('gtwyName'))]"
                 ],
@@ -389,8 +388,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -410,7 +408,6 @@
                 "windowSize": "PT5M",
                 "evaluationFrequency": "PT1M",
                 "templateType": "8",
-                "templateSpecificParameters": {},
                 "scopes": [
                     "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('bbsClusterName'))]"
                 ],
@@ -439,8 +436,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('Microsoft.Insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -489,130 +485,115 @@
             }
         },
         {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('webTestAlertName')]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
-            "condition": "[not(empty(parameters('appInsightsName')))]",
-            "properties": {
-                "name": "[variables('webTestAlertName')]",
-                "description": "",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('microsoft.insights/webtests', variables('webTestName'))]",
-                        "metricName": "GSMT_AvRaW"
-                    },
-                    "windowSize": "PT5M",
-                    "failedLocationCount": 3
-                },
-                "action": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                    "sendToServiceOwners": false,
-                    "customEmails": []
-                }
-            },
-            "dependsOn": [
-                "[resourceId('microsoft.insights/webtests', variables('webTestName'))]"
-            ]
-        },
-        {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('alerts').dbCpuPercentage.name]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[concat(variables('alerts').dbCpuPercentage.name,'-sqlserver')]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
             "condition": "[and(not(empty(parameters('appInsightsName'))), equals(parameters('dbType'), 'sqlserver'))]",
             "properties": {
                 "name": "[variables('alerts').dbCpuPercentage.name]",
                 "description": "[variables('alerts').dbCpuPercentage.description]",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]",
-                        "metricName": "cpu_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 80,
-                    "windowSize": "PT5M"
+                "severity": 1,
+                "enabled": true,
+                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                    "allOf": [
+                        {
+                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "metricName": "cpu_percent",
+                            "operator": "GreaterThan",
+                            "threshold" : "80",
+                            "timeAggregation": "Average"
+                        }
+                    ]
                 },
                 "actions": [
                     {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                        "sendToServiceOwners": false,
-                        "customEmails": [
-                            "[parameters('adminUserEmail')]"
-                        ]
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
-            }
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         },
         {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('alerts').dbDtuPercentage.name]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[concat(variables('alerts').dbDtuPercentage.name,'-sqlserver')]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
             "condition": "[and(and(not(empty(parameters('appInsightsName'))), equals(parameters('dbType'), 'sqlserver')), not(parameters('isDbVCoreModel')))]",
             "properties": {
-                "name": "[variables('alerts').dbDtuPercentage.name]",
-                "description": "[variables('alerts').dbDtuPercentage.description]",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]",
-                        "metricName": "dtu_consumption_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 80,
-                    "windowSize": "PT5M"
+                "name": "[variables('alerts').dbCpuPercentage.name]",
+                "description": "[variables('alerts').dbCpuPercentage.description]",
+                "severity": 1,
+                "enabled": true,
+                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                    "allOf": [
+                        {
+                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "metricName": "dtu_consumption_percent",
+                            "operator": "GreaterThan",
+                            "threshold" : "80",
+                            "timeAggregation": "Average"
+                        }
+                    ]
                 },
                 "actions": [
                     {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                        "sendToServiceOwners": false,
-                        "customEmails": [
-                            "[parameters('adminUserEmail')]"
-                        ]
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
-            }
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         },
         {
-            "type": "microsoft.insights/alertrules",
-            "name": "[variables('alerts').dbSizePercentage.name]",
-            "apiVersion": "2016-03-01",
-            "location": "[parameters('location')]",
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[concat(variables('alerts').dbSizePercentage.name,'-sqlserver')]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
             "condition": "[and(not(empty(parameters('appInsightsName'))), equals(parameters('dbType'), 'sqlserver'))]",
             "properties": {
                 "name": "[variables('alerts').dbSizePercentage.name]",
                 "description": "[variables('alerts').dbSizePercentage.description]",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]",
-                        "metricName": "storage_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 80,
-                    "windowSize": "PT5M"
+                "severity": 1,
+                "enabled": true,
+                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+                    "allOf": [
+                        {
+                            "name" : "[variables('alerts').dbSizePercentage.name]",
+                            "metricName": "storage_percent",
+                            "operator": "GreaterThan",
+                            "threshold" : "80",
+                            "timeAggregation": "Average"
+                        }
+                    ]
                 },
                 "actions": [
                     {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                        "sendToServiceOwners": false,
-                        "customEmails": [
-                            "[parameters('adminUserEmail')]"
-                        ]
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
-            }
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         },
         {
             "type": "microsoft.insights/metricAlerts",
@@ -645,8 +626,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -685,8 +665,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },
@@ -725,8 +704,7 @@
                 },
                 "actions": [
                     {
-                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]",
-                        "webHookProperties": {}
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
                     }
                 ]
             },

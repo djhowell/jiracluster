@@ -5,8 +5,9 @@ ATL_GENERATE_SERVER_ID_SCRIPT="print((new com.atlassian.license.DefaultSIDManage
 
 ATL_TEMP_DIR="/tmp"
 ATL_JIRA_VARFILE="${ATL_TEMP_DIR}/jira.varfile"
-ATL_MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.1.0.jre8/mssql-jdbc-6.1.0.jre8.jar"
-ATL_POSTGRES_DRIVER_URL="http://central.maven.org/maven2/org/postgresql/postgresql/9.4.1211/postgresql-9.4.1211.jar"
+ATL_MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/7.2.1.jre8/mssql-jdbc-7.2.1.jre8.jar"
+ATL_POSTGRES_DRIVER_URL="https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar"
+
 
 function atl_log {
   local scope=$1
@@ -129,11 +130,11 @@ function prepare_password_generator {
 function install_password_generator {
   atl_log install_password_generator "Downloading Password Generator Jars"
   JARS="https://packages.atlassian.com/mvn/maven-external/com/atlassian/extras/atlassian-extras/3.3.0/atlassian-extras-3.3.0.jar \
-	  http://central.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
-	  http://central.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
+	  https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
+    https://repo1.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
 	  https://packages.atlassian.com/mvn/maven-external/com/atlassian/security/atlassian-password-encoder/3.2.3/atlassian-password-encoder-3.2.3.jar \
-    http://central.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
-    http://central.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
+    https://repo1.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
+    https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
 
   for aJar in $(echo $JARS)
   do
@@ -315,14 +316,14 @@ function hydrate_shared_config {
   case $DB_TYPE in
      sqlserver)
          export DB_CONFIG_TYPE="mssql"
-         export DB_DRIVER_JAR="mssql-jdbc-6.1.0.jre8.jar"
+         export DB_DRIVER_JAR="$(basename ${ATL_MSSQL_DRIVER_URL})"
          export DB_DRIVER_CLASS="com.microsoft.sqlserver.jdbc.SQLServerDriver"
          export DB_JDBCURL="jdbc:sqlserver://${DB_SERVER_NAME}:${DB_PORT};database=${DB_NAME};encrypt=true;trustServerCertificate=false;hostNameInCertificate=${DB_TRUSTED_HOST}"
          export DB_USER_LIQUIBASE="${DB_USER}@${DB_SERVER_NAME}"
          ;;
      postgres)
          export DB_CONFIG_TYPE="postgres72"
-         export DB_DRIVER_JAR="postgresql-9.4.1211.jar"
+         export DB_DRIVER_JAR="$(basename ${ATL_POSTGRES_DRIVER_URL})"
          export DB_DRIVER_CLASS="org.postgresql.Driver"
          export DB_USER="$DB_USER@$(echo ${DB_SERVER_NAME} | cut -d '.' -f1)"
          export DB_JDBCURL="jdbc:postgresql://${DB_SERVER_NAME}:${DB_PORT}/${DB_NAME}?ssl=true"
@@ -346,7 +347,7 @@ function hydrate_shared_config {
 }
 
 function copy_artefacts {
-  local excluded_files=(std* version installer *.jar prepare_install.sh *.py *.sh *.template *.sql *.js *.xsl *.rpm)
+  local excluded_files=(version installer *.jar prepare_install.sh *.py *.sh *.template *.sql *.js *.xsl *.rpm)
 
   local exclude_rules=""
   for file in ${excluded_files[@]};
@@ -500,7 +501,7 @@ function ensure_readable {
 # Check if we already have installer in shared home and restores it if we do
 # otherwise just downloads the installer and puts it into shared home
 function prepare_installer {
-  atl_log prepare_install "Checking if installer has been downloaded aready"
+  atl_log prepare_installer "Checking if installer has been downloaded aready"
   ensure_readable "${ATL_JIRA_SHARED_HOME}/server.xml"
   if [[ -f ${ATL_JIRA_SHARED_HOME}/$ATL_JIRA_PRODUCT.version ]]; then
     atl_log prepare_installer "Detected installer, restoring it"
@@ -520,7 +521,7 @@ function prepare_installer {
 # Details see https://github.com/AdoptOpenJDK/openjdk-build/issues/693
 function prepare_fontconfig {
   log "Installing fontconfig package..."
-  apt update && apt install -y fontconfig
+  pacapt install --noconfirm fontconfig
 
   log "Font config is ready!"
 }
@@ -550,6 +551,7 @@ function perform_install {
   atl_log perform_install "${ATL_JIRA_PDORUCT} installation completed"
 }
 
+# Still need to install Postgres/MSSQL jars for prepopulation of DB in prepare script.
 function install_jdbc_drivers {
   local install_location="${1:-${ATL_JIRA_INSTALL_DIR}/lib}"
 
@@ -563,6 +565,24 @@ function install_jdbc_drivers {
   done
 
   atl_log install_jdbc_drivers 'JDBC drivers has been copied.'
+}
+
+function install_postgres_cert_if_needed {
+    atl_log install_postgres_cert_if_needed "Got DB Type: $DB_TYPE"
+    
+    if [[ $DB_TYPE == 'postgres' ]]
+    then
+        atl_log install_postgres_cert_if_needed "Downloading + configuring Azure Postgres cert"
+        # https://docs.microsoft.com/en-us/azure/postgresql/concepts-ssl-connection-security
+        curl -LO https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt
+        openssl x509 -inform DER -in BaltimoreCyberTrustRoot.crt -text -out root.crt
+
+        # Preinstall runs liquibase as root, node install runs as jira/confluence user created in install.
+        mkdir -p /home/jira/.postgresql ~root/.postgresql
+        cp -fp root.crt /home/jira/.postgresql
+        cp -fp root.crt ~root/.postgresql
+        chown jira:jira -R /home/jira/.postgresql
+    fi
 }
 
 function install_appinsights {
@@ -582,8 +602,11 @@ function install_appinsights {
      atl_log install_appinsights "Switching on Jira JMX"
      echo "jira.monitoring.jmx.enabled=true" >> ${ATL_JIRA_HOME}/jira-config.properties
 
+     # Tomcat/Jira config files seem to be be reworked between different versions of Jira ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
      cp -fp ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh.orig
+     cp -fp ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh.orig
      sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"\nexport CATALINA_OPTS/' ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh.orig > ${ATL_JIRA_INSTALL_DIR}/bin/setenv.sh
+     sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"\nexport CATALINA_OPTS/' ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh.orig > ${ATL_JIRA_INSTALL_DIR}/bin/set-gc-params.sh
   fi
 }
 
@@ -616,14 +639,17 @@ function install_appinsights_collectd {
       sed --in-place=.bak 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     else
       pacapt install --noconfirm collectd
-      ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+
+      # Use JDK11 libjvm.so if exists or fall back on Java 8 to plug gaps in collectd library path issues.
+      [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      [ -f /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /lib/x86_64-linux-gnu/
       check_collectd_java_linking
       cp -fp ${ATL_JIRA_SHARED_HOME}/jira-collectd.conf /etc/collectd/collectd.conf
       chmod +r /etc/collectd/collectd.conf
     fi
 
     # JAXB now required for JDK > 8 for AppInsights + Collectd. Ubuntu Collectd now compiled/using JDK 11 as no choice
-    curl -LO http://central.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
+    curl -LO https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
 
     atl_log install_appinsights_collectd "Copying collectd appinsights jar to /usr/share/collectd/java"
     cp -fp applicationinsights-collectd*.jar jaxb-api-2.3.1.jar /usr/share/collectd/java/
@@ -710,9 +736,9 @@ function configure_jira {
   configure_cluster
   atl_log configure_jira "Done configuring cluster!"
 
-  atl_log configure_jira "Configuring database driver..."
-  install_jdbc_drivers
-  atl_log configure_jira "Done configuring database driver!"
+  atl_log configure_jira "Configuring Postgres SSL..."
+  install_postgres_cert_if_needed
+  atl_log configure_jira "Done configuring Postgres SSL!"
 
   atl_log configure_jira "Configuring app insights..."
   install_appinsights
@@ -787,6 +813,7 @@ function prepare_install {
   preserve_installer
   hydrate_shared_config
   install_jdbc_drivers "`pwd`"
+  install_postgres_cert_if_needed
   if [ $DB_CREATE = 'true' ]
   then
      preloadDatabase

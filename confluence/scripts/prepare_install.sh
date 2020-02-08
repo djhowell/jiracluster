@@ -6,8 +6,8 @@ ATL_GENERATE_JWT_KEYPAIR_SCRIPT='var keypairgen = java.security.KeyPairGenerator
 
 ATL_TEMP_DIR="/tmp"
 ATL_CONFLUENCE_VARFILE="${ATL_CONFLUENCE_SHARED_HOME}/confluence.varfile"
-ATL_MSSQL_DRIVER_URL="http://central.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.3.0.jre8-preview/mssql-jdbc-6.3.0.jre8-preview.jar"
-ATL_POSTGRES_DRIVER_URL="http://central.maven.org/maven2/org/postgresql/postgresql/9.4.1211/postgresql-9.4.1211.jar"
+ATL_MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/7.2.1.jre8/mssql-jdbc-7.2.1.jre8.jar"
+ATL_POSTGRES_DRIVER_URL="https://repo1.maven.org/maven2/org/postgresql/postgresql/42.2.6/postgresql-42.2.6.jar"
 
 function atl_log {
   local scope=$1
@@ -56,7 +56,7 @@ function preserve_installer {
 
 function download_installer {
   
-  if [ ! -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ]
+  if [ ! -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ]
   then
     log "Will use version: ${ATL_CONFLUENCE_VERSION} but first retrieving latest confluence version info from Atlassian..."
     LATEST_INFO=$(curl -L -f --silent https://my.atlassian.com/download/feeds/current/confluence.json | sed 's/^downloads(//g' | sed 's/)$//g')
@@ -72,7 +72,7 @@ function download_installer {
   [ ${ATL_CONFLUENCE_VERSION} = 'latest' ] &&  echo -n "${LATEST_VERSION}" > version || echo -n "${ATL_CONFLUENCE_VERSION}" > version
 
   local confluence_version=$(cat version)
-  [ -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ] && local confluence_installer_url="${ATL_JIRA_CUSTOM_DOWNLOAD_URL}/atlassian-confluence-${ATL_CONFLUENCE_VERSION}-x64.bin"  || local confluence_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${confluence_version}/g")
+  [ -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ] && local confluence_installer_url="${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}/atlassian-confluence-${ATL_CONFLUENCE_VERSION}-x64.bin"  || local confluence_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${confluence_version}/g")
   log "Downloading ${ATL_CONFLUENCE_PRODUCT} installer from ${confluence_installer_url}"
 
   if ! curl -L -f --silent "${confluence_installer_url}" -o "installer" 2>&1
@@ -123,11 +123,11 @@ function prepare_password_generator {
 function install_password_generator {
   atl_log install_password_generator "Downloading Password Generator Jars"
   JARS="https://packages.atlassian.com/mvn/maven-external/com/atlassian/extras/atlassian-extras/3.3.0/atlassian-extras-3.3.0.jar \
-	  http://central.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
-	  http://central.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
+	  https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar \
+    https://repo1.maven.org/maven2/commons-codec/commons-codec/1.9/commons-codec-1.9.jar \
 	  https://packages.atlassian.com/mvn/maven-external/com/atlassian/security/atlassian-password-encoder/3.2.3/atlassian-password-encoder-3.2.3.jar \
-    http://central.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
-    http://central.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
+    https://repo1.maven.org/maven2/org/liquibase/liquibase-core/3.5.3/liquibase-core-3.5.3.jar \
+    https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.50/bcprov-jdk15on-1.50.jar"
 
   for aJar in $(echo $JARS)
   do
@@ -158,8 +158,17 @@ function generate_server_id {
   fi
 }
 
+function prepare_jwt_keypair_generator {
+  log "Preparing JWT keypair generation script"
+  echo "${ATL_GENERATE_JWT_KEYPAIR_SCRIPT}" > genkeypair.js
+  log "JWT keypair generation script is ready"
+}
+
 function generate_jwt_keypair {
   jjs -cp commons-codec-1.9.jar genkeypair.js
+  if [ "$?" -ne "0" ]; then
+      error "Error running the JWT keypair generator!"
+  fi
 }
 
 # issue_signed_request
@@ -319,7 +328,7 @@ function hydrate_shared_config {
   case $DB_TYPE in
      sqlserver)
          export DB_CONFIG_TYPE="mssql"
-         export DB_DRIVER_JAR="mssql-jdbc-6.3.0.jre8-preview.jar"
+         export DB_DRIVER_JAR="$(basename ${ATL_MSSQL_DRIVER_URL})"
          export DB_DRIVER_CLASS="com.microsoft.sqlserver.jdbc.SQLServerDriver"
          export DB_DRIVER_DIALECT="com.atlassian.confluence.impl.hibernate.dialect.SQLServerDialect"
          export DB_JDBCURL="jdbc:sqlserver://${DB_SERVER_NAME}:${DB_PORT};database=${DB_NAME};encrypt=true;trustServerCertificate=false;hostNameInCertificate=${DB_TRUSTED_HOST}"
@@ -327,7 +336,7 @@ function hydrate_shared_config {
          ;;
      postgres)
          export DB_CONFIG_TYPE="postgres72"
-         export DB_DRIVER_JAR="postgresql-9.4.1211.jar"
+         export DB_DRIVER_JAR="$(basename ${ATL_POSTGRES_DRIVER_URL})"
          export DB_DRIVER_CLASS="org.postgresql.Driver"
          export DB_DRIVER_DIALECT="com.atlassian.confluence.impl.hibernate.dialect.PostgreSQLDialect"
          export DB_USER="$DB_USER@$(echo ${DB_SERVER_NAME} | cut -d '.' -f1)"
@@ -353,7 +362,7 @@ function hydrate_shared_config {
 }
 
 function copy_artefacts {
-  local excluded_files=(std* version installer *.bin *.jar prepare_install.sh *.py *.template *.sql *.js *.xsl oms*sh onboard*sh vm-disk-utils*.sh)
+  local excluded_files=(version installer *.bin *.jar prepare_install.sh *.py *.template *.sql *.js *.xsl oms*sh onboard*sh vm-disk-utils*.sh)
 
   local exclude_rules=""
   for file in ${excluded_files[@]};
@@ -526,7 +535,7 @@ function prepare_installer {
 # Details see https://github.com/AdoptOpenJDK/openjdk-build/issues/693
 function prepare_fontconfig {
   log "Installing fontconfig package..."
-  apt update && apt install -y fontconfig
+  pacapt install --noconfirm fontconfig
 
   log "Font config is ready!"
 }
@@ -555,6 +564,7 @@ function perform_install {
   log "${ATL_CONFLUENCE_PDORUCT} installation completed"
 }
 
+# Still need to install Postgres/MSSQL jars for prepopulation of DB in prepare script.
 function install_jdbc_drivers {
   local install_location="${1:-${ATL_CONFLUENCE_INSTALL_DIR}/lib}"
 
@@ -568,6 +578,24 @@ function install_jdbc_drivers {
   done
 
   atl_log install_jdbc_drivers 'JDBC drivers has been copied.'
+}
+
+function install_postgres_cert_if_needed {
+    atl_log install_postgres_cert_if_needed "Got DB Type: $DB_TYPE"
+    
+    if [[ $DB_TYPE == 'postgres' ]]
+    then
+        atl_log install_postgres_cert_if_needed "Downloading + configuring Azure Postgres cert"
+        # https://docs.microsoft.com/en-us/azure/postgresql/concepts-ssl-connection-security
+        curl -LO https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt
+        openssl x509 -inform DER -in BaltimoreCyberTrustRoot.crt -text -out root.crt
+
+        # Preinstall runs liquibase as root, node install runs as confluence user created in install.
+        mkdir -p /home/confluence/.postgresql ~root/.postgresql
+        cp -fp root.crt /home/confluence/.postgresql
+        cp -fp root.crt ~root/.postgresql
+        chown confluence:confluence -R /home/confluence/.postgresql
+    fi
 }
 
 function get_node_ip {
@@ -592,8 +620,11 @@ function install_appinsights {
 
      cp -fp ${ATL_CONFLUENCE_SHARED_HOME}/ApplicationInsights.xml ${ATL_CONFLUENCE_INSTALL_DIR}/confluence/WEB-INF/classes
 
+     # Tomcat/Confluence config files seem to be be reworked between different versions of Confluence ie catalina_opts previously configured in setenv.sh, now in set-gc-params.sh. Do both as no harm as is only doing work if finds text
      cp -fp ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh.orig
+     cp -fp ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh.orig
      sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dconfluence.hazelcast.jmx.enable=true -Dconfluence.hibernate.jmx.enable=true"\nexport CATALINA_OPTS/' ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh.orig > ${ATL_CONFLUENCE_INSTALL_DIR}/bin/setenv.sh
+     sed 's/export CATALINA_OPTS/CATALINA_OPTS="${CATALINA_OPTS} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dconfluence.hazelcast.jmx.enable=true -Dconfluence.hibernate.jmx.enable=true"\nexport CATALINA_OPTS/' ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh.orig > ${ATL_CONFLUENCE_INSTALL_DIR}/bin/set-gc-params.sh
   fi
 }
 
@@ -626,14 +657,18 @@ function install_appinsights_collectd {
       sed --in-place=.bak 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     else
       pacapt install --noconfirm collectd
-      ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      
+      # Use JDK11 libjvm.so if exists or fall back on Java 8 to plug gaps in collectd library path issues.
+      [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      [ -f /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /lib/x86_64-linux-gnu/
+      
       check_collectd_java_linking
       cp -fp ${ATL_CONFLUENCE_SHARED_HOME}/confluence-collectd.conf /etc/collectd/collectd.conf
       chmod +r /etc/collectd/collectd.conf
     fi
 
     # JAXB now required for JDK > 8 for AppInsights + Collectd. Ubuntu Collectd now compiled/using JDK 11 as no choice
-    curl -LO http://central.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
+    curl -LO https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
 
     atl_log install_appinsights_collectd "Copying collectd appinsights jar to /usr/share/collectd/java"
     cp -fp applicationinsights-collectd*.jar jaxb-api-2.3.1.jar /usr/share/collectd/java/
@@ -763,6 +798,10 @@ function configure_confluence {
   configure_cluster
   log "Done configuring cluster!"
 
+  log "Configuring Postgres SSL..."
+  install_postgres_cert_if_needed
+  log "Done configuring Postgres SSL!"
+
   atl_log configure_confluence "Configuring app insights..."
   install_appinsights
   atl_log configure_confluence "Done app insights!"
@@ -854,6 +893,7 @@ function prepare_install {
   prepare_jwt_keypair_generator
   hydrate_shared_config
   install_jdbc_drivers "`pwd`"
+  install_postgres_cert_if_needed
 
   log "Going to preload database: ${DB_CREATE}"
   if [ "$DB_CREATE" = 'true' ]; then

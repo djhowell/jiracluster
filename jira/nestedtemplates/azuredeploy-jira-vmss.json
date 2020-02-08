@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -17,7 +17,7 @@
             }
         },
         "_artifactsLocationSasToken": {
-            "type": "string",
+            "type": "securestring",
             "defaultValue": "",
             "metadata": {
                 "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
@@ -29,7 +29,8 @@
             "metadata": {
                 "description": "The number of nodes in the Jira cluster."
             },
-            "minValue": 1
+            "minValue": 1,
+            "maxValue": 6
         },
         "clusterVmSize": {
             "type": "string",
@@ -268,13 +269,13 @@
             }
         },
         "workspacePrimaryKey": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "The primary key of the Azure Operations Management Suite (OMS) workspace."
             }
         },
         "workspaceSecondaryKey": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "The secondary key of the Azure Operations Management Suite (OMS) workspace."
             }
@@ -647,7 +648,7 @@
                                             "name": "[concat(variables('namespace'), 'scalset-ipconfig')]",
                                             "properties": {
                                                 "subnet": {
-                                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '/subnets/', parameters('appSubnetName'))]"
+                                                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('appSubnetName'))]"
                                                 },
                                                 "ApplicationGatewayBackendAddressPools": [
                                                     {

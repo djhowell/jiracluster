@@ -203,7 +203,7 @@
                 "elements": [
                     {
                         "name": "username",
-                        "label": "Username",
+                        "label": "Node SSH Username",
                         "type": "Microsoft.Compute.UserNameTextBox",
                         "toolTip": "The SSH username to use to access the Bitbucket and ElasticSearch nodes from the Jumpbox. Note that this is the only way to access the nodes.",
                         "constraints": {
@@ -220,7 +220,7 @@
                             "authenticationType": "Authentication type",
                             "password": "",
                             "confirmPassword": "",
-                            "sshPublicKey": "Public key"
+                            "sshPublicKey": "Jumpbox SSH Public Key"
                         },
                         "toolTip": {
                             "authenticationType": "",
@@ -657,7 +657,7 @@
                                 "name": "hascname",
                                 "type": "Microsoft.Common.OptionsGroup",
                                 "label": "Do you have an existing registered CNAME?",
-                                "toolTip": "If you provide one, the deployment will be made available from confluence.<CNAME> URL eg confluence.domain.com. If you don't, Azure will generate a random domain for your deployment endpoint.",
+                                "toolTip": "If you provide one, the deployment will be made available from bitbucket.<CNAME> URL eg bitbucket.domain.com. If you don't, Azure will generate a random domain for your deployment endpoint.",
                                 "defaultValue": "No",
                                 "constraints": {
                                     "allowedValues": [
@@ -677,6 +677,7 @@
                                 "name": "cname",
                                 "label": "Existing CNAME",
                                 "type": "Microsoft.Common.TextBox",
+                                "toolTip": "The CNAME or domain name for your organization",
                                 "constraints": {
                                     "required": true,
                                     "regex": ".+\\..+",

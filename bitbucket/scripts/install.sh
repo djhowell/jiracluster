@@ -317,7 +317,7 @@ function bbs_download_installer {
     [ ${BBS_VERSION} = 'latest' ] && bitbucket_version="${LATEST_VERSION}" || bitbucket_version="${BBS_VERSION}"
 
     [ -n "${BBS_CUSTOM_DOWNLOAD_URL}" ] && local bitbucket_installer_url="${BBS_CUSTOM_DOWNLOAD_URL}/atlassian-bitbucket-${BBS_VERSION}-x64.bin"  || local bitbucket_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${bitbucket_version}/g")
-    log "Downloading ${ATL_CONFLUENCE_PRODUCT} installer from ${bitbucket_installer_url}"
+    log "Downloading BBS installer from ${bitbucket_installer_url}"
 
     local target="${NFS_INSTALLER_DIR}/installer"
     if ! curl -L -f --silent "${bitbucket_installer_url}" -o "${target}" 2>&1
@@ -478,14 +478,18 @@ function install_appinsights_collectd {
       sed --in-place=.bak 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
     else
       pacapt install --noconfirm collectd
-      ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      
+      # Use JDK11 libjvm.so if exists or fall back on Java 8 to plug gaps in collectd library path issues.
+      [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/libjvm.so /lib/x86_64-linux-gnu/
+      [ -f /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so ] && ln -sf /usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so /lib/x86_64-linux-gnu/
+      
       check_collectd_java_linking
       cp -fp bitbucket-collectd.conf /etc/collectd/collectd.conf
       chmod +r /etc/collectd/collectd.conf
     fi
 
     # Jaxb now required for JDK > 8 for AppInsights + Collectd. Ubuntu Collectd now compiled/using JDK 11 as no choice
-    curl -LO http://central.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
+    curl -LO https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
 
     atl_log install_appinsights_collectd "Copying collectd appinsights jar to /usr/share/collectd/java"
     cp -fp applicationinsights-collectd*.jar jaxb-api-2.3.1.jar /usr/share/collectd/java/

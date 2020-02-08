@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -251,7 +251,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('jumpbox').ip.name)]"
                             },
                             "subnet": {
-                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('vnet').name), '/subnets/', variables('jumpbox').subnet.name)]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('vnet').name, variables('jumpbox').subnet.name)]"
                             }
                         }
                     }
