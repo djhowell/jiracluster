@@ -310,7 +310,7 @@
                 "description": "Select your preferred Linux OS type. The selected Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
         },
-        "blobStorageUri": {
+        "diagnosticsBlobStorageUri": {
             "type": "string"
         }
     },
@@ -665,7 +665,7 @@
                     "diagnosticsProfile": {
                         "bootDiagnostics": {
                             "enabled": true,
-                            "storageUri": "[parameters('blobStorageUri')]"
+                            "storageUri": "[parameters('diagnosticsBlobStorageUri')]"
                         }
                     },
                     "extensionProfile": {

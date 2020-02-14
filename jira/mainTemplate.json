@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -362,6 +362,13 @@
             ],
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
+        },
+        "sharedHomeSizeInMb": {
+           "type": "string",
+           "defaultValue": "1024",
+           "metadata": {
+                "description": "Shared Home File Share Size in MB"
             }
         },
         "clusterVmDiskSize": {
@@ -754,6 +761,9 @@
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "sharedHomeSizeInMb": {
+                        "value": "[parameters('sharedHomeSizeInMb')]"
                     }
                 }
             }

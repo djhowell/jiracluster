@@ -423,6 +423,13 @@
                 "description": "Workspace SKU Pricing Tier. Options depend upon when Azure Subscription created. If after 2018, use 'PerGB2018' otherwise 'Free'."
             }
         },
+        "sharedHomeSizeInMb": {
+           "type": "string",
+           "defaultValue": "1024",
+           "metadata": {
+                "description": "Shared Home File Share Size in MB"
+            }
+        },
         "clusterVmDiskSize": {
             "type": "int",
             "defaultValue": 1000,
@@ -462,14 +469,14 @@
         "appGtwyTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-jira-gtwy.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
-        "tags": {
-            "vendor": "Atlassian",
-            "product": "JIRA",
-            "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
-        },
+        "sharedHomeTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome.json', parameters('_artifactsLocationSasToken')))]",
+        "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
+        "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]",
         "jira": {
             "storage": {
-                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]"
+                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]",
+                "sharedHomeName": "[concat(variables('namespace'), '-shared-home')]",
+                "diagnostics": "[concat(variables('namespace'), 'diag', uniqueString(resourceGroup().id))]"
             }
         },
         "workspace": {
@@ -480,7 +487,8 @@
         "gtwyIpName": "[concat(variables('namespace'), '-appgtwyip-', uniqueString(resourceGroup().id))]",
         "gtwyName": "[if(empty(parameters('sslBase64EncodedPfxCertificate')), concat(variables('namespace'), 'appgateway'), concat(variables('namespace'), 'appgateway-https'))]",
         "gtwyAddressPoolName": "[concat(variables('namespace'), 'appgwaddrpool')]",
-        "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]"
+        "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]",
+        "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -835,7 +843,7 @@
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('jira').storage.name)]",
+                "sharedHomeTemplate",
                 "[variables('dbTemplate')]",
                 "byodbTemplate"
             ],
@@ -943,7 +951,7 @@
                         "value": "[if(parameters('dbCreateNew'), reference(variables('dbTemplate')).outputs.serverName.value, parameters('dbHost'))]"
                     },
                     "storageAccessKey": {
-                        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('jira').storage.name), '2017-06-01').keys[0].value]"
+                        "value": "[reference('sharedHomeTemplate').outputs.storageAccessKey.value]"
                     },
                     "enableAcceleratedNetworking": {
                         "value": "[parameters('enableAcceleratedNetworking')]"
@@ -966,8 +974,8 @@
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
                     },
-                    "blobStorageUri": {
-                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('jira').storage.name), '2017-06-01').primaryEndpoints.blob]"
+                    "diagnosticsBlobStorageUri": {
+                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('jira').storage.diagnostics), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }
@@ -975,14 +983,86 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2018-07-01",
-            "name": "[variables('jira').storage.name]",
+            "name": "[variables('jira').storage.diagnostics]",
             "location": "[parameters('location')]",
             "sku": {
-                "name": "Standard_GRS",
+                "name": "Standard_LRS",
                 "tier": "Standard"
             },
-            "kind": "StorageV2",
-            "tags": "[variables('tags')]"
+            "kind": "StorageV2"
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "sharedHomeTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedHomeTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('jira').storage.name]"
+                    },
+                    "shareSizeMb": {
+                        "value": "[parameters('sharedHomeSizeInMb')]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('jira').storage.sharedHomeName]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "recoveryVaultTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vaultTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vaultName": {
+                            "value": "[variables('vaultName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-05-01",
+            "name": "sharedHomeBackupTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "sharedHomeTemplate",
+                "recoveryVaultTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedHomeBackupTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vaultName": {
+                            "value": "[variables('vaultName')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('jira').storage.name]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('jira').storage.sharedHomeName]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
