@@ -176,6 +176,18 @@
         "confDbServerName": {
             "type": "string"
         },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The storage account name."
+            }
+        },
+        "sharedHomeName": {
+            "type": "string",
+            "metadata": {
+                "description": "The shared home file share name."
+            }
+        },
         "storageAccessKey": {
             "type": "securestring"
         },
@@ -344,9 +356,6 @@
     "variables": {
         "namespace": "conf",
         "confluence": {
-            "storage": {
-                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]"
-            },
             "cluster": {
                 "name": "[concat(variables('namespace'), 'cluster')]",
                 "tier": "Standard",
@@ -477,7 +486,7 @@
                 },
                 {
                     "name": "STORAGE_ACCOUNT",
-                    "value": "[variables('confluence').storage.name]"
+                    "value": "[parameters('storageAccountName')]"
                 }
             ],
             "server": [
@@ -669,7 +678,7 @@
                 },
                 {
                     "name": "ATL_CONFLUENCE_SHARED_HOME_NAME",
-                    "value": "confluence-shared-home"
+                    "value": "[parameters('sharedHomeName')]"
                 },
                 {
                     "name": "ATL_CONFLUENCE_PRODUCT",

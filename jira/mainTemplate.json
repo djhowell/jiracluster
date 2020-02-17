@@ -364,11 +364,11 @@
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
         },
-        "sharedHomeSizeInMb": {
+        "sharedHomeSizeInGb": {
            "type": "string",
-           "defaultValue": "1024",
+           "defaultValue": "128",
            "metadata": {
-                "description": "Shared Home File Share Size in MB"
+                "description": "Shared Home File Share Size in GB"
             }
         },
         "clusterVmDiskSize": {
@@ -494,6 +494,13 @@
             "metadata": {
                 "description": "Enable accelerated networking. Note that this needs to be on a supported instance type."
             }
+        },
+        "enablePremiumFiles": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Azure Premium Files."
+            }
         }
     },
     "variables": {
@@ -569,6 +576,13 @@
                 "medium": "Standard_B1s",
                 "large": "Standard_B1s",
                 "enterprise": "Standard_B1s"
+            },
+            "sharedHomeSizeInGb": {
+                "trial": "128",
+                "small": "256",
+                "medium": "5120",
+                "large": "10240",
+                "enterprise": "20480"
             }
         }
     },
@@ -762,8 +776,11 @@
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
                     },
-                    "sharedHomeSizeInMb": {
-                        "value": "[parameters('sharedHomeSizeInMb')]"
+                    "sharedHomeSizeInGb": {
+                        "value": "[if(parameters('enablePremiumFiles'), if(variables('isJiraClusterSizeUsed'), variables('clusterLookup').sharedHomeSizeInGb[parameters('jiraClusterSize')], parameters('sharedHomeSizeInGb')), '5120')]"
+                    },
+                    "enablePremiumFiles": {
+                        "value": "[parameters('enablePremiumFiles')]"
                     }
                 }
             }

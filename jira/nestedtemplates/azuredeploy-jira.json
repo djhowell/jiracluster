@@ -423,11 +423,11 @@
                 "description": "Workspace SKU Pricing Tier. Options depend upon when Azure Subscription created. If after 2018, use 'PerGB2018' otherwise 'Free'."
             }
         },
-        "sharedHomeSizeInMb": {
-           "type": "string",
-           "defaultValue": "1024",
-           "metadata": {
-                "description": "Shared Home File Share Size in MB"
+        "sharedHomeSizeInGb": {
+            "type": "string",
+            "defaultValue": "128",
+            "metadata": {
+                "description": "Shared Home File Share Size in GB"
             }
         },
         "clusterVmDiskSize": {
@@ -459,6 +459,13 @@
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
+        },
+        "enablePremiumFiles": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Azure Premium Files."
+            }
         }
     },
     "variables": {
@@ -469,12 +476,12 @@
         "appGtwyTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-jira-gtwy.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
-        "sharedHomeTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome.json', parameters('_artifactsLocationSasToken')))]",
         "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
         "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]",
         "jira": {
             "storage": {
                 "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]",
+                "premiumName": "[concat(variables('namespace'), 'prem', uniqueString(resourceGroup().id))]",
                 "sharedHomeName": "[concat(variables('namespace'), '-shared-home')]",
                 "diagnostics": "[concat(variables('namespace'), 'diag', uniqueString(resourceGroup().id))]"
             }
@@ -843,7 +850,8 @@
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "sharedHomeTemplate",
+                "[variables('jira').storage.name]",
+                "[variables('jira').storage.premiumName]", 
                 "[variables('dbTemplate')]",
                 "byodbTemplate"
             ],
@@ -950,8 +958,14 @@
                     "jiraDbServerName": {
                         "value": "[if(parameters('dbCreateNew'), reference(variables('dbTemplate')).outputs.serverName.value, parameters('dbHost'))]"
                     },
+                    "storageAccountName": {
+                        "value": "[if(parameters('enablePremiumFiles'), variables('jira').storage.premiumName, variables('jira').storage.name)]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('jira').storage.sharedHomeName]"
+                    },
                     "storageAccessKey": {
-                        "value": "[reference('sharedHomeTemplate').outputs.storageAccessKey.value]"
+                        "value": "[if(parameters('enablePremiumFiles'), listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('jira').storage.premiumName), '2017-06-01').keys[0].value, listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('jira').storage.name), '2017-06-01').keys[0].value)]"
                     },
                     "enableAcceleratedNetworking": {
                         "value": "[parameters('enableAcceleratedNetworking')]"
@@ -975,15 +989,28 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "diagnosticsBlobStorageUri": {
-                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('jira').storage.diagnostics), '2017-06-01').primaryEndpoints.blob]"
+                         "value": "[reference(concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('jira').storage.diagnostics, variables('jira').storage.name)), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }
         },
         {
+            "name": "[variables('jira').storage.name]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2018-07-01",
+            "condition": "[not(parameters('enablePremiumFiles'))]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2"
+        },
+        {
             "name": "[variables('jira').storage.diagnostics]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2018-07-01",
+            "condition": "[parameters('enablePremiumFiles')]",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard_LRS",
@@ -992,35 +1019,68 @@
             "kind": "StorageV2"
         },
         {
-            "apiVersion": "2018-05-01",
-            "name": "sharedHomeTemplate",
-            "type": "Microsoft.Resources/deployments",
+            "name": "[variables('jira').storage.premiumName]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "comments": "Only have this resource in this template because not allowed to return keys/secrets in output pararms from nested templates.",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Premium_LRS",
+                "tier": "Premium"
+            },
+            "kind": "FileStorage",
             "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('sharedHomeTemplateUri')]",
-                    "contentVersion": "1.0.0.0"
+                "largeFileSharesState": "Enabled",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "defaultAction": "Allow"
                 },
-                "parameters": {
-                    "location": {
-                        "value": "[parameters('location')]"
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
                     },
-                    "storageAccountName": {
-                        "value": "[variables('jira').storage.name]"
-                    },
-                    "shareSizeMb": {
-                        "value": "[parameters('sharedHomeSizeInMb')]"
-                    },
-                    "sharedHomeName": {
-                        "value": "[variables('jira').storage.sharedHomeName]"
-                    }
+                    "keySource": "Microsoft.Storage"
                 }
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "name": "[concat(if(parameters('enablePremiumFiles'), variables('jira').storage.premiumName, variables('jira').storage.name), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "dependsOn": [
+                "[variables('jira').storage.premiumName]"
+            ],
+            "sku": {
+                "name": "Premium_LRS"
+            }
+        },
+        {
+            "name": "[concat(if(parameters('enablePremiumFiles'), variables('jira').storage.premiumName, variables('jira').storage.name), '/default/', variables('jira').storage.sharedHomeName)]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [
+                "[variables('jira').storage.name]",
+                "[variables('jira').storage.premiumName]"
+            ],
+            "properties": {
+                "shareQuota": "[parameters('sharedHomeSizeInGb')]"
+            }
+        },
+        {
             "name": "recoveryVaultTemplate",
+            "apiVersion": "2018-05-01",
             "type": "Microsoft.Resources/deployments",
+            "condition": "[parameters('enablePremiumFiles')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1032,17 +1092,19 @@
                         "value": "[parameters('location')]"
                     },
                     "vaultName": {
-                            "value": "[variables('vaultName')]"
+                        "value": "[variables('vaultName')]"
                     }
                 }
             }
         },
         {
-            "apiVersion": "2018-05-01",
             "name": "sharedHomeBackupTemplate",
+            "apiVersion": "2018-05-01",
             "type": "Microsoft.Resources/deployments",
+            // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
+            "condition": false,
             "dependsOn": [
-                "sharedHomeTemplate",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('jira').storage.premiumName)]",
                 "recoveryVaultTemplate"
             ],
             "properties": {
@@ -1053,10 +1115,10 @@
                 },
                 "parameters": {
                     "vaultName": {
-                            "value": "[variables('vaultName')]"
+                        "value": "[variables('vaultName')]"
                     },
                     "storageAccountName": {
-                        "value": "[variables('jira').storage.name]"
+                        "value": "[variables('jira').storage.premiumName]"
                     },
                     "sharedHomeName": {
                         "value": "[variables('jira').storage.sharedHomeName]"
@@ -1084,7 +1146,7 @@
         },
         "storageAccountName": {
             "type": "string",
-            "value": "[variables('jira').storage.name]"
+            "value": "[if(parameters('enablePremiumFiles'),variables('jira').storage.premiumName, variables('jira').storage.name)]"
         },
         "clusterName": {
             "type": "string",

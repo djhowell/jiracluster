@@ -443,6 +443,13 @@
                 "description": "Workspace SKU Pricing Tier. Options depend upon when Azure Subscription created. If after 2018, use 'PerGB2018' otherwise 'Free'."
             }
         },
+        "sharedHomeSizeInGb": {
+            "type": "string",
+            "defaultValue": "1024",
+            "metadata": {
+                "description": "Shared Home File Share Size in GB"
+            }
+        },
         "clusterVmDiskSize" : {
             "type": "int",
             "defaultValue": 1000,
@@ -472,21 +479,27 @@
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
+        },
+        "enablePremiumFiles": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Azure Premium Files."
+            }
         }
     },
     "variables": {
         "namespace": "conf",
-        "tags": {
-            "vendor": "Atlassian",
-            "product": "Confluence",
-            "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
-        },
         "storage": {
-            "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]"
+            "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]",
+            "premiumName": "[concat(variables('namespace'), 'prem', uniqueString(resourceGroup().id))]",
+            "sharedHomeName": "[concat(variables('namespace'), '-shared-home')]",
+            "diagnostics": "[concat(variables('namespace'), 'diag', uniqueString(resourceGroup().id))]"
         },
         "workspace": {
             "name": "[concat(variables('namespace'), '-omsworkspace-', uniqueString(resourceGroup().id))]"
         },
+        "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]",
         "gtwyIpName": "[concat(variables('namespace'), '-appgtwyip-', uniqueString(resourceGroup().id))]",
         "gtwyName": "[if(empty(parameters('sslBase64EncodedPfxCertificate')), concat(variables('namespace'), 'appgateway'), concat(variables('namespace'), 'appgateway-https'))]",
         "gtwyAddressPoolName": "[concat(variables('namespace'), 'appgwaddrpool')]",
@@ -496,20 +509,142 @@
         "vmssTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-confluence-vmss.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
-        "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]"
+        "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]",
+        "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
+        "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]"
     },
     "resources": [
         {
+            "name": "[variables('storage').name]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2018-07-01",
-            "name": "[variables('storage').name]",
+            "condition": "[not(parameters('enablePremiumFiles'))]",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard_GRS",
                 "tier": "Standard"
             },
-            "kind": "StorageV2",
-            "tags": "[variables('tags')]"
+            "kind": "StorageV2"
+        },
+        {
+            "name": "[variables('storage').diagnostics]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2018-07-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2"
+        },
+        {
+            "name": "[variables('storage').premiumName]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "comments": "Only have this resource in this template because not allowed to return keys/secrets in output pararms from nested templates.",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Premium_LRS",
+                "tier": "Premium"
+            },
+            "kind": "FileStorage",
+            "properties": {
+                "largeFileSharesState": "Enabled",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "name": "[concat(if(parameters('enablePremiumFiles'), variables('storage').premiumName, variables('storage').name), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "dependsOn": [
+                "[variables('storage').premiumName]"
+            ],
+            "sku": {
+                "name": "Premium_LRS"
+            }
+        },
+        {
+            "name": "[concat(if(parameters('enablePremiumFiles'), variables('storage').premiumName, variables('storage').name), '/default/', variables('storage').sharedHomeName)]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [
+                "[variables('storage').name]",
+                "[variables('storage').premiumName]"
+            ],
+            "properties": {
+                "shareQuota": "[parameters('sharedHomeSizeInGb')]"
+            }
+        },
+        {
+            "name": "recoveryVaultTemplate",
+            "apiVersion": "2018-05-01",
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vaultTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vaultName": {
+                        "value": "[variables('vaultName')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "sharedHomeBackupTemplate",
+            "apiVersion": "2018-05-01",
+            "type": "Microsoft.Resources/deployments",
+            // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
+            "condition": false,
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').premiumName)]",
+                "recoveryVaultTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedHomeBackupTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vaultName": {
+                        "value": "[variables('vaultName')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('storage').premiumName]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('storage').sharedHomeName]"
+                    }
+                }
+            }
         },
         {
             "type": "Microsoft.OperationalInsights/workspaces",
@@ -817,7 +952,8 @@
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storage').name)]",
+                "[variables('storage').name]",
+                "[variables('storage').premiumName]",
                 "[variables('dbTemplate')]",
                 "byodbTemplate"
             ],
@@ -927,11 +1063,17 @@
                     "confDbServerName": {
                         "value": "[if(parameters('dbCreateNew'), reference(variables('dbTemplate')).outputs.serverName.value, parameters('dbHost'))]"
                     },
+                    "storageAccountName": {
+                        "value": "[if(parameters('enablePremiumFiles'), variables('storage').premiumName, variables('storage').name)]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('storage').sharedHomeName]"
+                    },
                     "storageAccessKey": {
-                        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').keys[0].value]"
+                        "value": "[if(parameters('enablePremiumFiles'), listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').premiumName), '2017-06-01').keys[0].value, listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').keys[0].value)]"
                     },
                     "storageFilesEndpoint": {
-                        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.file]"
+                        "value": "[if(parameters('enablePremiumFiles'), reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').premiumName), '2017-06-01').primaryEndpoints.file, reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.file)]"
                     },
                     "enableAcceleratedNetworking": {
                         "value": "[parameters('enableAcceleratedNetworking')]"
@@ -955,7 +1097,7 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "diagnosticsBlobStorageUri": {
-                        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
+                         "value": "[reference(concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('storage').diagnostics, variables('storage').name)), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }
@@ -1030,7 +1172,7 @@
         },
         "storageAccountName": {
             "type": "string",
-            "value": "[variables('storage').name]"
+            "value": "[if(parameters('enablePremiumFiles'),variables('storage').premiumName, variables('storage').name)]"
         },
         "clusterName": {
             "type": "string",
