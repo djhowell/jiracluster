@@ -177,6 +177,15 @@ function nfs_configure {
     systemctl restart nfs-server
     systemctl restart rpc-statd.service
 
+    # Some flakiness around - error starting threads: errno 98 (Address already in use) retry seems to fix it
+    sleep 5
+    if [[ "active" != $(systemctl is-active nfs-server) ]]
+    then
+        log "Restarting NFS server again"
+        systemctl status nfs-server
+        systemctl restart nfs-server
+    fi
+
     log "Start NFS server on system startup"
     systemctl enable nfs-server
     systemctl enable rpc-statd.service
