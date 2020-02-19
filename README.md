@@ -18,6 +18,9 @@ This repository contains Azure ARM templates to install the following [Atlassian
 | Jira Software         | ![OK][logo] | ![OK][logo] |
 | Jira Service Desk     | ![OK][logo] | ![OK][logo] |
 
+## Release Notes
+[Can be found here](RELEASE.md)
+
 ## Key Features
 The templates in this repository use Azure Cloud features to create a resilient and scaleable solution:  
 
