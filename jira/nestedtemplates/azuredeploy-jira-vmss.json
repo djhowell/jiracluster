@@ -249,6 +249,18 @@
                 "description": "The Jira database server name."
             }
         },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The storage account name."
+            }
+        },
+        "sharedHomeName": {
+            "type": "string",
+            "metadata": {
+                "description": "The shared home file share name."
+            }
+        },
         "storageAccessKey": {
             "type": "securestring",
             "metadata": {
@@ -310,7 +322,7 @@
                 "description": "Select your preferred Linux OS type. The selected Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
         },
-        "blobStorageUri": {
+        "diagnosticsBlobStorageUri": {
             "type": "string"
         }
     },
@@ -329,7 +341,7 @@
                 },
                 {
                     "name": "STORAGE_ACCOUNT",
-                    "value": "[variables('jira').storage.name]"
+                    "value": "[parameters('storageAccountName')]"
                 }
             ],
             "server": [
@@ -465,7 +477,7 @@
                 },
                 {
                     "name": "ATL_JIRA_SHARED_HOME_NAME",
-                    "value": "jira-shared-home"
+                    "value": "[parameters('sharedHomeName')]"
                 },
                 {
                     "name": "ATL_JIRA_RELEASES_BASE_URL",
@@ -486,9 +498,6 @@
             ]
         },
         "jira": {
-            "storage": {
-                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]"
-            },
             "cluster": {
                 "name": "[concat(variables('namespace'), 'cluster')]",
                 "tier": "Standard",
@@ -665,7 +674,7 @@
                     "diagnosticsProfile": {
                         "bootDiagnostics": {
                             "enabled": true,
-                            "storageUri": "[parameters('blobStorageUri')]"
+                            "storageUri": "[parameters('diagnosticsBlobStorageUri')]"
                         }
                     },
                     "extensionProfile": {

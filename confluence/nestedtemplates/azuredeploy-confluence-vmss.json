@@ -176,6 +176,18 @@
         "confDbServerName": {
             "type": "string"
         },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The storage account name."
+            }
+        },
+        "sharedHomeName": {
+            "type": "string",
+            "metadata": {
+                "description": "The shared home file share name."
+            }
+        },
         "storageAccessKey": {
             "type": "securestring"
         },
@@ -337,16 +349,13 @@
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
         },
-        "blobStorageUri": {
+        "diagnosticsBlobStorageUri": {
             "type": "string"
         }
     },
     "variables": {
         "namespace": "conf",
         "confluence": {
-            "storage": {
-                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]"
-            },
             "cluster": {
                 "name": "[concat(variables('namespace'), 'cluster')]",
                 "tier": "Standard",
@@ -477,7 +486,7 @@
                 },
                 {
                     "name": "STORAGE_ACCOUNT",
-                    "value": "[variables('confluence').storage.name]"
+                    "value": "[parameters('storageAccountName')]"
                 }
             ],
             "server": [
@@ -669,7 +678,7 @@
                 },
                 {
                     "name": "ATL_CONFLUENCE_SHARED_HOME_NAME",
-                    "value": "confluence-shared-home"
+                    "value": "[parameters('sharedHomeName')]"
                 },
                 {
                     "name": "ATL_CONFLUENCE_PRODUCT",
@@ -830,7 +839,7 @@
                     "diagnosticsProfile": {
                         "bootDiagnostics": {
                             "enabled": true,
-                            "storageUri": "[parameters('blobStorageUri')]"
+                            "storageUri": "[parameters('diagnosticsBlobStorageUri')]"
                         }
                     },
                     "extensionProfile": {

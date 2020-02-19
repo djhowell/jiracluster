@@ -7,19 +7,23 @@
             "metadata": {
                 "description": "Location for all resources."
             }
+        },
+        "vaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "Vault Name."
+            }
         }
     },
     "variables": {
-        "namespace": "bitbucket",
         "skuName": "RS0",
-        "skuTier": "Standard",
-        "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]"
+        "skuTier": "Standard"
     },
     "resources": [
         {
             "type": "Microsoft.RecoveryServices/vaults",
             "apiVersion": "2018-01-10",
-            "name": "[variables('vaultName')]",
+            "name": "[parameters('vaultName')]",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "[variables('skuName')]",
@@ -29,9 +33,5 @@
         }
     ],
     "outputs": {
-        "vaultName": {
-            "type": "string",
-            "value": "[variables('vaultName')]"
-        }
     }
 }
