@@ -53,8 +53,7 @@
       "defaultValue": "9.6",
       "allowedValues": [
         "9.6",
-        "10",
-        "11"
+        "10"
       ],
       "metadata": {
         "description": "The PostgresSQL DB version to use."
