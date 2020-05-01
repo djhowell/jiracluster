@@ -354,7 +354,7 @@
         }
     },
     "variables": {
-        "namespace": "crowd",
+        "namespace": "crd",
         "confluence": {
             "cluster": {
                 "name": "[concat(variables('namespace'), 'cluster')]",

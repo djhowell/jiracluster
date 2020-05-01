@@ -7,7 +7,7 @@
         }
     },
     "variables": {
-        "namespace": "crowd",
+        "namespace": "crd",
         "appinsights": {
             "name": "[concat(variables('namespace'), '-AppInsights-', uniqueString(resourceGroup().id))]",
             "type": "java"

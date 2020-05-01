@@ -41,7 +41,7 @@
         }
     },
     "variables": {
-        "namespace": "crowd",
+        "namespace": "crd",
         "tags": {
             "vendor": "Atlassian",
             "product": "Confluence",

@@ -47,7 +47,7 @@
         }
     },
     "variables": {
-        "namespace": "crowd",
+        "namespace": "crd",
         "supportTeam": {
             "name": "[concat(variables('namespace'), '-SupportTeam-', uniqueString(resourceGroup().id))]",
             "shortName": "[toUpper(concat(variables('namespace'), 'SupTeam'))]"
