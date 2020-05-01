@@ -488,7 +488,7 @@
         }
     },
     "variables": {
-        "namespace": "crd",
+        "namespace": "crd-",
         "storage": {
             "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]",
             "premiumName": "[concat(variables('namespace'), 'prem', uniqueString(resourceGroup().id))]",

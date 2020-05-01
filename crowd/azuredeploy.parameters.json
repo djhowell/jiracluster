@@ -13,9 +13,5 @@
         },
         "confAdminUserPassword": {
             "value": "admin"
-        },
-        "namespace": {
-            "value": "crowd"
         }
-    }
 }
