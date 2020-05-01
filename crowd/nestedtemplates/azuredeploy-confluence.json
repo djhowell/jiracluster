@@ -22,7 +22,7 @@
                 "description": "The (optional) Shared Access Signature (SAS) token that provides access to resources in the storage account."
             }
         },
-        "confluenceVersion": {
+        "crowdVersion": {
             "type": "string",
             "defaultValue": "latest",
             "metadata": {
@@ -969,8 +969,8 @@
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
                     },
-                    "confluenceVersion": {
-                        "value": "[parameters('confluenceVersion')]"
+                    "crowdVersion": {
+                        "value": "[parameters('crowdVersion')]"
                     },
                     "customDownloadUrl": {
                         "value": "[parameters('customDownloadUrl')]"

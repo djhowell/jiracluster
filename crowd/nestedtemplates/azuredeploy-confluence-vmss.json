@@ -210,7 +210,7 @@
         "workspaceSecondaryKey": {
             "type": "securestring"
         },
-        "confluenceVersion": {
+        "crowdVersion": {
             "type": "string",
             "defaultValue": "latest",
             "metadata": {
@@ -221,7 +221,7 @@
             "type": "string",
             "defaultValue": "",
             "metadata": {
-                 "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the confluenceVersion parameter."
+                 "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the crowdVersion parameter."
              }
         },
         "dbTierSize": {
@@ -686,7 +686,7 @@
                 },
                 {
                     "name": "ATL_CONFLUENCE_VERSION",
-                    "value": "[parameters('confluenceVersion')]"
+                    "value": "[parameters('crowdVersion')]"
                 },
                 {
                     "name": "ATL_CLUSTER_SIZE",

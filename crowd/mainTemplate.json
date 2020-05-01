@@ -31,7 +31,7 @@
                 "description": "If these templates are being deployed via the Azure Marketplace."
             }
         },
-        "confluenceVersion": {
+        "crowdVersion": {
             "type": "string",
             "defaultValue": "latest",
             "metadata": {
@@ -42,7 +42,7 @@
             "type": "string",
             "defaultValue": "",
             "metadata": {
-                "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the confluenceVersion parameter."
+                "description": "Use this URL to override standard Atlassian download url eg for EAP, RC versions. NB will be used in conjunction with the crowdVersion parameter."
             }
         },
         "dbCreateNew": {
@@ -666,8 +666,8 @@
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
                     },
-                    "confluenceVersion": {
-                        "value": "[parameters('confluenceVersion')]"
+                    "crowdVersion": {
+                        "value": "[parameters('crowdVersion')]"
                     },
                     "customDownloadUrl": {
                         "value": "[parameters('customDownloadUrl')]"
