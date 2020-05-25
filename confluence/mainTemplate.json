@@ -347,6 +347,19 @@
                 "description": "The size of the virtual machine to use for each Confluence node in the cluster. Note that if the 'confClusterSize' parameter is used this value will be ignored."
             }
         },
+        "clusterVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
+            }
+        },
         "linuxOsType": {
             "type": "string",
             "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
@@ -788,6 +801,9 @@
                     },
                     "clusterVmDiskCount": {
                         "value": "[parameters('clusterVmDiskCount')]"
+                    },
+                    "clusterVmDataDiskType": {
+                        "value": "[parameters('clusterVmDataDiskType')]"
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"

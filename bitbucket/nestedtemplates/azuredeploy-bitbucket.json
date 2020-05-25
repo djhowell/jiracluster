@@ -363,6 +363,19 @@
                 "description": "The requested BitBucket NFS disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
             }
         },
+        "nfsVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
+            }
+        },
         "appGtwyClusterSize": {
             "type": "int",
             "allowedValues": [
@@ -1232,6 +1245,9 @@
                     },
                     "nfsVmDiskCount": {
                         "value": "[parameters('nfsVmDiskCount')]"
+                    },
+                    "nfsVmDataDiskType": {
+                        "value": "[parameters('nfsVmDataDiskType')]"
                     },
                     "workspaceId": {
                         "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
