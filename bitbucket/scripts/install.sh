@@ -318,8 +318,8 @@ function bbs_download_installer {
         error "Could not get latest info installer description from https://my.atlassian.com/download/feeds/current/stash.json"
         fi
 
-        LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g')
-        LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g')
+        LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g' | sort -nr | head -n1)
+        LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g' | sort -nr | head -n1)
         log "Latest bitbucket info: $LATEST_VERSION and download URL: $LATEST_VERSION_URL"
     fi
 
