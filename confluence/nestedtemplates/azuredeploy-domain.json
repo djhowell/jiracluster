@@ -38,7 +38,6 @@
             "type": "Microsoft.Network/dnszones/A",
             "name": "[concat(parameters('cname'), '/', parameters('prefix'))]",
             "apiVersion": "2018-05-01",
-            "scale": null,
             "properties": {
                 "TTL": 3600,
                 "targetResource": {
