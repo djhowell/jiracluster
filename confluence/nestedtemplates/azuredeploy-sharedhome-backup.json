@@ -25,7 +25,6 @@
         "policyName": "SharedHomeBackupPolicy",
         "schedule": {
             "scheduleRunFrequency": "Daily",
-            "scheduleRunDays": null,
             "scheduleRunTimes": [
                 "2020-01-01T10:00:00.000Z"
             ],
@@ -41,9 +40,6 @@
                     "durationType": "Days"
                 }
             },
-            "weeklySchedule": null,
-            "monthlySchedule": null,
-            "yearlySchedule": null,
             "retentionPolicyType": "LongTermRetentionPolicy"
         },
         "timeZone": "UTC",

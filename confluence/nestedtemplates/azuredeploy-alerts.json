@@ -104,7 +104,6 @@
             "name": "[variables('alerts').confNodeOffline.name]",
             "apiVersion": "2018-03-01",
             "location": "global",
-            "scale": null,
             "properties": {
                 "description": "A Confluence node has just became unhealthly/gone offline. ",
                 "enabled": true,
@@ -124,7 +123,6 @@
                             "threshold": 0,
                             "timeAggregation": "Average",
                             "name": "Metric1",
-                            "dimensions": [],
                             "monitorTemplateType": "8"
                         }
                     ],
@@ -164,7 +162,6 @@
                             "threshold": 4000000000000,
                             "timeAggregation": "Average",
                             "name": "Metric1",
-                            "dimensions": [],
                             "monitorTemplateType": "8"
                         }
                     ],
@@ -240,7 +237,6 @@
             "properties": {
                 "SyntheticMonitorId": "[variables('webTestName')]",
                 "Name": "AppHeartBeat",
-                "Description": "",
                 "Enabled": true,
                 "Frequency": 300,
                 "Timeout": 120,
