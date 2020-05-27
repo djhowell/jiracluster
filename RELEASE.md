@@ -1,3 +1,6 @@
+### 27-May-2020
+* Confluence fix for change to Confluence Downloads feed format. https://bulldog.internal.atlassian.com/browse/AZURE-212
+
 ### 19-Feb-2020
 * Premium Files support for Shared Home. Not enabled by default due to LRS-only redundancy but is available to be selected via the Deploy to Azure button.
 

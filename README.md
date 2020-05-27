@@ -10,11 +10,12 @@ This repository contains Azure ARM templates to install the following [Atlassian
 
 ## Status
 [logo]: images/check_mark_32.png "OK"
+[fail]: images/cross_mark_32.png "FAIL"
 
 | Product               | Repo        | Marketplace |
 |-----------------------|:-----------:|:-----------:|
 | Bitbucket             | ![OK][logo] | ![OK][logo] |
-| Confluence            | ![OK][logo] | ![OK][logo] |
+| Confluence            | ![OK][logo] | ![OK][fail] |
 | Jira Software         | ![OK][logo] | ![OK][logo] |
 | Jira Service Desk     | ![OK][logo] | ![OK][logo] |
 
