@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
-  "handler": "Microsoft.Compute.MultiVm",
+  "handler": "Microsoft.Azure.CreateUIDef",
   "version": "0.1.2-preview",
   "parameters": {
     "basics": [],
@@ -18,7 +18,7 @@
             "name": "jiraVersion",
             "label": "Jira Version",
             "type": "Microsoft.Common.TextBox",
-            "toolTip": "Specify which version of Jira (>8.5.0) you want to install. You can also specify 'latest' to download the latest version available.",
+            "toolTip": "Specify which version of Jira you want to install. You can also specify 'latest' to download the latest version available.",
             "constraints": {
               "required": true,
               "regex": "latest|^([7,8,9]\\.[0-9]{1,2}\\.[0-9]{1,2})$",
@@ -78,7 +78,7 @@
             "name": "jiraClusterSize",
             "label": "JIRA Cluster",
             "type": "Microsoft.Common.DropDown",
-            "toolTip": "Click <a href=\"https://confluence.atlassian.com/enterprise/jira-sizing-guide-461504623.html\">here</a> for sizing guide.",
+            "toolTip": "See https://confluence.atlassian.com/enterprise/jira-sizing-guide-461504623.html for sizing guide.",
             "constraints": {
               "allowedValues": [
                 {
@@ -704,7 +704,7 @@
                 "name": "hascname",
                 "type": "Microsoft.Common.OptionsGroup",
                 "label": "Do you have an existing registered CNAME?",
-                "toolTip": "If you provide one, the deployment will be made available from jira.<CNAME> URL eg jira.domain.com. If you don't, Azure will generate a random domain for your deployment endpoint.",
+                "toolTip": "If you provide one, the deployment will be made available from jira.CNAME URL eg jira.domain.com. If you don't, Azure will generate a random domain for your deployment endpoint.",
                 "defaultValue": "No",
                 "constraints": {
                   "allowedValues": [
