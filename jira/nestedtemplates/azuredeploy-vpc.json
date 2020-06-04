@@ -266,7 +266,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('jumpbox').name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
