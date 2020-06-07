@@ -172,6 +172,13 @@
         },
         "esLoadBalancerPrivateIp": {
             "type": "string"
+        },
+        "enableVault": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable Recovery Services vault"
+            }
         }
     },
     "variables": {
@@ -292,6 +299,7 @@
         {
             "apiVersion": "2018-05-01",
             "name": "nfsBackupTemplate",
+            "condition": "[parameters('enableVault')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",

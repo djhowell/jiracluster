@@ -578,6 +578,13 @@
             "metadata": {
                 "description": "Enable Azure Application Insights."
             }
+        },
+        "enableVault": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable Recovery Services vault"
+            }
         }
     },
     "variables": {
@@ -791,6 +798,9 @@
                     },
                     "enableAnalytics": {
                         "value": "[parameters('enableAnalytics')]"
+                    },
+                    "enableVault": {
+                        "value": "[parameters('enableVault')]"
                     },
                     "workspaceSku": {
                         "value": "[parameters('workspaceSku')]"

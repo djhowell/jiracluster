@@ -571,6 +571,13 @@
                 "description": "Enable Azure Operational Insights."
             }
         },
+        "enableVault": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable Recovery Services vault"
+            }
+        },
         "enableApplicationInsights": {
             "type": "bool",
             "defaultValue": true
@@ -669,6 +676,7 @@
         {
             "apiVersion": "2018-05-01",
             "name": "recoveryVaultTemplate",
+            "condition": "[parameters('enableVault')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
@@ -1265,10 +1273,13 @@
                         "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
                     },
                     "vaultName": {
-                        "value": "[reference('recoveryVaultTemplate').outputs.vaultName.value]"
+                        "value": "[if(parameters('enableVault'), reference('recoveryVaultTemplate').outputs.vaultName.value, '')]",
                     },
                     "esLoadBalancerPrivateIp": {
                         "value": "[variables('esLoadBalancerPrivateIp')]"
+                    },
+                    "enableVault": {
+                        "value": "[parameters('enableVault')]"
                     }
                 }
             }
