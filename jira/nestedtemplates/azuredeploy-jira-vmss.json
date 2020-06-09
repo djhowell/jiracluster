@@ -12,8 +12,7 @@
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
-                "description": "The URL specifying the location of the installation files.",
-                "artifactsBaseUrl": ""
+                "description": "The URL specifying the location of the installation files."
             }
         },
         "_artifactsLocationSasToken": {
@@ -567,7 +566,7 @@
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "name": "[concat(parameters('jumpboxName'), '/prepare-install-script')]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -597,7 +596,7 @@
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "name": "[variables('jira').cluster.name]",
             "location": "[parameters('location')]",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/',parameters('jumpboxName'),'/extensions/prepare-install-script')]"
             ],

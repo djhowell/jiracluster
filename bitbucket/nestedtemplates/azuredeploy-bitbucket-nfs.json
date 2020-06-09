@@ -209,7 +209,7 @@
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "location": "[parameters('location')]",
             "name": "[variables('vm').nfs.name]",
             "properties": {
@@ -268,7 +268,7 @@
             "resources": [
                 {
                     "type": "extensions",
-                    "apiVersion": "2018-06-01",
+                    "apiVersion": "2019-12-01",
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[variables('vm').nfs.name]"

@@ -308,6 +308,7 @@
         "bbsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket Node disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The bbsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -378,6 +379,7 @@
         "nfsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket NFS disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -413,6 +415,7 @@
         "esVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested ElasticSearch Data node disks will be striped for performance. Essentially the desired disk size will be divided by the esVmDiskCount and can't exceed 1023 GB. The esVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -476,7 +479,6 @@
                 6
             ],
             "defaultValue": 2,
-            "minValue": 1,
             "metadata": {
                 "description": "The number of nodes in the Application Gateway cluster."
             }
