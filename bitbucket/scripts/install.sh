@@ -204,7 +204,7 @@ function install_latest_git {
 
     if [[ -n ${IS_REDHAT} ]]
     then
-	    pacapt install --noconfirm git2u
+	    pacapt install --noconfirm git
     else 
     	apt-add-repository -y ppa:git-core/ppa
 	    pacapt update --noconfirm
