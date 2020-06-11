@@ -1,6 +1,7 @@
 #!/bin/bash
 DEPLOY_DIR=/var/tmp/azure.$$
-RELEASE_DATE=$(date '+%d-%m-%Y %H:%M:00')
+RELEASE_DATE=$(date '+%d-%b-%Y %H:%M:00')
+BRANCH=${1:-master}
 
 echo "DEPLOY DIR: ${DEPLOY_DIR}"
 mkdir -p $DEPLOY_DIR
@@ -9,6 +10,7 @@ git clone git@bitbucket.org:atlassian/atlassian-azure-deployment.git
 
 # From https://hello.atlassian.net/wiki/spaces/DCD/pages/374021731/Azure+Marketplace+Update+Offering
 cd atlassian-azure-deployment
+git checkout ${BRANCH}
 find . -name mainTemplate.json | xargs -L1 sed -i .bak 's_https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/[a-z]*/_[deployment().properties.templateLink.uri]_g'
 find . -name createUiDefinition.json | xargs -L1 sed -i .bak "s/MARKETPLACE_RELEASE_DATE/${RELEASE_DATE}/"
 
