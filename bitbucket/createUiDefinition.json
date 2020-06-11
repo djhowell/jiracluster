@@ -5,13 +5,13 @@
     "parameters": {
         "basics": [
             {
-				"name": "releaseDate",
-				"type": "Microsoft.Common.TextBlock",
-				"visible": true,
-				"options": {
-					"text": "Release Date: MARKETPLACE_RELEASE_DATE"
-				}
-			}
+                "name": "releaseDate",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                    "text": "Release Date: MARKETPLACE_RELEASE_DATE"
+                }
+            }
         ],
         "steps": [
             {
