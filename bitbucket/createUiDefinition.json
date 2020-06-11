@@ -3,7 +3,16 @@
     "handler": "Microsoft.Azure.CreateUIDef",
     "version": "0.1.2-preview",
     "parameters": {
-        "basics": [],
+        "basics": [
+            {
+				"name": "releaseDate",
+				"type": "Microsoft.Common.TextBlock",
+				"visible": true,
+				"options": {
+					"text": "Release Date: MARKETPLACE_RELEASE_DATE"
+				}
+			}
+        ],
         "steps": [
             {
                 "name": "administrator",
@@ -30,7 +39,7 @@
                         "name": "adminFullname",
                         "label": "Admin Full Name",
                         "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The fullname for the Bitbucket administrator's account.",
+                        "toolTip": "The full name for the Bitbucket administrator's account.",
                         "constraints": {
                             "required": true,
                             "regex": "^[a-zA-Z0-9 ]*$",
