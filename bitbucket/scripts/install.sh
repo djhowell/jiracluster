@@ -680,10 +680,14 @@ function install_redhat_epel_if_needed {
   if [[ -n ${IS_REDHAT} ]]
   then
     log "install the ius-release & epel-release packages"
-	  wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-	  yum install -y ./epel-release-latest-*.noarch.rpm
+    wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum install -y ./epel-release-latest-*.noarch.rpm
 
-	  yum install -y https://repo.ius.io/ius-release-el7.rpm
+    # ISU repo contains latest GIT packages, see https://ius.io/
+    yum install -y https://repo.ius.io/ius-release-el7.rpm
+    if [ "$?" -ne "0" ]; then
+      error "ISU repo package (ius-release) install failed!!"
+    fi
   fi
 }
 
