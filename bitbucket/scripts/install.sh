@@ -200,12 +200,14 @@ function bbs_install_nfs_client {
 }
 
 function install_latest_git {
-    log "Install latest version of git from PPA"
+
 
     if [[ -n ${IS_REDHAT} ]]
     then
-	    pacapt install --noconfirm git2u
-    else 
+      log "Install latest git 2.24.2 from IUS"
+	    pacapt install --noconfirm git224
+    else
+      log "Install latest version of git from PPA"
     	apt-add-repository -y ppa:git-core/ppa
 	    pacapt update --noconfirm
 	    pacapt install --noconfirm git
@@ -677,11 +679,15 @@ function install_pacapt {
 function install_redhat_epel_if_needed {
   if [[ -n ${IS_REDHAT} ]]
   then
-	  wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-	  yum install -y ./epel-release-latest-*.noarch.rpm
+    log "install the ius-release & epel-release packages"
+    wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum install -y ./epel-release-latest-*.noarch.rpm
 
-      wget https://rhel7.iuscommunity.org/ius-release.rpm
-	  yum install -y ius-release.rpm
+    # ISU repo contains latest GIT packages, see https://ius.io/
+    yum install -y https://repo.ius.io/ius-release-el7.rpm
+    if [ "$?" -ne "0" ]; then
+      error "ISU repo package (ius-release) install failed!!"
+    fi
   fi
 }
 
