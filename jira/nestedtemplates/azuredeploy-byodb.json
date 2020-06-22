@@ -75,7 +75,7 @@
             "type": "Microsoft.Sql/servers/virtualNetworkRules",
             "name": "[concat(variables('dbName'), '/', parameters('clusterDbAccessNetworkRule'))]",
             "condition": "[equals(parameters('dbType'), 'sqlserver')]",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2019-06-01-preview",
             "properties": {
                 "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('appSubnetName'))]",
                 "ignoreMissingVnetServiceEndpoint": false

@@ -61,7 +61,6 @@
                         "name": "adminUsername",
                         "label": "Admin Username",
                         "type": "Microsoft.Compute.UserNameTextBox",
-                        "defaultValue": "adminUser",
                         "toolTip": "The username for the Jira administrator's account.",
                         "constraints": {
                             "required": true,
@@ -546,11 +545,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -566,7 +565,7 @@
                             "regex": "^[a-z0-9]*(.postgres.database.azure.com|.database.windows.net)$",
                             "validationMessage": "Expected a lowercase Azure SQL endpoint ie '<database>.database.windows.net' or <database>.postgres.database.azure.com'"
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbPort",
@@ -575,11 +574,11 @@
                         "toolTip": "The port of an existing Azure database.",
                         "defaultValue": "",
                         "constraints": {
-                            "required": "[equals('yes', steps('database').hasDatabase)]",
+                            "required": "[steps('database').hasDatabase]",
                             "regex": "[0-9]*",
                             "validationMessage": "Expected a numeric value for database port eg 1433 or 5852."
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbDatabase",
@@ -592,7 +591,7 @@
                             "regex": "^[a-z0-9]*$",
                             "validationMessage": "Expected a lowercase database name"
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbSchema",
@@ -605,7 +604,7 @@
                             "regex": "^[a-z0-9]*$",
                             "validationMessage": "Expected a database schema"
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbUsername",
@@ -825,11 +824,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -846,11 +845,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -860,7 +859,7 @@
                     {
                         "name": "appInsightsCheck",
                         "type": "Microsoft.Common.InfoBox",
-                        "visible": "[and(equals(steps('monitoring').enableAppInsights, 'yes'),  not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
+                        "visible": "[and(steps('monitoring').enableAppInsights,  not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
                         "options": {
                             "icon": "Error",
                             "text": "App Insights product only available in regions: australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2. Please disable or change resource group location!",
@@ -877,11 +876,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -927,12 +926,12 @@
                             ],
                             "required": true
                         },
-                        "visible": "[equals(steps('monitoring').enableAnalytics, 'yes')]"
+                        "visible": "[steps('monitoring').enableAnalytics]"
                     },
                     {
                         "name": "appAnalyticsCheck",
                         "type": "Microsoft.Common.InfoBox",
-                        "visible": "[and(equals(steps('monitoring').enableAnalytics, 'yes'), not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
+                        "visible": "[and(steps('monitoring').enableAnalytics, not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
                         "options": {
                             "icon": "Error",
                             "text": "Analytics products only available in regions: australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2. Please disable or change resource group location!",
@@ -942,7 +941,7 @@
                     {
                         "name": "postgresAnalyticsCheck",
                         "type": "Microsoft.Common.InfoBox",
-                        "visible": "[and(equals(steps('monitoring').enableAnalytics, 'yes'), equals(steps('database').dbType, 'Azure DB for PostgreSQL'))]",
+                        "visible": "[and(steps('monitoring').enableAnalytics, equals(steps('database').dbType, 'Azure DB for PostgreSQL'))]",
                         "options": {
                             "icon": "Info",
                             "text": "Azure SQL Analytics not currently available for PostgreSQL!"
@@ -962,7 +961,7 @@
             "jiraAdminUserFullname": "[steps('administrator').adminfullname]",
             "jiraClusterSize": "[steps('administrator').jiraClusterSize]",
             "clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",
-            "dbCreateNew": "[equals('no', steps('database').hasDatabase)]",
+            "dbCreateNew": "[steps('database').hasDatabase]",
             "dbUsername": "[steps('database').dbUsername]",
             "dbPassword": "[steps('database').dbPassword]",
             "dbDatabase": "[steps('database').dbDatabase]",
@@ -975,9 +974,9 @@
             "cname": "[steps('domain').cnameSection.cname]",
             "sslBase64EncodedPfxCertificate": "[steps('domain').sslSection.sslBase64EncodedPfxCertificate]",
             "sslPfxCertificatePassword": "[steps('domain').sslSection.sslPfxCertificatePassword]",
-            "enableEmailAlerts": "[equals(steps('monitoring').enableEmailAlerts, 'yes')]",
-            "enableApplicationInsights": "[equals(steps('monitoring').enableAppInsights, 'yes')]",
-            "enableAnalytics": "[equals(steps('monitoring').enableAnalytics, 'yes')]",
+            "enableEmailAlerts": "[steps('monitoring').enableEmailAlerts]",
+            "enableApplicationInsights": "[steps('monitoring').enableAppInsights]",
+            "enableAnalytics": "[steps('monitoring').enableAnalytics]",
             "workspaceSku": "[steps('monitoring').workspaceSku]"
         }
     }

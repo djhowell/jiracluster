@@ -182,7 +182,6 @@
       "type": "Microsoft.DBforPostgreSQL/servers/configurations",
       "name": "[concat(parameters('dbServerName'), '/', 'pg_qs.query_capture_mode')]",
       "apiVersion": "2017-12-01-preview",
-      "scale": null,
       "properties": {
         "value": "ALL",
         "source": "user-override"
@@ -195,7 +194,6 @@
       "type": "Microsoft.DBforPostgreSQL/servers/configurations",
       "name": "[concat(parameters('dbServerName'), '/', 'pgms_wait_sampling.query_capture_mode')]",
       "apiVersion": "2017-12-01-preview",
-      "scale": null,
       "properties": {
         "value": "ALL",
         "source": "user-override"
@@ -208,7 +206,6 @@
       "type": "Microsoft.DBforPostgreSQL/servers/databases",
       "name": "[concat(variables('postgresql').server.name, '/',variables('postgresql').database.name)]",
       "apiVersion": "2017-12-01-preview",
-      "scale": null,
       "properties": {
         "charset": "[variables('postgresql').database.charset]",
         "collation": "[variables('postgresql').database.collation]"
@@ -221,7 +218,6 @@
       "type": "Microsoft.DBforPostgreSQL/servers/virtualNetworkRules",
       "name": "[concat(parameters('dbServerName'), '/', parameters('clusterDbAccessNetworkRule'))]",
       "apiVersion": "2017-12-01",
-      "scale": null,
       "properties": {
         "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('appSubnetName'))]",
         "ignoreMissingVnetServiceEndpoint": false
