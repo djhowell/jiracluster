@@ -508,14 +508,15 @@
         "gtwyName": "[if(empty(parameters('sslBase64EncodedPfxCertificate')), concat(variables('namespace'), 'appgateway'), concat(variables('namespace'), 'appgateway-https'))]",
         "gtwyAddressPoolName": "[concat(variables('namespace'), 'appgwaddrpool')]",
         "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]",
-        "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]"
+        "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]",
+        "storageName": "[concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('jira').storage.diagnostics, variables('jira').storage.name))]"
     },
     "resources": [
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "name": "[variables('workspace').name]",
             "condition": "[parameters('enableAnalytics')]",
-            "apiVersion": "2017-04-26-preview",
+            "apiVersion": "2020-03-01-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "sku": {
@@ -524,7 +525,7 @@
             },
             "resources": [
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "JiraLogs",
                     "condition": "[parameters('enableAnalytics')]",
@@ -572,7 +573,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "jiraLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
@@ -985,10 +986,10 @@
                         "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
                     },
                     "workspacePrimaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').primarySharedKey, '')]"
                     },
                     "workspaceSecondaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').secondarySharedKey, '')]"
                     },
                     "clusterVmDiskSize": {
                         "value": "[parameters('clusterVmDiskSize')]"
@@ -1003,7 +1004,7 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "diagnosticsBlobStorageUri": {
-                         "value": "[reference(concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('jira').storage.diagnostics, variables('jira').storage.name)), '2017-06-01').primaryEndpoints.blob]"
+                         "value": "[reference(variables('storageName')).primaryEndpoints.blob]"
                     }
                 }
             }
