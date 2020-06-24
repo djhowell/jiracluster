@@ -961,7 +961,7 @@
             "jiraAdminUserFullname": "[steps('administrator').adminfullname]",
             "jiraClusterSize": "[steps('administrator').jiraClusterSize]",
             "clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",
-            "dbCreateNew": "[steps('database').hasDatabase]",
+            "dbCreateNew": "[not(steps('database').hasDatabase)]",
             "dbUsername": "[steps('database').dbUsername]",
             "dbPassword": "[steps('database').dbPassword]",
             "dbDatabase": "[steps('database').dbDatabase]",
