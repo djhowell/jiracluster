@@ -4,7 +4,6 @@
     "parameters": {
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
             }
@@ -111,6 +110,7 @@
         "bbsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket Node disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The clusterVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -358,6 +358,7 @@
         "nfsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket NFS disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -387,7 +388,6 @@
                 6
             ],
             "defaultValue": 2,
-            "minValue": 1,
             "metadata": {
                 "description": "The number of nodes in the Application Gateway cluster."
             }
@@ -523,6 +523,7 @@
         "esVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested ElasticSearch Data node disks will be striped for performance. Essentially the desired disk size will be divided by the esVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -695,9 +696,8 @@
             "type": "Microsoft.OperationalInsights/workspaces",
             "name": "[variables('workspace').name]",
             "condition": "[parameters('enableAnalytics')]",
-            "apiVersion": "2017-04-26-preview",
+            "apiVersion": "2020-03-01-preview",
             "location": "[parameters('location')]",
-            "scale": null,
             "properties": {
                 "sku": {
                     "name": "[variables('workspace').sku]"
@@ -705,7 +705,7 @@
             },
             "resources": [
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitbucketLogs",
                     "condition": "[parameters('enableAnalytics')]",
@@ -729,8 +729,7 @@
                                     "regexDelimiter": {
                                         "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]",
                                         "matchIndex": 0,
-                                        "matchIndexSpecified": true,
-                                        "numberedGroup": null
+                                        "matchIndexSpecified": true
                                     }
                                 }
                             }
@@ -754,7 +753,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
@@ -767,7 +766,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketSysLog",
                     "condition": "[parameters('enableAnalytics')]",
@@ -797,7 +796,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketSysLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
@@ -810,7 +809,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketLinuxPerf",
                     "condition": "[parameters('enableAnalytics')]",
@@ -842,7 +841,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketLinuxPerf2",
                     "condition": "[parameters('enableAnalytics')]",
@@ -862,7 +861,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketLinuxPerf3",
                     "condition": "[parameters('enableAnalytics')]",
@@ -882,7 +881,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "BitBucketLinuxPerfCollection",
                     "condition": "[parameters('enableAnalytics')]",
@@ -895,7 +894,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "ElasticSearchLogs",
                     "condition": "[parameters('enableAnalytics')]",
@@ -919,8 +918,7 @@
                                     "regexDelimiter": {
                                         "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]",
                                         "matchIndex": 0,
-                                        "matchIndexSpecified": true,
-                                        "numberedGroup": null
+                                        "matchIndexSpecified": true
                                     }
                                 }
                             }
@@ -947,7 +945,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "name": "[variables('gtwyIpName')]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -1145,9 +1143,6 @@
                     "dbPort": {
                         "value": "[parameters('dbPort')]"
                     },
-                    "dbPassword": {
-                        "value": "[parameters('dbPassword')]"
-                    },
                     "dbUsername": {
                         "value": "[parameters('dbUsername')]"
                     },
@@ -1261,10 +1256,10 @@
                         "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
                     },
                     "workspacePrimaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').primarySharedKey, '')]"
                     },
                     "workspaceSecondaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').secondarySharedKey, '')]"
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
@@ -1338,10 +1333,10 @@
                         "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
                     },
                     "workspacePrimaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').primarySharedKey, '')]"
                     },
                     "workspaceSecondaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').secondarySharedKey, '')]"
                     },
                     "appInsightsInstrumentKey": {
                         "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
@@ -1457,10 +1452,10 @@
                         "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
                     },
                     "workspacePrimaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').primarySharedKey, '')]"
                     },
                     "workspaceSecondaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').secondarySharedKey, '')]"
                     },
                     "appInsightsInstrumentKey": {
                         "value": "[if(parameters('enableApplicationInsights'), reference('appInsightsTemplate').outputs.instrumentkey.value, '')]"
@@ -1469,7 +1464,7 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "diagnosticsBlobStorageUri": {
-                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
+                        "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name), '2017-06-01').primaryEndpoints.blob]"
                     }
                 }
             }

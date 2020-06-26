@@ -19,7 +19,6 @@
         "policyName": "NFSBackupPolicy",
         "schedule": {
             "scheduleRunFrequency": "Daily",
-            "scheduleRunDays": null,
             "scheduleRunTimes": [
                 "2019-01-01T21:00:00.000Z"
             ],
@@ -49,7 +48,6 @@
             },
             "monthlySchedule": {
                 "retentionScheduleFormatType": "Weekly",
-                "retentionScheduleDaily": null,
                 "retentionScheduleWeekly": {
                     "daysOfTheWeek": [
                         "Sunday"
@@ -71,7 +69,6 @@
                 "monthsOfYear": [
                     "January"
                 ],
-                "retentionScheduleDaily": null,
                 "retentionScheduleWeekly": {
                     "daysOfTheWeek": [
                         "Sunday"

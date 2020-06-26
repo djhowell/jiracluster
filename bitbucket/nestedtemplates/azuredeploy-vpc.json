@@ -1,5 +1,5 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -193,7 +193,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "name": "[variables('net').nsg.public.name]",
@@ -223,7 +223,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "name": "[variables('net').nsg.appgw.name]",
@@ -267,7 +267,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "name": "[variables('net').nsg.bbs.name]",
@@ -373,7 +373,7 @@
         {
             "name": "[variables('net').nsg.elasticsearch.name]",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "properties": {
@@ -414,7 +414,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
@@ -477,7 +477,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "name": "[variables('net').lb.names.publicIP]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -494,7 +494,7 @@
         },
         {
             "type": "Microsoft.Network/loadBalancers",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
@@ -587,7 +587,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "name": "[variables('net').nic.jumpbox.name]",
@@ -615,7 +615,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2017-10-01",
+            "apiVersion": "2020-03-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "name": "[variables('net').nic.nfs.name]",
@@ -638,7 +638,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
@@ -669,8 +669,7 @@
                     "imageReference": "[variables('image')]",
                     "osDisk": {
                         "createOption": "FromImage"
-                    },
-                    "dataDisks": []
+                    }
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -686,7 +685,7 @@
             "resources": [
                 {
                     "type": "extensions",
-                    "apiVersion": "2018-06-01",
+                    "apiVersion": "2019-12-01",
                     "location": "[parameters('location')]",
                     "condition": "[not(contains(parameters('linuxOsType'), 'UbuntuServer'))]",
                     "dependsOn": [
