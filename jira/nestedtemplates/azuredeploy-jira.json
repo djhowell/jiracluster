@@ -588,7 +588,7 @@
             ]
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "sqlDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'sqlserver'))]",
@@ -642,7 +642,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "postgresDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'postgres'))]",
@@ -696,7 +696,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "byodbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[not(parameters('dbCreateNew'))]",
@@ -738,7 +738,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appInsightsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
@@ -760,7 +760,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "analyticsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableAnalytics')]",
@@ -804,7 +804,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appGtwyTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -858,7 +858,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -1012,7 +1012,7 @@
         {
             "name": "[variables('jira').storage.name]",
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2018-07-01",
+            "apiVersion": "2019-06-01",
             "condition": "[not(parameters('enablePremiumFiles'))]",
             "location": "[parameters('location')]",
             "sku": {
@@ -1024,7 +1024,7 @@
         {
             "name": "[variables('jira').storage.diagnostics]",
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2018-07-01",
+            "apiVersion": "2019-06-01",
             "condition": "[parameters('enablePremiumFiles')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -1093,7 +1093,7 @@
         },
         {
             "name": "recoveryVaultTemplate",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enablePremiumFiles')]",
             "properties": {
@@ -1114,7 +1114,7 @@
         },
         {
             "name": "sharedHomeBackupTemplate",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
             // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
             "condition": false,

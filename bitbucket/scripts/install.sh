@@ -352,7 +352,7 @@ function bbs_prepare_installer_settings {
     cat <<EOT >> "${BBS_INSTALLER_VARS}"
 app.bitbucketHome=${home}
 app.defaultInstallDir=${BBS_INSTALL_DIR}
-app.install.service\$Boolean=true
+app.install.service\$Boolean=false
 executeLauncherAction\$Boolean=false
 httpPort=7990
 installation.type=DATA_CENTER_INSTALL
@@ -377,14 +377,6 @@ function bbs_run_installer {
     fi
     
     log "Done running Bitbucket Server installer"
-}
-
-function bbs_stop {
-    log "Stopping Bitbucket Server application..."
-
-    /etc/init.d/atlbitbucket stop
-
-    log "Bitbucket Server application has been stopped"
 }
 
 function bbs_prepare_properties {
@@ -602,6 +594,14 @@ EOF
     crontab /tmp/$$.crontab.tmp
 }
 
+function enable_bitbucket_service {
+  atl_log enable_bitbucket_service "Enabling Bitbucket systemd service"
+  mv bitbucket.service /lib/systemd/system/bitbucket.service
+  chmod 664 /lib/systemd/system/bitbucket.service
+  systemctl daemon-reload
+  systemctl enable bitbucket.service
+}
+
 
 function install_nfs {
     log "Configuring NFS node..."
@@ -640,9 +640,10 @@ function install_bbs {
     install_oms_linux_agent
     bbs_install
     disable_rhel_firewall
+    enable_bitbucket_service
     
     log "Starting Bitbucket Server..."    
-    systemctl start atlbitbucket
+    systemctl start atlbitbucket.service
 
     install_appinsights_collectd
     log "Done configuring Bitbucket Server node!"
@@ -654,7 +655,7 @@ function install_unsupported {
 
 function uninstall_bbs {
     log "Stopping Bitbucket Server..."  
-    systemctl stop atlbitbucket
+    systemctl stop bitbucket.service
 
     log "Unmounting ${BBS_SHARED_HOME}"
     umount ${BBS_SHARED_HOME}
@@ -667,7 +668,10 @@ function uninstall_bbs {
 
     log "Removing ${BBS_HOME}"
     rm -rf "${BBS_HOME}"
-    rm /etc/init.d/atlbitbucket
+
+    systemctl disable bitbucket.service
+    rm /lib/systemd/system/bitbucket.service
+
     userdel ${BBS_USER}
 }
 

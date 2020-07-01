@@ -702,7 +702,8 @@
                                         "fileUris": [
                                             "[uri(parameters('_artifactsLocation'), concat('scripts/prepare_install.sh', parameters('_artifactsLocationSasToken')))]",
                                             "[uri(parameters('_artifactsLocation'), concat('scripts/appinsights_transform_web_xml.xsl', parameters('_artifactsLocationSasToken')))]",
-                                            "[uri(parameters('_artifactsLocation'), concat('scripts/vm-disk-utils-0.1.sh', parameters('_artifactsLocationSasToken')))]"
+                                            "[uri(parameters('_artifactsLocation'), concat('scripts/vm-disk-utils-0.1.sh', parameters('_artifactsLocationSasToken')))]",
+                                            "[uri(parameters('_artifactsLocation'), concat('scripts/jira.service', parameters('_artifactsLocationSasToken')))]"
                                         ]
                                     },
                                     "protectedSettings": {
