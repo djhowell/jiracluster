@@ -363,7 +363,7 @@ function prepare_varfile {
   cat <<EOT >> "${ATL_CONFLUENCE_VARFILE}"
 launch.application\$Boolean=false
 executeLauncherAction\$Boolean=false
-app.install.service\$Boolean=true
+app.install.service\$Boolean=false
 portChoice=custom
 httpPort\$Long=${SERVER_APP_PORT}
 rmiPort\$Long=8000
@@ -782,6 +782,14 @@ function install_oms_linx_agent {
   fi
 }
 
+function enable_confluence_service {
+  atl_log enable_confluence_service "Enabling Confluence systemd service"
+  mv confluence.service /lib/systemd/system/confluence.service
+  chmod 664 /lib/systemd/system/confluence.service
+  systemctl daemon-reload
+  systemctl enable confluence.service
+}
+
 function disable_rhel_firewall {
   if [[ -n ${IS_REDHAT} ]]
   then
@@ -832,10 +840,10 @@ function install_confluence {
   configure_confluence
   remount_share
   install_oms_linx_agent
-  systemctl enable confluence
+  enable_confluence_service
   log "Done installing CONFLUENCE! Starting..."
   disable_rhel_firewall
-  env -i systemctl start confluence
+  env -i systemctl start confluence.service
   wait_until_startup_complete
   install_appinsights_collectd
   set_shared_home_permissions
@@ -868,7 +876,9 @@ if [ "$2" == "uninstall" ]; then
   if [ "$3" == "--yes-i-want-to-lose-everything" ]; then
     rm -rf "${ATL_CONFLUENCE_INSTALL_DIR}"
     rm -rf "${ATL_CONFLUENCE_HOME}"
-    rm /etc/init.d/confluence
+    systemctl stop confluence.service
+    systemctl disable confluence.service
+    rm /lib/systemd/system/confluence.service
     userdel confluence
   fi
 fi

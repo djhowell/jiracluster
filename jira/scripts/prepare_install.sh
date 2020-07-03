@@ -347,7 +347,7 @@ function prepare_varfile {
 launch.application\$Boolean=false
 rmiPort\$Long=8005
 app.jiraHome=${ATL_JIRA_HOME}
-app.install.service\$Boolean=true
+app.install.service\$Boolean=false
 existingInstallationDir=${ATL_JIRA_INSTALL_DIR}
 sys.confirmedUpdateInstallationString=false
 sys.languageId=en
@@ -703,6 +703,14 @@ function install_oms_linux_agent {
   fi
 }
 
+function enable_jira_service {
+  atl_log enable_jira_service "Enabling Jira systemd service"
+  mv jira.service /lib/systemd/system/jira.service
+  chmod 664 /lib/systemd/system/jira.service
+  systemctl daemon-reload
+  systemctl enable jira.service
+}
+
 function disable_rhel_firewall {
   if [[ -n ${IS_REDHAT} ]]
   then
@@ -751,10 +759,10 @@ function install_jira {
   configure_jira
   remount_share
   install_oms_linux_agent
-  systemctl enable jira
+  enable_jira_service
   atl_log install_jira "Done installing JIRA! Starting..."
   disable_rhel_firewall
-  systemctl start jira
+  systemctl start jira.service
   install_appinsights_collectd
   set_shared_home_permissions
   copy_artefacts
@@ -790,7 +798,9 @@ if [ "$2" == "uninstall" ]; then
     atl_log main "Uninstalling fully..."
     rm -rf "${ATL_JIRA_INSTALL_DIR}"
     rm -rf "${ATL_JIRA_HOME}"
-    rm /etc/init.d/jira
+    systemctl stop jira.service
+    systemctl disable jira.service
+    rm /lib/systemd/system/jira.service
     userdel jira
   fi
 fi
