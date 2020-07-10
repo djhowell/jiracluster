@@ -446,7 +446,8 @@
                                             "[concat(uri(parameters('_artifactsLocation'), 'scripts/settings.sh'), parameters('_artifactsLocationSasToken'))]",
                                             "[concat(uri(parameters('_artifactsLocation'), 'scripts/install.sh'), parameters('_artifactsLocationSasToken'))]",
                                             "[concat(uri(parameters('_artifactsLocation'), 'templates/ApplicationInsights.xml.template'), parameters('_artifactsLocationSasToken'))]",
-                                            "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket-collectd.conf.template'), parameters('_artifactsLocationSasToken'))]"
+                                            "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket-collectd.conf.template'), parameters('_artifactsLocationSasToken'))]",
+                                            "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket.service.template'), parameters('_artifactsLocationSasToken'))]"
                                         ],
                                         "commandToExecute": "[concat(variables('data').SQL, variables('data').BBS, ' NFS_SERVER_IP=\"', parameters('nfsPrivateIpAddress'), '\"', ' BBS_URL=\"', parameters('bbsBaseUrl'), '\"', ' BBS_SSH_URL=\"', parameters('sshLbBaseUrl'), ':7999', '\"', ' bash install.sh bbs 1>&1 2>&1 > ./bbsnfs.install-$(uname -n).log')]"
                                     }
