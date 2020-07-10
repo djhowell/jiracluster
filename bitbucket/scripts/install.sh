@@ -352,7 +352,7 @@ function bbs_prepare_installer_settings {
     cat <<EOT >> "${BBS_INSTALLER_VARS}"
 app.bitbucketHome=${home}
 app.defaultInstallDir=${BBS_INSTALL_DIR}
-app.install.service\$Boolean=false
+app.install.service\$Boolean=true
 executeLauncherAction\$Boolean=false
 httpPort=7990
 installation.type=DATA_CENTER_INSTALL
@@ -596,7 +596,13 @@ EOF
 
 function enable_bitbucket_service {
   atl_log enable_bitbucket_service "Enabling Bitbucket systemd service"
-  mv bitbucket.service /lib/systemd/system/bitbucket.service
+  atl_log enable_bitbucket_service "Substituting ${BBS_INSTALL_DIR} in systemd service"
+  # remove the init.d service to prevent conflict with systemd
+  rm /etc/init.d/bitbucket
+  chown -R "${BBS_USER}":"${BBS_GROUP}" "${BBS_INSTALL_DIR}"
+  # make install directory var available to envsubst
+  export BBS_INSTALL_DIR=${BBS_INSTALL_DIR}
+  envsubst '$BBS_INSTALL_DIR' < bitbucket.service.template > /lib/systemd/system/bitbucket.service
   chmod 664 /lib/systemd/system/bitbucket.service
   systemctl daemon-reload
   systemctl enable bitbucket.service
