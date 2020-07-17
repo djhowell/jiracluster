@@ -354,6 +354,12 @@
                 "description": "The name of the subnet within the Jira virtual network where the Jira cluster is located."
             }
         },
+        "jumpboxSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the subnet within the Jira virtual network where the Jira jumpbox is located."
+            }
+        },
         "gtwySubnetName": {
             "type": "string",
             "metadata": {
@@ -364,12 +370,6 @@
             "type": "string",
             "metadata": {
                 "description": "The name of the Jumpbox."
-            }
-        },
-        "jumpboxPublicIpAddress": {
-            "type": "string",
-            "metadata": {
-                "description": "The public IP address of the Jumpbox."
             }
         },
         "sslBase64EncodedPfxCertificate": {
@@ -605,6 +605,12 @@
                     "location": {
                         "value": "[parameters('location')]"
                     },
+                     "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
                     "dbServerName": {
                         "value": "[parameters('dbHost')]"
                     },
@@ -629,14 +635,14 @@
                     "appSubnetName": {
                         "value": "[parameters('appSubnetName')]"
                     },
+                    "jumpboxSubnetName": {
+                        "value": "[parameters('jumpboxSubnetName')]"
+                    },
                     "workspaceName": {
                         "value": "[variables('workspace').name]"
                     },
                     "enableAnalytics": {
                         "value": "[parameters('enableAnalytics')]"
-                    },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[parameters('jumpboxPublicIpAddress')]"
                     }
                 }
             }
@@ -658,6 +664,12 @@
                 "parameters": {
                     "location": {
                         "value": "[parameters('location')]"
+                    },
+                     "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
                     },
                     "dbServerName": {
                         "value": "[parameters('dbHost')]"
@@ -683,8 +695,8 @@
                     "appSubnetName": {
                         "value": "[parameters('appSubnetName')]"
                     },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[parameters('jumpboxPublicIpAddress')]"
+                    "jumpboxSubnetName": {
+                        "value": "[parameters('jumpboxSubnetName')]"
                     },
                     "workspaceName": {
                         "value": "[variables('workspace').name]"

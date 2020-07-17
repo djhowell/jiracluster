@@ -214,7 +214,9 @@
                                         "[parameters('location')]"
                                     ]
                                 }
-                            ]
+                            ],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     },
                     {
@@ -223,7 +225,9 @@
                             "addressPrefix": "[variables('jumpbox').subnet.prefix]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpbox').nsg.name)]"
-                            }
+                            },
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     }
                 ]
@@ -261,7 +265,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('jumpbox').name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -321,6 +325,10 @@
             "type": "string",
             "value": "[variables('appSubnet').name]"
         },
+        "jumpboxSubnetName": {
+            "type": "string",
+            "value": "[variables('jumpbox').subnet.name]"
+        },
         "gtwySubnetName": {
             "type": "string",
             "value": "[variables('gtwySubnet').name]"
@@ -328,10 +336,6 @@
         "jumpboxName": {
             "type": "string",
             "value": "[variables('jumpbox').name]"
-        },
-        "jumpboxPublicIpAddress": {
-            "type": "string",
-            "value": "[reference(variables('jumpbox').ip.name).ipAddress]"
         },
         "jumpboxPublicEndpoint": {
             "type": "string",

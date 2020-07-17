@@ -1032,6 +1032,12 @@
                     "location": {
                         "value": "[parameters('location')]"
                     },
+                     "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
                     "dbServerName": {
                         "value": "[parameters('dbHost')]"
                     },
@@ -1082,6 +1088,12 @@
                 "parameters": {
                     "location": {
                         "value": "[parameters('location')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
                     },
                     "dbServerName": {
                         "value": "[parameters('dbHost')]"

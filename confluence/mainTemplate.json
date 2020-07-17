@@ -766,14 +766,14 @@
                     "appSubnetName": {
                         "value": "[reference('vpcTemplate').outputs.appSubnetName.value]"
                     },
+                    "jumpboxSubnetName": {
+                        "value": "[reference('vpcTemplate').outputs.jumpboxSubnetName.value]"
+                    },
                     "gtwySubnetName": {
                         "value": "[reference('vpcTemplate').outputs.gtwySubnetName.value]"
                     },
                     "jumpboxName": {
                         "value": "[reference('vpcTemplate').outputs.jumpboxName.value]"
-                    },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[reference('vpcTemplate').outputs.jumpboxPublicIpAddress.value]"
                     },
                     "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"

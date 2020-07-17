@@ -57,7 +57,6 @@ pipelines:
               AZURE_RESOURCE_GROUP: $AZURE_PIPELINE_RG
               AZURE_LOCATION: $AZURE_LOCATION
               AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
-              AZURE_DEPLOYMENT_MODE: 'Complete'
               AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/jira/mainTemplate.json'
               AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/jira/azuredeploy.parameters.json --parameters @jumpboxParam.json'
           
@@ -105,7 +104,6 @@ pipelines:
                   AZURE_RESOURCE_GROUP: $AZURE_PIPELINE_RG
                   AZURE_LOCATION: $AZURE_LOCATION
                   AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
-                  AZURE_DEPLOYMENT_MODE: 'Complete'
                   AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/jira/mainTemplate.json'
                   AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/jira/azuredeploy.parameters.json --parameters @jumpboxParam.json'
 
@@ -154,7 +152,6 @@ pipelines:
               AZURE_RESOURCE_GROUP: $AZURE_PIPELINE_RG
               AZURE_LOCATION: $AZURE_LOCATION
               AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
-              AZURE_DEPLOYMENT_MODE: 'Complete'
               AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/mainTemplate.json'
               AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/azuredeploy.parameters.json --parameters @jumpboxParam.json'
           
@@ -201,7 +198,6 @@ pipelines:
                 AZURE_RESOURCE_GROUP: $AZURE_PIPELINE_RG
                 AZURE_LOCATION: $AZURE_LOCATION
                 AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
-                AZURE_DEPLOYMENT_MODE: 'Complete'
                 AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/mainTemplate.json'
                 AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/azuredeploy.parameters.json --parameters @jumpboxParam.json'
 
@@ -250,7 +246,6 @@ pipelines:
                   AZURE_RESOURCE_GROUP: $AZURE_PIPELINE_RG
                   AZURE_LOCATION: $AZURE_LOCATION
                   AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
-                  AZURE_DEPLOYMENT_MODE: 'Complete'
                   AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/bitbucket/mainTemplate.json'
                   AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/bitbucket/azuredeploy.parameters.json --parameters @jumpboxParam.json'
               
@@ -318,7 +313,6 @@ pipelines:
                   AZURE_RESOURCE_GROUP: $AZURE_PIPELINE_RG
                   AZURE_LOCATION: $AZURE_LOCATION
                   AZURE_DEPLOYMENT_NAME: $AZURE_PIPELINE_RG
-                  AZURE_DEPLOYMENT_MODE: 'Complete'
                   AZURE_DEPLOYMENT_TEMPLATE_URI: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/bitbucket/mainTemplate.json'
                   AZURE_DEPLOYMENT_PARAMETERS: 'https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/bitbucket/azuredeploy.parameters.json --parameters @jumpboxParam.json'
 
