@@ -614,7 +614,7 @@
         },
         {
             "name": "recoveryVaultTemplate",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enablePremiumFiles')]",
             "properties": {
@@ -635,7 +635,7 @@
         },
         {
             "name": "sharedHomeBackupTemplate",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
             // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
             "condition": false,
@@ -680,7 +680,7 @@
                     "name": "ConfluenceLogs",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLog",
                     "properties": {
@@ -728,7 +728,7 @@
                     "name": "confLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLogCollection",
                     "properties": {
@@ -738,7 +738,7 @@
             ]
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "sqlDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'sqlserver'))]",
@@ -798,7 +798,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "postgresDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'postgres'))]",
@@ -864,7 +864,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "byodbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[not(parameters('dbCreateNew'))]",
@@ -919,7 +919,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appGtwyTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -973,7 +973,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -1130,7 +1130,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appInsightsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
@@ -1152,7 +1152,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "analyticsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableAnalytics')]",

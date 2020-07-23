@@ -102,7 +102,7 @@
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses', '/', variables('jumpbox').ip.name)]"
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('jumpbox').ip.name)]"
             ],
             "properties": {
                 "securityRules": [
@@ -144,7 +144,7 @@
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses', '/', variables('jumpbox').ip.name)]"
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('jumpbox').ip.name)]"
             ],
             "properties": {
                 "securityRules": [
@@ -185,7 +185,7 @@
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/', variables('appSubnet').nsg.name)]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('appSubnet').nsg.name)]"
             ],
             "properties": {
                 "addressSpace": {
@@ -240,8 +240,8 @@
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('jumpbox').ip.name)]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnet').name)]"
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('jumpbox').ip.name)]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('vnet').name)]"
             ],
             "properties": {
                 "networkSecurityGroup": {
@@ -270,7 +270,7 @@
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('jumpbox').nics.public)]"
+                "[resourceId('Microsoft.Network/networkInterfaces/', variables('jumpbox').nics.public)]"
             ],
             "properties": {
                 "hardwareProfile": {

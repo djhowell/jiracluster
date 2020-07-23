@@ -143,7 +143,7 @@
   },
   "resources": [
     {
-      "name": "[variables('postgresql').server.name]",
+      "name": "[parameters('dbServerName')]",
       "type": "Microsoft.DBforPostgreSQL/servers",
       "location": "[parameters('location')]",
       "sku": {

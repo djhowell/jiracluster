@@ -3,7 +3,4 @@ The Azure Resource Manager Template Toolkit (arm-ttk) is used to analyse & test 
 
 | Template | Issue | Notes |
 |----------|-------|-------|
-| createUiDefinition.json | VMSizes Must Match Template (333 ms)      |   Known Issue with the ttk tool https://github.com/Azure/arm-ttk/issues/36    |
-| mainTemplate.json |  artifacts parameter (28 ms)                                                                                                                                                                                 ENV:SAMPLE_NAME is empty - using placeholder for manual verification: 100-blank-template                                                                                                                    The _artifactsLocation in "mainTemplate.json" has an incorrect defaultValue, found: https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/                                             Must be one of: [deployment().properties.templateLink.uri] https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/100-blank-template/     |       This default value is required for the DeployToAzure button|
 | azuredeploy-alerts.json | IDs Should Be Derived From ResourceIDs Property:      "Id" must use one of the following expressions for  an resourceId property      |   Ids and are using require the WebTestGeolocation location ID as per the docs & examples    |
-| azuredeploy-elasticsearch.json | Template Should Not Contain Blanks |  properties need to be set to empty string for third party template parameter|

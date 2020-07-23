@@ -530,7 +530,7 @@
                     "name": "JiraLogs",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLog",
                     "properties": {
@@ -578,7 +578,7 @@
                     "name": "jiraLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLogCollection",
                     "properties": {

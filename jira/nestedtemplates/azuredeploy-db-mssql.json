@@ -209,7 +209,7 @@
         {
             "name": "[variables('sql').server.name]",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2019-06-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "administratorLogin": "[variables('sql').server.username]",
@@ -220,12 +220,12 @@
             "resources": [
                 {
                     "type": "databases",
-                    "apiVersion": "2019-06-01-preview",
+                    "apiVersion": "2020-02-02-preview",
                     "name": "[variables('sql').database.name]",
                     "location": "[parameters('location')]",
                     "tags": "[variables('tags')]",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', variables('sql').server.name)]"
+                        "[resourceId('Microsoft.Sql/servers', parameters('dbServerName'))]"
                     ],
                     "sku": {
                         "name": "[variables('sql').database.tierName]",

@@ -675,7 +675,7 @@
             ]
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "recoveryVaultTemplate",
             "condition": "[parameters('enableVault')]",
             "type": "Microsoft.Resources/deployments",
@@ -710,7 +710,7 @@
                     "name": "BitbucketLogs",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLog",
                     "properties": {
@@ -758,7 +758,7 @@
                     "name": "BitBucketLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLogCollection",
                     "properties": {
@@ -771,7 +771,7 @@
                     "name": "BitBucketSysLog",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "LinuxSyslog",
                     "properties": {
@@ -801,7 +801,7 @@
                     "name": "BitBucketSysLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "LinuxSyslogCollection",
                     "properties": {
@@ -814,7 +814,7 @@
                     "name": "BitBucketLinuxPerf",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "LinuxPerformanceObject",
                     "properties": {
@@ -846,7 +846,7 @@
                     "name": "BitBucketLinuxPerf2",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "LinuxPerformanceObject",
                     "properties": {
@@ -866,7 +866,7 @@
                     "name": "BitBucketLinuxPerf3",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "LinuxPerformanceObject",
                     "properties": {
@@ -886,7 +886,7 @@
                     "name": "BitBucketLinuxPerfCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "LinuxPerformanceCollection",
                     "properties": {
@@ -961,7 +961,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appGtwyTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -1015,7 +1015,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "sqlDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'sqlserver'))]",
@@ -1072,7 +1072,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "postgresDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'postgres'))]",
@@ -1132,7 +1132,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "byodbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[not(parameters('dbCreateNew'))]",
@@ -1168,7 +1168,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appInsightsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
@@ -1189,7 +1189,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "analyticsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableAnalytics')]",
@@ -1218,7 +1218,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "nfsVmTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -1294,9 +1294,9 @@
         {
             "name": "elasticSearchTemplate",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storage').name)]"
+                "[resourceId('Microsoft.Storage/storageAccounts/', variables('storage').name)]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -1366,7 +1366,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "bbsVmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [

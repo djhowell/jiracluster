@@ -764,7 +764,7 @@
             "location": "[parameters('location')]",
             "apiVersion": "2019-12-01",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/',parameters('jumpboxName'),'/extensions/prepare-install-script')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('jumpboxName'), 'prepare-install-script')]"
             ],
             "sku": {
                 "name": "[variables('confluence').cluster.vm.size]",
