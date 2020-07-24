@@ -5,6 +5,19 @@
     "location": {
       "type": "string"
     },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The URL specifying the location of the installation files."
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
+      }
+    },
     "dbServerName": {
       "type": "string",
       "metadata": {
@@ -70,10 +83,6 @@
     "bbsSubnetName": {
       "type": "string"
     },
-    "clusterDbAccessNetworkRule": {
-      "type": "string",
-      "defaultValue": "allowClusterDbAccess"
-    },
     "workspaceName": {
       "type": "string",
       "metadata": {
@@ -86,6 +95,10 @@
       "metadata": {
         "description": "Enable Azure Operational Insights. Note that an Azure Operations Management Suite (OMS) workspace must first exist."
       }
+    },
+    "privateDnsZoneName": {
+        "defaultValue": "privatelink.postgres.database.azure.com",
+        "type": "String"
     }
   },
   "variables": {
@@ -108,7 +121,8 @@
         "collation": "[parameters('postgresDbCollation')]"
       }
     },
-    "retentionInDays": 7
+    "retentionInDays": 7,
+    "endpointTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-db-endpoints.json', parameters('_artifactsLocationSasToken')))]"
   },
   "resources": [
     {
@@ -121,7 +135,7 @@
         "family": "[variables('postgresql').database.family]",
         "capacity": "[variables('postgresql').database.capacity]"
       },
-      "apiVersion": "2017-12-01-preview",
+      "apiVersion": "2017-12-01",
       "properties": {
         "storageProfile": {
           "storageMB": "[variables('postgresql').database.storage]",
@@ -131,7 +145,8 @@
         "administratorLogin": "[variables('postgresql').server.username]",
         "administratorLoginPassword": "[variables('postgresql').server.password]",
         "version": "9.6",
-        "sslEnforcement": "Enabled"
+        "sslEnforcement": "Enabled",
+        "publicNetworkAccess": "Disabled"
       },
       "resources": [
         {
@@ -206,16 +221,39 @@
       ]
     },
     {
-      "type": "Microsoft.DBforPostgreSQL/servers/virtualNetworkRules",
-      "name": "[concat(parameters('dbServerName'), '/', parameters('clusterDbAccessNetworkRule'))]",
-      "apiVersion": "2017-12-01",
-      "properties": {
-        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('bbsSubnetName'))]",
-        "ignoreMissingVnetServiceEndpoint": false
-      },
+      "apiVersion": "2019-09-01",
+      "name": "dbPrivateEndpoints",
+      "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbServerName'))]"
-      ]
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('postgresql').server.name)]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('endpointTemplateUri')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "dbServerName": {
+            "value": "[parameters('dbServerName')]"
+          },
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          },
+          "appSubnetName": {
+            "value": "[parameters('bbsSubnetName')]"
+          },
+          "privateDnsZoneName": {
+            "value": "[parameters('privateDnsZoneName')]"
+          },
+          "dbType": {
+            "value": "postgres"
+          }
+        }
+      }
     }
   ],
   "outputs": {

@@ -731,7 +731,7 @@
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "name": "[concat(parameters('jumpboxName'), '/prepare-install-script')]",
             "location": "[parameters('location')]",
             "properties": {
@@ -762,9 +762,9 @@
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "name": "[variables('confluence').cluster.name]",
             "location": "[parameters('location')]",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/',parameters('jumpboxName'),'/extensions/prepare-install-script')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('jumpboxName'), 'prepare-install-script')]"
             ],
             "sku": {
                 "name": "[variables('confluence').cluster.vm.size]",

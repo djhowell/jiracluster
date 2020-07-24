@@ -308,6 +308,9 @@ function get_trusted_dbhost {
 }
 
 function apply_database_dump {
+  log "Waiting a bit to make sure that private endpoint is available"
+  sleep 1m
+
   java -jar liquibase-core-3.5.3.jar \
     --classpath="${DB_DRIVER_JAR}" \
     --driver=${DB_DRIVER_CLASS} \

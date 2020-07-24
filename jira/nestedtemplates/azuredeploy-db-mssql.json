@@ -9,6 +9,19 @@
             },
             "minLength": 5
         },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The URL specifying the location of the installation files."
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
+            }
+        },
         "dbServerName": {
             "type": "string",
             "metadata": {
@@ -136,17 +149,10 @@
                 "description": "The name of the subnet within the virtual network where the VMSS cluster is located."
             }
         },
-        "clusterDbAccessNetworkRule": {
-            "type": "string",
-            "defaultValue": "allowClusterDbAccess",
-            "metadata": {
-                "description": "The name of the network rule that enables the VMSS cluster to access the database."
-            }
-        },
-        "jumpboxPublicIpAddress": {
+        "jumpboxSubnetName": {
             "type": "string",
             "metadata": {
-              "description": "The public IP address of the Jumpbox."
+                "description": "The name of the subnet within the virtual network where the Jumpbox is located."
             }
         },
         "workspaceName": {
@@ -161,6 +167,10 @@
             "metadata": {
                 "description": "Enable Azure Operational Insights. Note that an Azure Operations Management Suite (OMS) workspace must first exist."
             }
+        },
+        "privateDnsZoneName": {
+            "defaultValue": "privatelink.database.windows.net",
+            "type": "String"
         }
     },
     "variables": {
@@ -192,28 +202,30 @@
             "product": "JIRA",
             "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
         },
+        "endpointTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-db-endpoints.json', parameters('_artifactsLocationSasToken')))]",
         "retentionInDays": 7
     },
     "resources": [
         {
             "name": "[variables('sql').server.name]",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2019-06-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "administratorLogin": "[variables('sql').server.username]",
-                "administratorLoginPassword": "[variables('sql').server.password]"
+                "administratorLoginPassword": "[variables('sql').server.password]",
+                "publicNetworkAccess": "Disabled"
             },
             "tags": "[variables('tags')]",
             "resources": [
                 {
                     "type": "databases",
-                    "apiVersion": "2019-06-01-preview",
+                    "apiVersion": "2020-02-02-preview",
                     "name": "[variables('sql').database.name]",
                     "location": "[parameters('location')]",
                     "tags": "[variables('tags')]",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', variables('sql').server.name)]"
+                        "[resourceId('Microsoft.Sql/servers', parameters('dbServerName'))]"
                     ],
                     "sku": {
                         "name": "[variables('sql').database.tierName]",
@@ -327,28 +339,41 @@
             ]
         },
         {
-            "type": "Microsoft.Sql/servers/virtualNetworkRules",
-            "name": "[concat(parameters('dbServerName'), '/', parameters('clusterDbAccessNetworkRule'))]",
-            "apiVersion": "2019-06-01-preview",
-            "properties": {
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('appSubnetName'))]",
-                "ignoreMissingVnetServiceEndpoint": false
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('dbServerName'))]"
-            ]
-        },
-        {
-            "comments": "Required for bastion host to populate/configure database. Not needed if going to use existing DB",
-            "type": "Microsoft.Sql/servers/firewallRules",
-            "apiVersion": "2015-05-01-preview",
-            "name": "[concat(parameters('dbServerName'), '/', 'AllowAccessToSetupVMPublicIP')]",
+            "apiVersion": "2019-09-01",
+            "name": "dbPrivateEndpoints",
+            "type": "Microsoft.Resources/deployments",
             "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers', parameters('dbServerName'))]"
             ],
             "properties": {
-                "startIpAddress": "[parameters('jumpboxPublicIpAddress')]",
-                "endIpAddress": "[parameters('jumpboxPublicIpAddress')]"
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('endpointTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "dbServerName": {
+                        "value": "[parameters('dbServerName')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "appSubnetName": {
+                        "value": "[parameters('appSubnetName')]"
+                    },
+                    "jumpboxSubnetName": {
+                        "value": "[parameters('jumpboxSubnetName')]"
+                    },
+                    "privateDnsZoneName": {
+                        "value": "[parameters('privateDnsZoneName')]"
+                    },
+                    "dbType": {
+                        "value": "sqlserver"
+                    }
+                }
             }
         }
     ],
