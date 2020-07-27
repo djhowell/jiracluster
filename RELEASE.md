@@ -1,3 +1,7 @@
+### 27-July-2020
+* Install products using systemd services - https://bulldog.internal.atlassian.com/browse/AZURE-224
+* Disable public access to RDS instances - https://bulldog.internal.atlassian.com/browse/AZURE-221
+
 ### 27-May-2020
 * Confluence fix for change to Confluence Downloads feed format. https://bulldog.internal.atlassian.com/browse/AZURE-212
 
