@@ -899,7 +899,7 @@
                     "name": "ElasticSearchLogs",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLog",
                     "properties": {
@@ -1366,7 +1366,7 @@
             }
         },
         {
-            "apiVersion": "2019-09-01",
+            "apiVersion": "2019-03-01",
             "name": "bbsVmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
