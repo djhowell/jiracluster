@@ -910,7 +910,7 @@
             "bitbucketAdminFullName": "[steps('administrator').adminFullname]",
             "bitbucketAdminUsername": "[steps('administrator').adminUsername]",
             "bitbucketAdminPassword": "[steps('administrator').adminPassword]",
-            "dbCreateNew": "[steps('database').hasDatabase]",
+            "dbCreateNew": "[not(steps('database').hasDatabase)]",
             "dbUsername": "[steps('database').dbUsername]",
             "dbPassword": "[steps('database').dbPassword]",
             "dbDatabase": "[steps('database').dbDatabase]",
