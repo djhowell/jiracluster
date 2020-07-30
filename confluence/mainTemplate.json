@@ -12,7 +12,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/confluence/",
+            "defaultValue": "[deployment().properties.templateLink.uri]",
             "metadata": {
                 "description": "The URL specifying the location of the installation artifacts."
             }
@@ -347,6 +347,19 @@
                 "description": "The size of the virtual machine to use for each Confluence node in the cluster. Note that if the 'confClusterSize' parameter is used this value will be ignored."
             }
         },
+        "clusterVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
+            }
+        },
         "linuxOsType": {
             "type": "string",
             "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
@@ -359,6 +372,13 @@
             ],
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
+        },
+        "sharedHomeSizeInGb": {
+           "type": "string",
+           "defaultValue": "128",
+           "metadata": {
+                "description": "Shared Home File Share Size in GB"
             }
         },
         "clusterVmDiskSize": {
@@ -430,8 +450,7 @@
             "defaultValue": "9.6",
             "allowedValues": [
                 "9.6",
-                "10",
-                "11"
+                "10"
             ],
             "metadata": {
                 "description": "The PostgresSQL DB version to use."
@@ -502,6 +521,13 @@
             "defaultValue": true,
             "metadata": {
                 "description": "Enable accelerated networking. Note that this needs to be on a supported instance type."
+            }
+        },
+        "enablePremiumFiles": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Azure Premium Files."
             }
         }
     },
@@ -576,6 +602,13 @@
                 "medium": "Standard_B1s",
                 "large": "Standard_B1s",
                 "enterprise": "Standard_B1s"
+            },
+            "sharedHomeSizeInGb": {
+                "trial": "128",
+                "small": "256",
+                "medium": "5120",
+                "large": "10240",
+                "enterprise": "20480"
             }
         }
     },
@@ -583,7 +616,7 @@
         {
             "comments": "Azure tracking GUID for Confluence - ensure right one being used for the delivery channel ie via Azure Marketplace, BitBucket Quickstart etc",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "pid-de1a11e5-9c17-4538-b570-df707237c073",
             "properties": {
                 "mode": "Incremental",
@@ -596,7 +629,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vpcTemplate",
             "properties": {
                 "mode": "Incremental",
@@ -625,7 +658,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "confluenceTemplate",
             "dependsOn": [
                 "vpcTemplate"
@@ -733,14 +766,14 @@
                     "appSubnetName": {
                         "value": "[reference('vpcTemplate').outputs.appSubnetName.value]"
                     },
+                    "jumpboxSubnetName": {
+                        "value": "[reference('vpcTemplate').outputs.jumpboxSubnetName.value]"
+                    },
                     "gtwySubnetName": {
                         "value": "[reference('vpcTemplate').outputs.gtwySubnetName.value]"
                     },
                     "jumpboxName": {
                         "value": "[reference('vpcTemplate').outputs.jumpboxName.value]"
-                    },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[reference('vpcTemplate').outputs.jumpboxPublicIpAddress.value]"
                     },
                     "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
@@ -769,15 +802,24 @@
                     "clusterVmDiskCount": {
                         "value": "[parameters('clusterVmDiskCount')]"
                     },
+                    "clusterVmDataDiskType": {
+                        "value": "[parameters('clusterVmDataDiskType')]"
+                    },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "sharedHomeSizeInGb": {
+                        "value": "[if(parameters('enablePremiumFiles'), if(variables('isConfClusterSizeUsed'), variables('clusterLookup').sharedHomeSizeInGb[parameters('confClusterSize')], parameters('sharedHomeSizeInGb')), '5120')]"
+                    },
+                    "enablePremiumFiles": {
+                        "value": "[parameters('enablePremiumFiles')]"
                     }
                 }
             }
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "domainTemplate",
             "dependsOn": [
                 "confluenceTemplate"
@@ -803,7 +845,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "alertsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableEmailAlerts')]",

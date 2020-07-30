@@ -10,7 +10,6 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
             }
@@ -121,6 +120,7 @@
         "bbsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket Node disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The clusterVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -258,7 +258,7 @@
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
         },
-        "blobStorageUri": {
+        "diagnosticsBlobStorageUri": {
             "type": "string"
         },
         "bbsHazelcastClientId": {
@@ -308,7 +308,7 @@
         },
         "username": "[if(equals(parameters('bitbucketAdminUsername'),'ssh'), parameters('sshUserName'), parameters('bitbucketAdminUsername'))]",
         "jdbcDriver": "[if(equals(parameters('dbType'), 'sqlserver'), 'com.microsoft.sqlserver.jdbc.SQLServerDriver', 'org.postgresql.Driver')]",
-        "license": "AAABpg0ODAoPeNp1kUtP20AUhff+FVfqLtI4DkkgRLLUYA+UqtiR7SzawmLiXPBQe8aaR9r013ewDYG2LGZzH2fO+e6HorKQyD0ECwhmy/lsOZ3D1U0BJ8Fk4SW22aJK7zcalQ7JxIukMKw0CWswfDSVbJj+yEzNtOZM+KVsPG2YrvwvvEShsTi02M3mxSoraPZv96WztqqsmMaYGQyfPieTCQkW3ntKQ53+ark6dEvr6fT007NDesN4/Y7FHNUe1XUcXtAzSmbxtxNymn4+I1fT88Xg0AmyCIVBFRpl0cvtVpeKt4ZL0VdGo1GSFuQyzcg6S+NNVFynCdnk1DXCSKFztIPtAUyFMHgFKkq5QwWtko9YGvheGdPeLsfjB+m/sTiu+w2C/cadD7EEIQ3suDaKb61Bp8w1GAml1UY27kC+50I7z4KJ8jUYR/N8oNmnc3z4Hl9yRBldFTQmF1+fvP+f2RDBQduIH0L+FF5Ok9A9Mg8CL1UPTHDNOjyr31YhxNjW8tA4hl5Hw3X+Pm2MR6Z0z2rbTcGQHe6lgl5rd9Q6zvX2/wDFKfAUMCsCFH8cSCeQYWgwBdkxpTeUqGiTfg2qAhNxOHcjUrs7UMuuXFQw4T4+mxFqX02k8",
+        "license": "AAABig0ODAoPeNp1kUFP4zAQhe/+FSNxq+TUtMsWKuUAiWFBkFRtirQLHBx3lhpSO7Kdsv33a5JAEYiDpZGfZ/y9NwfnVsFVUwEbAzuejk+m7AgubgoYsREjWbMp0eZ/lw6ti+khSYz2QvpMbDBelUIaTZwXbh1dK4naYbGrsRVTfsuv8xmff9U/aLPGyrVwmAqP8euPlE0oG5Pvp/UK/1cru2vbZocj9usNjN8IVb2RLdBu0V6m8RmfcPoj/TOiP/OrCb0Ynxz3WGGCSFB7tLG3DZJFUzppVe2V0d3NYDDI8oKe53M6m+fpMiku84wuFzwIcWIxIKyg3IFfI/RwwLU0K7RQW/OE0sPd2vv6fjocPppI+Eo4p4SOpNkMq66DYtfxEEFqQBsPK+W8VWXjMUxWDrwB2ThvNmEREQkuA7MWWn5NojMWslBbfLeQzPlpwVN69vsVu8+nxw0BLfWzNi8hMZ7F4dAjxkhuH4VWTrRR8K2omrYkredQfN5Zivvk9s+hd0j2Vx3Ufyb91IgwLAIUFcpfYHoESXR+dHenSWBf36yNVx4CFHWXIA0jPu8QG76aUEg+Mn9pEQ+eX02j3",
         "env": {
             "SQL": [
                 "[concat('SQL_PASS', '=\"', parameters('dbPassword'), '\" ')]",
@@ -358,7 +358,7 @@
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachineScaleSets",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "location": "[parameters('location')]",
             "tags": "[union(variables('tags'),variables('vm').bbs.hazelcastTag)]",
             "name": "[variables('vm').bbs.name]",
@@ -450,7 +450,7 @@
                     "diagnosticsProfile": {
                         "bootDiagnostics": {
                             "enabled": true,
-                            "storageUri": "[parameters('blobStorageUri')]"
+                            "storageUri": "[parameters('diagnosticsBlobStorageUri')]"
                         }
                     },
                     "extensionProfile": {
@@ -471,7 +471,8 @@
                                             "[concat(uri(parameters('_artifactsLocation'), 'scripts/settings.sh'), parameters('_artifactsLocationSasToken'))]",
                                             "[concat(uri(parameters('_artifactsLocation'), 'scripts/install.sh'), parameters('_artifactsLocationSasToken'))]",
                                             "[concat(uri(parameters('_artifactsLocation'), 'templates/ApplicationInsights.xml.template'), parameters('_artifactsLocationSasToken'))]",
-                                            "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket-collectd.conf.template'), parameters('_artifactsLocationSasToken'))]"
+                                            "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket-collectd.conf.template'), parameters('_artifactsLocationSasToken'))]",
+                                            "[concat(uri(parameters('_artifactsLocation'), 'templates/bitbucket.service.template'), parameters('_artifactsLocationSasToken'))]"
                                         ],
                                         "commandToExecute": "[concat(variables('data').SQL, variables('data').BBS, ' NFS_SERVER_IP=\"', parameters('nfsPrivateIpAddress'), '\"', ' BBS_URL=\"', parameters('bbsBaseUrl'), '\"', ' BBS_SSH_URL=\"', parameters('sshLbBaseUrl'), ':7999', '\"', ' bash install.sh bbs 1>&1 2>&1 > ./bbsnfs.install-$(uname -n).log')]"
                                     }
@@ -485,14 +486,14 @@
         {
             "name": "[guid(resourceGroup().id)]",
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-05-01",
+            "apiVersion": "2020-04-01-preview",
             "condition": "[variables('isHazelcastSystemAssigned')]",
             "dependsOn": [
                 "[variables('vm').bbs.name]"
             ],
             "properties": {
                 "roleDefinitionId": "[variables('reader-role')]",
-                "principalId": "[reference(concat(resourceId('Microsoft.Compute/virtualMachineScaleSets/', variables('vm').bbs.name),'/providers/Microsoft.ManagedIdentity/Identities/default'),'2015-08-31-PREVIEW').principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets/providers/Identities', variables('vm').bbs.name, 'Microsoft.ManagedIdentity', 'default'),'2015-08-31-PREVIEW').principalId]",
                 "scope": "[resourceGroup().id]"
             }
         }

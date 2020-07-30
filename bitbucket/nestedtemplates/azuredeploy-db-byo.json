@@ -38,13 +38,6 @@
                 "description": "The username for the dedicated database user."
             }
         },
-        "dbPassword": {
-            "type": "securestring",
-            "minLength": 8,
-            "metadata": {
-                "description": "The password for the dedicated database user."
-            }
-        },
         "vnetName": {
             "type": "string",
             "metadata": {
@@ -75,7 +68,7 @@
             "type": "Microsoft.Sql/servers/virtualNetworkRules",
             "name": "[concat(variables('dbName'), '/', parameters('clusterDbAccessNetworkRule'))]",
             "condition": "[equals(parameters('dbType'), 'sqlserver')]",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "properties": {
                 "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('bbsSubnetName'))]",
                 "ignoreMissingVnetServiceEndpoint": false

@@ -8,6 +8,20 @@ This repository contains Azure ARM templates to install the following [Atlassian
 3. [Jira Software Data Center](https://www.atlassian.com/enterprise/data-center/jira)  
 4. [Jira Service Desk Data Center](https://www.atlassian.com/software/jira/service-desk/enterprise/data-center)  
 
+## Status
+[logo]: images/check_mark_32.png "OK"
+[fail]: images/cross_mark_32.png "FAIL"
+
+| Product               | Repo        | Marketplace |
+|-----------------------|:-----------:|:-----------:|
+| Bitbucket             | ![OK][logo] | ![OK][logo] |
+| Confluence            | ![OK][logo] | ![OK][logo] |
+| Jira Software         | ![OK][logo] | ![OK][logo] |
+| Jira Service Desk     | ![OK][logo] | ![OK][logo] |
+
+## Release Notes
+[Can be found here](RELEASE.md)
+
 ## Key Features
 The templates in this repository use Azure Cloud features to create a resilient and scaleable solution:  
 

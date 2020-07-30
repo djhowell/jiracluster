@@ -83,7 +83,7 @@
             "jiraNodeOffline": {
                 "name": "[concat(variables('namespace'), '-AlertClusterNodeOffline-', uniqueString(resourceGroup().id))]"
             },
-            "jiraSanSize": {
+            "sanSize": {
                 "name": "[concat(variables('namespace'), '-AlertSharedStorageSize-', uniqueString(resourceGroup().id))]"
             },
             "jiraClusterNodeCPU": {
@@ -104,6 +104,10 @@
             "dbIoConsumptionPercentage": {
                 "name": "[concat(variables('namespace'), '-AlertDbIoConsumptionPercentage-', uniqueString(resourceGroup().id))]",
                 "description": "Monitors DB IO Consumption"
+            },
+            "sanThrottled": {
+                "name": "[concat(variables('namespace'), '-AlertSharedStorageThottled-', uniqueString(resourceGroup().id))]",
+                "description": "Monitors if Shared Home SAN performance is being throttled. For more information see https://docs.microsoft.com/en-us/azure/storage/files/storage-troubleshooting-files-performance."
             }
         },
         "webTestName": "[toLower(concat('AppHeartBeat-', parameters('appInsightsName')))]",
@@ -113,7 +117,7 @@
         {
             "type": "Microsoft.Insights/actionGroups",
             "name": "[variables('supportTeam').name]",
-            "apiVersion": "2018-03-01",
+            "apiVersion": "2019-06-01",
             "location": "Global",
             "properties": {
                 "groupShortName": "[variables('supportTeam').shortName]",
@@ -131,7 +135,6 @@
             "name": "[variables('alerts').jiraNodeOffline.name]",
             "apiVersion": "2018-03-01",
             "location": "global",
-            "scale": null,
             "properties": {
                 "description": "A Jira node has just became unhealthly/gone offline. ",
                 "enabled": true,
@@ -151,7 +154,6 @@
                             "threshold": 0,
                             "timeAggregation": "Average",
                             "name": "Metric1",
-                            "dimensions": [],
                             "monitorTemplateType": "8"
                         }
                     ],
@@ -169,7 +171,7 @@
         },
         {
             "type": "Microsoft.Insights/metricAlerts",
-            "name": "[variables('alerts').jiraSanSize.name]",
+            "name": "[variables('alerts').sanSize.name]",
             "apiVersion": "2018-03-01",
             "location": "Global",
             "properties": {
@@ -191,7 +193,6 @@
                             "threshold": 4000000000000,
                             "timeAggregation": "Average",
                             "name": "Metric1",
-                            "dimensions": [],
                             "monitorTemplateType": "8"
                         }
                     ],
@@ -258,7 +259,7 @@
         {
             "type": "Microsoft.Insights/webtests",
             "name": "[variables('webTestName')]",
-            "apiVersion": "2015-05-01",
+            "apiVersion": "2018-05-01-preview",
             "location": "[parameters('location')]",
             "condition": "[not(empty(parameters('appInsightsName')))]",
             "tags": {
@@ -267,7 +268,6 @@
             "properties": {
                 "SyntheticMonitorId": "[variables('webTestName')]",
                 "Name": "AppHeartBeat",
-                "Description": "",
                 "Enabled": true,
                 "Frequency": 300,
                 "Timeout": 120,
@@ -306,7 +306,8 @@
                 "description": "[variables('alerts').dbCpuPercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -314,10 +315,10 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "name": "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "cpu_percent",
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -343,7 +344,8 @@
                 "description": "[variables('alerts').dbCpuPercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -351,10 +353,10 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "name": "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "dtu_consumption_percent",
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -380,7 +382,8 @@
                 "description": "[variables('alerts').dbSizePercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.Sql/servers/databases', parameters('dbDatabaseServerName'), parameters('dbDatabaseName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -388,10 +391,10 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbSizePercentage.name]",
+                            "name": "[variables('alerts').dbSizePercentage.name]",
                             "metricName": "storage_percent",
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -417,7 +420,8 @@
                 "description": "[variables('alerts').dbCpuPercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -425,10 +429,10 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbCpuPercentage.name]",
+                            "name": "[variables('alerts').dbCpuPercentage.name]",
                             "metricName": "cpu_percent",
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -454,7 +458,8 @@
                 "description": "[variables('alerts').dbIoConsumptionPercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -462,10 +467,10 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbIoConsumptionPercentage.name]",
+                            "name": "[variables('alerts').dbIoConsumptionPercentage.name]",
                             "metricName": "io_consumption_percent",
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -491,7 +496,8 @@
                 "description": "[variables('alerts').dbSizePercentage.description]",
                 "severity": 1,
                 "enabled": true,
-                "scopes": ["[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
+                "scopes": [
+                    "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbDatabaseServerName'))]"
                 ],
                 "evaluationFrequency": "PT1M",
                 "windowSize": "PT5M",
@@ -499,10 +505,10 @@
                     "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
                     "allOf": [
                         {
-                            "name" : "[variables('alerts').dbSizePercentage.name]",
+                            "name": "[variables('alerts').dbSizePercentage.name]",
                             "metricName": "storage_percent",
                             "operator": "GreaterThan",
-                            "threshold" : "80",
+                            "threshold": "80",
                             "timeAggregation": "Average"
                         }
                     ]
@@ -516,7 +522,57 @@
             "dependsOn": [
                 "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
             ]
+        },
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "name": "[variables('alerts').sanThrottled.name]",
+            "apiVersion": "2018-03-01",
+            "location": "global",
+            "properties": {
+                "name": "[variables('alerts').sanThrottled.name]",
+                "description": "[variables('alerts').sanThrottled.description]",
+                "enabled": true,
+                "severity": 3,
+                "windowSize": "PT5M",
+                "evaluationFrequency": "PT5M",
+                "scopes": [
+                    "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                ],
+                "criteria": {
+                    "allOf": [
+                        {
+                            "name": "[variables('alerts').sanThrottled.name]",
+                            "metricName": "Transactions",
+                            "metricNamespace": "Microsoft.Storage/storageAccounts",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Total",
+                            "dimensions": [
+                                {
+                                    "name": "ResponseType",
+                                    "operator": "Include",
+                                    "values": [
+                                        "SuccessWithThrottling"
+                                    ]
+                                }
+                            ],
+                            "monitorTemplateType": "8",
+                            "criterionType": "StaticThresholdCriterion",
+                            "threshold": 5
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('microsoft.insights/actionGroups', variables('supportTeam').name)]"
+            ]
         }
     ],
-    "outputs": {}
+    "outputs": {
+    }
 }

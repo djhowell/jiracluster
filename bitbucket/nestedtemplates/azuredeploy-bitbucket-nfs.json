@@ -10,7 +10,6 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
             "metadata": {
                 "description": "The base URI where artifacts required by this template are located"
             }
@@ -113,9 +112,23 @@
         "nfsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket NFS disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
+            }
+        },
+        "nfsVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
             }
         },
         "workspaceId": {
@@ -159,6 +172,13 @@
         },
         "esLoadBalancerPrivateIp": {
             "type": "string"
+        },
+        "enableVault": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable Recovery Services vault"
+            }
         }
     },
     "variables": {
@@ -189,7 +209,7 @@
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "location": "[parameters('location')]",
             "name": "[variables('vm').nfs.name]",
             "properties": {
@@ -231,7 +251,7 @@
                                 "createOption": "Empty",
                                 "diskSizeGB": "[if(greater(div(parameters('nfsDiskSize'), parameters('nfsVmDiskCount')), 1020), 1020, div(parameters('nfsDiskSize'), parameters('nfsVmDiskCount')))]",
                                 "managedDisk": {
-                                    "storageAccountType": "Premium_LRS"
+                                    "storageAccountType": "[parameters('nfsVmDataDiskType')]"
                                 }
                             }
                         }
@@ -248,7 +268,7 @@
             "resources": [
                 {
                     "type": "extensions",
-                    "apiVersion": "2018-06-01",
+                    "apiVersion": "2019-12-01",
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[variables('vm').nfs.name]"
@@ -277,8 +297,9 @@
             ]
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "nfsBackupTemplate",
+            "condition": "[parameters('enableVault')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",

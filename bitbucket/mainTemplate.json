@@ -1,5 +1,5 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -12,7 +12,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/bitbucket/",
+            "defaultValue": "[deployment().properties.templateLink.uri]",
             "metadata": {
                 "description": "The URL specifying the location of the installation artifacts."
             }
@@ -308,6 +308,7 @@
         "bbsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket Node disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The bbsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -378,9 +379,23 @@
         "nfsVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested BitBucket NFS disk will be striped for performance. Essentially the desired disk size will be divided by the bbsVmDiskCount and can't exceed 1023 GB. The nfsVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
+            }
+        },
+        "nfsVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
             }
         },
         "esDataNodeCount": {
@@ -392,7 +407,7 @@
         },
         "esDataDiskSize": {
             "type": "int",
-            "defaultValue": 32,
+            "defaultValue": 128,
             "metadata": {
                 "description": "The size of the data disk for elasticsearch in GB."
             }
@@ -400,6 +415,7 @@
         "esVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
+            "minValue": 1,
             "maxValue": 32,
             "metadata": {
                 "description": "The requested ElasticSearch Data node disks will be striped for performance. Essentially the desired disk size will be divided by the esVmDiskCount and can't exceed 1023 GB. The esVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
@@ -463,7 +479,6 @@
                 6
             ],
             "defaultValue": 2,
-            "minValue": 1,
             "metadata": {
                 "description": "The number of nodes in the Application Gateway cluster."
             }
@@ -586,6 +601,13 @@
             "metadata": {
                 "description": "Enable Azure Application Insights."
             }
+        },
+        "enableVault": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable Recovery Services vault"
+            }
         }
     },
     "variables": {
@@ -598,7 +620,7 @@
     },
     "resources": [
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "pid-49ff88fd-5e3c-58f7-aadf-6a73ac08ea91",
             "type": "Microsoft.Resources/deployments",
             "properties": {
@@ -612,7 +634,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vpcTemplate",
             "properties": {
                 "mode": "Incremental",
@@ -647,7 +669,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "bitbucketTemplate",
             "dependsOn": [
                 "vpcTemplate"
@@ -770,6 +792,9 @@
                     "nfsVmDiskCount": {
                         "value": "[parameters('nfsVmDiskCount')]"
                     },
+                    "nfsVmDataDiskType": {
+                        "value": "[parameters('nfsVmDataDiskType')]"
+                    },
                     "nfsVmSize": {
                         "value": "[parameters('nfsVmSize')]"
                     },
@@ -797,6 +822,9 @@
                     "enableAnalytics": {
                         "value": "[parameters('enableAnalytics')]"
                     },
+                    "enableVault": {
+                        "value": "[parameters('enableVault')]"
+                    },
                     "workspaceSku": {
                         "value": "[parameters('workspaceSku')]"
                     },
@@ -817,7 +845,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "domainTemplate",
             "dependsOn": [
                 "bitBucketTemplate"
@@ -849,7 +877,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "alertsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableEmailAlerts')]",

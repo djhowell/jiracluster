@@ -1,0 +1,12 @@
+[Unit]
+Description=Bitbucket  the Git solution for professional teams
+After=syslog.target network.target
+
+[Service]
+Type=forking
+PIDFile=/var/atlassian/application-data/bitbucket/log/bitbucket.pid
+ExecStart=${BBS_INSTALL_DIR}/bin/start-bitbucket.sh
+ExecStop=${BBS_INSTALL_DIR}/bin/stop-bitbucket.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -165,88 +165,6 @@ function generate_server_id {
   fi
 }
 
-# issue_signed_request
-#   <verb> - GET/PUT/POST
-#   <url> - the resource uri to actually post
-#   <canonical resource> - the canonicalized resource uri
-# see https://msdn.microsoft.com/en-us/library/azure/dd179428.aspx for details
-function issue_signed_request {
-  request_method="$1"
-  request_url="$2"
-  canonicalized_resource="/${STORAGE_ACCOUNT}/$3"
-  access_key="$4"
-  
-  request_date=$(TZ=GMT date "+%a, %d %h %Y %H:%M:%S %Z")
-  storage_service_version="2015-04-05"
-  authorization="SharedKey"
-  file_store_url="file.core.windows.net"
-  full_url="https://${STORAGE_ACCOUNT}.${file_store_url}/${request_url}"
-  
-  x_ms_date_h="x-ms-date:$request_date"
-  x_ms_version_h="x-ms-version:$storage_service_version"
-  canonicalized_headers="${x_ms_date_h}\n${x_ms_version_h}\n"
-  content_length_header="Content-Length:0"
-
-  string_to_sign="${request_method}\n\n\n\n\n\n\n\n\n\n\n\n${canonicalized_headers}${canonicalized_resource}"
-  decoded_hex_key="$(echo -n "${access_key}" | base64 -d -w0 | xxd -p -c256)"
-  signature=$(printf "$string_to_sign" | openssl dgst -sha256 -mac HMAC -macopt "hexkey:$decoded_hex_key" -binary |  base64 -w0)
-  authorization_header="Authorization: $authorization ${STORAGE_ACCOUNT}:$signature"
-  
-  curl -sw "/status/%{http_code}/\n" \
-       -X $request_method \
-       -H "$x_ms_date_h" \
-       -H "$x_ms_version_h" \
-       -H "$authorization_header" \
-       -H "$content_length_header" \
-       $full_url 
-}
-
-function validate {
-  if [ ! "$1" ];
-  then
-    error "response was null"
-  fi
-  
-  if [[ $(echo ${1} | grep -o "/status/2") || $(echo ${1} | grep -o "/status/409") ]];
-  then
-    # response is valid or share already exists, ignore
-    return
-  else
-    # other or unknown status
-    if [ $(echo ${1} | grep -o "/status/") ];
-    then
-      error "response was not valid: ${1}"
-    else
-      error "no response code found: ${1}"
-    fi
-  fi
-}
-
-function list_shares {
-  local access_key="$1"
-  response="$(issue_signed_request GET ?comp=list "\ncomp:list" "${access_key}")"
-  echo ${response}
-}
-
-function create_share {
-  log "creating share ${ATL_JIRA_SHARED_HOME_NAME}"
-
-  local url="${ATL_JIRA_SHARED_HOME_NAME}?restype=share"
-  local res="${ATL_JIRA_SHARED_HOME_NAME}\nrestype:share"
-  
-  # test whether share exists already
-  response=$(list_shares "${STORAGE_KEY}")
-  validate "$response"
-  exists=$(echo ${response} | grep -c "<Share><Name>${ATL_JIRA_SHARED_HOME_NAME}</Name>")
-  
-  if [ ${exists} -eq 0 ];
-  then
-    # create share
-    response=$(issue_signed_request "PUT" ${url} ${res} "${STORAGE_KEY}")
-    validate "${response}"
-  fi
-}
-
 function mount_share {
   local persist="$1"
   local uid=${2:-0}
@@ -304,7 +222,6 @@ function mount_share {
 }
 
 function prepare_share {
-  create_share
   mount_share 1
 }
 
@@ -391,6 +308,9 @@ function get_trusted_dbhost {
 }
 
 function apply_database_dump {
+  log "Waiting a bit to make sure that private endpoint is available"
+  sleep 1m
+
   java -jar liquibase-core-3.5.3.jar \
     --classpath="${DB_DRIVER_JAR}" \
     --driver=${DB_DRIVER_CLASS} \
@@ -430,7 +350,7 @@ function prepare_varfile {
 launch.application\$Boolean=false
 rmiPort\$Long=8005
 app.jiraHome=${ATL_JIRA_HOME}
-app.install.service\$Boolean=true
+app.install.service\$Boolean=false
 existingInstallationDir=${ATL_JIRA_INSTALL_DIR}
 sys.confirmedUpdateInstallationString=false
 sys.languageId=en
@@ -786,6 +706,14 @@ function install_oms_linux_agent {
   fi
 }
 
+function enable_jira_service {
+  atl_log enable_jira_service "Enabling Jira systemd service"
+  mv jira.service /lib/systemd/system/jira.service
+  chmod 664 /lib/systemd/system/jira.service
+  systemctl daemon-reload
+  systemctl enable jira.service
+}
+
 function disable_rhel_firewall {
   if [[ -n ${IS_REDHAT} ]]
   then
@@ -834,10 +762,10 @@ function install_jira {
   configure_jira
   remount_share
   install_oms_linux_agent
-  systemctl enable jira
+  enable_jira_service
   atl_log install_jira "Done installing JIRA! Starting..."
   disable_rhel_firewall
-  systemctl start jira
+  systemctl start jira.service
   install_appinsights_collectd
   set_shared_home_permissions
   copy_artefacts
@@ -873,7 +801,9 @@ if [ "$2" == "uninstall" ]; then
     atl_log main "Uninstalling fully..."
     rm -rf "${ATL_JIRA_INSTALL_DIR}"
     rm -rf "${ATL_JIRA_HOME}"
-    rm /etc/init.d/jira
+    systemctl stop jira.service
+    systemctl disable jira.service
+    rm /lib/systemd/system/jira.service
     userdel jira
   fi
 fi

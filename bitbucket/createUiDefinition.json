@@ -1,9 +1,18 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
-    "handler": "Microsoft.Compute.MultiVm",
+    "handler": "Microsoft.Azure.CreateUIDef",
     "version": "0.1.2-preview",
     "parameters": {
-        "basics": [],
+        "basics": [
+            {
+                "name": "releaseDate",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                    "text": "Release Date: MARKETPLACE_RELEASE_DATE"
+                }
+            }
+        ],
         "steps": [
             {
                 "name": "administrator",
@@ -18,19 +27,19 @@
                         "name": "bitbucketVersion",
                         "label": "BitBucket Version",
                         "type": "Microsoft.Common.TextBox",
-                        "toolTip": "Specify which version of BitBucket (>6.2.0) you want to install. You can also specify 'latest' to download the latest version available.",
+                        "toolTip": "Specify which version of BitBucket you want to install. You can also specify 'latest' to download the latest version available.",
                         "constraints": {
                             "required": true,
                             "regex": "latest|^([6,7,8,9]\\.[0-9]{1,2}\\.[0-9]{1,2})$",
                             "validationMessage": "You must specify a version."
                         },
-                        "defaultValue": "6.2.0"
+                        "defaultValue": "6.10.0"
                     },
                     {
                         "name": "adminFullname",
                         "label": "Admin Full Name",
                         "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The fullname for the Bitbucket administrator's account.",
+                        "toolTip": "The full name for the Bitbucket administrator's account.",
                         "constraints": {
                             "required": true,
                             "regex": "^[a-zA-Z0-9 ]*$",
@@ -52,7 +61,6 @@
                         "name": "adminUsername",
                         "label": "Admin Username",
                         "type": "Microsoft.Compute.UserNameTextBox",
-                        "defaultValue": "adminUser",
                         "toolTip": "The username for the Bitbucket administrator's account.",
                         "constraints": {
                             "required": true,
@@ -70,8 +78,8 @@
                         "toolTip": "The password for the Bitbucket administrator's account.",
                         "constraints": {
                             "required": true,
-                            "regex": "(?=.{5,})",
-                            "validationMessage": "This password must be a minimum of 5 characters long."
+                            "regex": "^.{12,16}$",  
+                            "validationMessage": "This password must be a minimum of 12 characters long."
                         }
                     }
                 ]
@@ -116,11 +124,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -136,7 +144,7 @@
                             "regex": "^[a-z0-9]*(.postgres.database.azure.com|.database.windows.net)$",
                             "validationMessage": "Expected a lowercase Azure SQL endpoint ie '<database>.database.windows.net' or <database>.postgres.database.azure.com'"
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbPort",
@@ -145,11 +153,11 @@
                         "toolTip": "The port of an existing Azure database.",
                         "defaultValue": "",
                         "constraints": {
-                            "required": "[equals('yes', steps('database').hasDatabase)]",
+                            "required": "[steps('database').hasDatabase]",
                             "regex": "[0-9]*",
                             "validationMessage": "Expected a numeric value for database port eg 1433 or 5852."
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbDatabase",
@@ -162,7 +170,7 @@
                             "regex": "^[a-z0-9]*$",
                             "validationMessage": "Expected a lowercase database name"
                         },
-                        "visible": "[equals('yes', steps('database').hasDatabase)]"
+                        "visible": "[steps('database').hasDatabase]"
                     },
                     {
                         "name": "dbUsername",
@@ -186,8 +194,8 @@
                         },
                         "constraints": {
                             "required": true,
-                            "regex": "^(?=.*[A-Z])(?=.*[!@#$%])(?=.*[0-9])(?=.*[a-z]).{8,16}$",
-                            "validationMessage": "This password must be between 8 and 16 characters long, and must contain at least one uppercase letter, one lowercase letter, one number (0-9), and one non-alphanumeric character (!, $, #, %, etc.)."
+                            "regex": "^(?=.*[A-Z])(?=.*[!@#$%])(?=.*[0-9])(?=.*[a-z]).{12,16}$",
+                            "validationMessage": "This password must be between 12 and 16 characters long, and must contain at least one uppercase letter, one lowercase letter, one number (0-9), and one non-alphanumeric character (!, $, #, %, etc.)."
                         }
                     }
                 ]
@@ -218,13 +226,13 @@
                         "osPlatform": "Linux",
                         "label": {
                             "authenticationType": "Authentication type",
-                            "password": "",
-                            "confirmPassword": "",
+                            "password": "Password",
+                            "confirmPassword": "Confirm Password",
                             "sshPublicKey": "Jumpbox SSH Public Key"
                         },
                         "toolTip": {
-                            "authenticationType": "",
-                            "password": "",
+                            "authenticationType": "Authentication type",
+                            "password": "Password",
                             "sshPublicKey": "This will be the public key used to SSH into the jumpbox from your own machine."
                         },
                         "options": {
@@ -492,32 +500,32 @@
                         "type": "Microsoft.Common.DropDown",
                         "label": "Node Disk Size",
                         "toolTip": "Pick size for Elasticsearch data disk in GB.",
-                        "defaultValue": "128",
+                        "defaultValue": 128,
                         "constraints": {
                             "allowedValues": [
                                 {
                                     "label": "128",
-                                    "value": "128"
+                                    "value": 128
                                 },
                                 {
                                     "label": "256",
-                                    "value": "256"
+                                    "value": 256
                                 },
                                 {
                                     "label": "512",
-                                    "value": "512"
+                                    "value": 512
                                 },
                                 {
                                     "label": "1024",
-                                    "value": "1024"
+                                    "value": 1024
                                 },
                                 {
                                     "label": "2048",
-                                    "value": "2048"
+                                    "value": 2048
                                 },
                                 {
                                     "label": "4095",
-                                    "value": "4095"
+                                    "value": 4095
                                 }
                             ],
                             "required": true
@@ -657,7 +665,7 @@
                                 "name": "hascname",
                                 "type": "Microsoft.Common.OptionsGroup",
                                 "label": "Do you have an existing registered CNAME?",
-                                "toolTip": "If you provide one, the deployment will be made available from bitbucket.<CNAME> URL eg bitbucket.domain.com. If you don't, Azure will generate a random domain for your deployment endpoint.",
+                                "toolTip": "If you provide one, the deployment will be made available from bitbucket.CNAME URL eg bitbucket.domain.com. If you don't, Azure will generate a random domain for your deployment endpoint.",
                                 "defaultValue": "No",
                                 "constraints": {
                                     "allowedValues": [
@@ -675,8 +683,8 @@
                             },
                             {
                                 "name": "cname",
-                                "label": "Existing CNAME",
                                 "type": "Microsoft.Common.TextBox",
+                                "label": "Existing CNAME",
                                 "toolTip": "The CNAME or domain name for your organization",
                                 "constraints": {
                                     "required": true,
@@ -769,11 +777,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -790,11 +798,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -804,7 +812,7 @@
                     {
                         "name": "appInsightsCheck",
                         "type": "Microsoft.Common.InfoBox",
-                        "visible": "[and(equals(steps('monitoring').enableAppInsights, 'yes'),  not(contains('eastus, westeurope, southeastasia, centralindia, canadacentral, southcentralus, northeurope, westus2, uksouth, australiaeast, japaneast', location())))]",
+                        "visible": "[and(steps('monitoring').enableAppInsights,  not(contains('eastus, westeurope, southeastasia, centralindia, canadacentral, southcentralus, northeurope, westus2, uksouth, australiaeast, japaneast', location())))]",
                         "options": {
                             "icon": "Error",
                             "text": "App Insights product only available in regions: eastus, westeurope, southeastasia, centralindia, canadacentral, southcentralus, northeurope, westus2, uksouth, australiaeast, japaneast. Please disable or change resource group location!",
@@ -821,11 +829,11 @@
                             "allowedValues": [
                                 {
                                     "label": "Yes",
-                                    "value": "yes"
+                                    "value": true
                                 },
                                 {
                                     "label": "No",
-                                    "value": "no"
+                                    "value": false
                                 }
                             ],
                             "required": true
@@ -871,12 +879,12 @@
                             ],
                             "required": true
                         },
-                        "visible": "[equals(steps('monitoring').enableAnalytics, 'yes')]"
+                        "visible": "[steps('monitoring').enableAnalytics]"
                     },
                     {
                         "name": "appAnalyticsCheck",
                         "type": "Microsoft.Common.InfoBox",
-                        "visible": "[and(equals(steps('monitoring').enableAnalytics, 'yes'), not(contains('eastus, westeurope, southeastasia, centralindia, canadacentral, australiasoutheast, westcentralus, japaneast, uksouth, northeurope, southcentralus, westus2', location())))]",
+                        "visible": "[and(steps('monitoring').enableAnalytics, not(contains('eastus, westeurope, southeastasia, centralindia, canadacentral, australiasoutheast, westcentralus, japaneast, uksouth, northeurope, southcentralus, westus2', location())))]",
                         "options": {
                             "icon": "Error",
                             "text": "Analytics products only available in regions: eastus, westeurope, southeastasia, centralindia, canadacentral, australiasoutheast, westcentralus, japaneast, uksouth, northeurope, southcentralus, westus2. Please disable or change resource group location!",
@@ -886,7 +894,7 @@
                     {
                         "name": "postgresAnalyticsCheck",
                         "type": "Microsoft.Common.InfoBox",
-                        "visible": "[and(equals(steps('monitoring').enableAnalytics, 'yes'), equals(steps('database').dbType, 'Azure DB for PostgreSQL'))]",
+                        "visible": "[and(steps('monitoring').enableAnalytics, equals(steps('database').dbType, 'Azure DB for PostgreSQL'))]",
                         "options": {
                             "icon": "Info",
                             "text": "Azure SQL Analytics not currently available for PostgreSQL!"
@@ -899,7 +907,7 @@
             "location": "[location()]",
             "bitbucketVersion": "[steps('administrator').bitbucketVersion]",
             "bitbucketAdminEmail": "[steps('administrator').adminEmail]",
-            "bitbucketAdminFullName": "[steps('administrator').adminfullname]",
+            "bitbucketAdminFullName": "[steps('administrator').adminFullname]",
             "bitbucketAdminUsername": "[steps('administrator').adminUsername]",
             "bitbucketAdminPassword": "[steps('administrator').adminPassword]",
             "dbCreateNew": "[equals('no', steps('database').hasDatabase)]",
@@ -921,9 +929,9 @@
             "cname": "[steps('domain').cnameSection.cname]",
             "sslBase64EncodedPfxCertificate": "[steps('domain').sslSection.sslBase64EncodedPfxCertificate]",
             "sslPfxCertificatePassword": "[steps('domain').sslSection.sslPfxCertificatePassword]",
-            "enableEmailAlerts": "[equals(steps('monitoring').enableEmailAlerts, 'yes')]",
-            "enableApplicationInsights": "[equals(steps('monitoring').enableAppInsights, 'yes')]",
-            "enableAnalytics": "[equals(steps('monitoring').enableAnalytics, 'yes')]",
+            "enableEmailAlerts": "[steps('monitoring').enableEmailAlerts]",
+            "enableApplicationInsights": "[steps('monitoring').enableAppInsights]",
+            "enableAnalytics": "[steps('monitoring').enableAnalytics]",
             "workspaceSku": "[steps('monitoring').workspaceSku]"
         }
     }

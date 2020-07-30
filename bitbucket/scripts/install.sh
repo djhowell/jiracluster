@@ -177,6 +177,15 @@ function nfs_configure {
     systemctl restart nfs-server
     systemctl restart rpc-statd.service
 
+    # Some flakiness around - error starting threads: errno 98 (Address already in use) retry seems to fix it
+    sleep 5
+    if [[ "active" != $(systemctl is-active nfs-server) ]]
+    then
+        log "Restarting NFS server again"
+        systemctl status nfs-server
+        systemctl restart nfs-server
+    fi
+
     log "Start NFS server on system startup"
     systemctl enable nfs-server
     systemctl enable rpc-statd.service
@@ -191,12 +200,14 @@ function bbs_install_nfs_client {
 }
 
 function install_latest_git {
-    log "Install latest version of git from PPA"
+
 
     if [[ -n ${IS_REDHAT} ]]
     then
-	    pacapt install --noconfirm git2u
-    else 
+      log "Install latest git 2.24.2 from IUS"
+	    pacapt install --noconfirm git224
+    else
+      log "Install latest version of git from PPA"
     	apt-add-repository -y ppa:git-core/ppa
 	    pacapt update --noconfirm
 	    pacapt install --noconfirm git
@@ -309,8 +320,8 @@ function bbs_download_installer {
         error "Could not get latest info installer description from https://my.atlassian.com/download/feeds/current/stash.json"
         fi
 
-        LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g')
-        LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g')
+        LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g' | sort -nr | head -n1)
+        LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g' | sort -nr | head -n1)
         log "Latest bitbucket info: $LATEST_VERSION and download URL: $LATEST_VERSION_URL"
     fi
 
@@ -366,14 +377,6 @@ function bbs_run_installer {
     fi
     
     log "Done running Bitbucket Server installer"
-}
-
-function bbs_stop {
-    log "Stopping Bitbucket Server application..."
-
-    /etc/init.d/atlbitbucket stop
-
-    log "Bitbucket Server application has been stopped"
 }
 
 function bbs_prepare_properties {
@@ -602,6 +605,20 @@ EOF
     crontab /tmp/$$.crontab.tmp
 }
 
+function enable_bitbucket_service {
+  atl_log enable_bitbucket_service "Enabling Bitbucket systemd service"
+  atl_log enable_bitbucket_service "Substituting ${BBS_INSTALL_DIR} in systemd service"
+  # remove the init.d service to prevent conflict with systemd
+  rm /etc/init.d/bitbucket
+  chown -R "${BBS_USER}":"${BBS_GROUP}" "${BBS_INSTALL_DIR}"
+  # make install directory var available to envsubst
+  export BBS_INSTALL_DIR=${BBS_INSTALL_DIR}
+  envsubst '$BBS_INSTALL_DIR' < bitbucket.service.template > /lib/systemd/system/bitbucket.service
+  chmod 664 /lib/systemd/system/bitbucket.service
+  systemctl daemon-reload
+  systemctl enable bitbucket.service
+}
+
 
 function install_nfs {
     log "Configuring NFS node..."
@@ -640,9 +657,10 @@ function install_bbs {
     install_oms_linux_agent
     bbs_install
     disable_rhel_firewall
+    enable_bitbucket_service
     
     log "Starting Bitbucket Server..."    
-    systemctl start atlbitbucket
+    systemctl start atlbitbucket.service
 
     install_appinsights_collectd
     log "Done configuring Bitbucket Server node!"
@@ -654,7 +672,7 @@ function install_unsupported {
 
 function uninstall_bbs {
     log "Stopping Bitbucket Server..."  
-    systemctl stop atlbitbucket
+    systemctl stop bitbucket.service
 
     log "Unmounting ${BBS_SHARED_HOME}"
     umount ${BBS_SHARED_HOME}
@@ -667,7 +685,10 @@ function uninstall_bbs {
 
     log "Removing ${BBS_HOME}"
     rm -rf "${BBS_HOME}"
-    rm /etc/init.d/atlbitbucket
+
+    systemctl disable bitbucket.service
+    rm /lib/systemd/system/bitbucket.service
+
     userdel ${BBS_USER}
 }
 
@@ -679,11 +700,15 @@ function install_pacapt {
 function install_redhat_epel_if_needed {
   if [[ -n ${IS_REDHAT} ]]
   then
-	  wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-	  yum install -y ./epel-release-latest-*.noarch.rpm
+    log "install the ius-release & epel-release packages"
+    wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum install -y ./epel-release-latest-*.noarch.rpm
 
-      wget https://rhel7.iuscommunity.org/ius-release.rpm
-	  yum install -y ius-release.rpm
+    # ISU repo contains latest GIT packages, see https://ius.io/
+    yum install -y https://repo.ius.io/ius-release-el7.rpm
+    if [ "$?" -ne "0" ]; then
+      error "ISU repo package (ius-release) install failed!!"
+    fi
   fi
 }
 

@@ -354,6 +354,12 @@
                 "description": "The name of the subnet within the Jira virtual network where the Jira cluster is located."
             }
         },
+        "jumpboxSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the subnet within the Jira virtual network where the Jira jumpbox is located."
+            }
+        },
         "gtwySubnetName": {
             "type": "string",
             "metadata": {
@@ -364,12 +370,6 @@
             "type": "string",
             "metadata": {
                 "description": "The name of the Jumpbox."
-            }
-        },
-        "jumpboxPublicIpAddress": {
-            "type": "string",
-            "metadata": {
-                "description": "The public IP address of the Jumpbox."
             }
         },
         "sslBase64EncodedPfxCertificate": {
@@ -423,6 +423,13 @@
                 "description": "Workspace SKU Pricing Tier. Options depend upon when Azure Subscription created. If after 2018, use 'PerGB2018' otherwise 'Free'."
             }
         },
+        "sharedHomeSizeInGb": {
+            "type": "string",
+            "defaultValue": "128",
+            "metadata": {
+                "description": "Shared Home File Share Size in GB"
+            }
+        },
         "clusterVmDiskSize": {
             "type": "int",
             "defaultValue": 1000,
@@ -439,6 +446,19 @@
                 "description": "The requested Cluster Node disk will be striped for performance. Essentially the desired disk size will be divided by the clusterVmDiskCount and can't exceed 1023 GB. The clusterVmDiskCount count can't exceed the MaxDiskCount assigned to the VM Size."
             }
         },
+        "clusterVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
+            }
+        },
         "linuxOsType": {
             "type": "string",
             "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
@@ -452,6 +472,13 @@
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
             }
+        },
+        "enablePremiumFiles": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Azure Premium Files."
+            }
         }
     },
     "variables": {
@@ -462,14 +489,14 @@
         "appGtwyTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-jira-gtwy.json', parameters('_artifactsLocationSasToken')))]",
         "appInsightsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-app-insights.json', parameters('_artifactsLocationSasToken')))]",
         "analyticsTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-analytics.json', parameters('_artifactsLocationSasToken')))]",
-        "tags": {
-            "vendor": "Atlassian",
-            "product": "JIRA",
-            "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
-        },
+        "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
+        "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]",
         "jira": {
             "storage": {
-                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]"
+                "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]",
+                "premiumName": "[concat(variables('namespace'), 'prem', uniqueString(resourceGroup().id))]",
+                "sharedHomeName": "[concat(variables('namespace'), '-shared-home')]",
+                "diagnostics": "[concat(variables('namespace'), 'diag', uniqueString(resourceGroup().id))]"
             }
         },
         "workspace": {
@@ -480,16 +507,17 @@
         "gtwyIpName": "[concat(variables('namespace'), '-appgtwyip-', uniqueString(resourceGroup().id))]",
         "gtwyName": "[if(empty(parameters('sslBase64EncodedPfxCertificate')), concat(variables('namespace'), 'appgateway'), concat(variables('namespace'), 'appgateway-https'))]",
         "gtwyAddressPoolName": "[concat(variables('namespace'), 'appgwaddrpool')]",
-        "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]"
+        "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]",
+        "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]",
+        "storageName": "[concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('jira').storage.diagnostics, variables('jira').storage.name))]"
     },
     "resources": [
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "name": "[variables('workspace').name]",
             "condition": "[parameters('enableAnalytics')]",
-            "apiVersion": "2017-04-26-preview",
+            "apiVersion": "2020-03-01-preview",
             "location": "[parameters('location')]",
-            "scale": null,
             "properties": {
                 "sku": {
                     "name": "[variables('workspace').sku]"
@@ -497,12 +525,12 @@
             },
             "resources": [
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "JiraLogs",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLog",
                     "properties": {
@@ -521,8 +549,7 @@
                                     "regexDelimiter": {
                                         "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]",
                                         "matchIndex": 0,
-                                        "matchIndexSpecified": true,
-                                        "numberedGroup": null
+                                        "matchIndexSpecified": true
                                     }
                                 }
                             }
@@ -546,12 +573,12 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "jiraLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
                     ],
                     "kind": "CustomLogCollection",
                     "properties": {
@@ -561,7 +588,7 @@
             ]
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "sqlDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'sqlserver'))]",
@@ -577,6 +604,12 @@
                 "parameters": {
                     "location": {
                         "value": "[parameters('location')]"
+                    },
+                     "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
                     },
                     "dbServerName": {
                         "value": "[parameters('dbHost')]"
@@ -602,20 +635,20 @@
                     "appSubnetName": {
                         "value": "[parameters('appSubnetName')]"
                     },
+                    "jumpboxSubnetName": {
+                        "value": "[parameters('jumpboxSubnetName')]"
+                    },
                     "workspaceName": {
                         "value": "[variables('workspace').name]"
                     },
                     "enableAnalytics": {
                         "value": "[parameters('enableAnalytics')]"
-                    },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[parameters('jumpboxPublicIpAddress')]"
                     }
                 }
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "postgresDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'postgres'))]",
@@ -631,6 +664,12 @@
                 "parameters": {
                     "location": {
                         "value": "[parameters('location')]"
+                    },
+                     "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
                     },
                     "dbServerName": {
                         "value": "[parameters('dbHost')]"
@@ -656,8 +695,8 @@
                     "appSubnetName": {
                         "value": "[parameters('appSubnetName')]"
                     },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[parameters('jumpboxPublicIpAddress')]"
+                    "jumpboxSubnetName": {
+                        "value": "[parameters('jumpboxSubnetName')]"
                     },
                     "workspaceName": {
                         "value": "[variables('workspace').name]"
@@ -669,7 +708,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "byodbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[not(parameters('dbCreateNew'))]",
@@ -711,7 +750,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appInsightsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
@@ -733,7 +772,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "analyticsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableAnalytics')]",
@@ -777,7 +816,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appGtwyTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -831,11 +870,12 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('jira').storage.name)]",
+                "[variables('jira').storage.name]",
+                "[variables('jira').storage.premiumName]", 
                 "[variables('dbTemplate')]",
                 "byodbTemplate"
             ],
@@ -942,8 +982,14 @@
                     "jiraDbServerName": {
                         "value": "[if(parameters('dbCreateNew'), reference(variables('dbTemplate')).outputs.serverName.value, parameters('dbHost'))]"
                     },
+                    "storageAccountName": {
+                        "value": "[if(parameters('enablePremiumFiles'), variables('jira').storage.premiumName, variables('jira').storage.name)]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('jira').storage.sharedHomeName]"
+                    },
                     "storageAccessKey": {
-                        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('jira').storage.name), '2017-06-01').keys[0].value]"
+                        "value": "[if(parameters('enablePremiumFiles'), listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('jira').storage.premiumName), '2017-06-01').keys[0].value, listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('jira').storage.name), '2017-06-01').keys[0].value)]"
                     },
                     "enableAcceleratedNetworking": {
                         "value": "[parameters('enableAcceleratedNetworking')]"
@@ -952,10 +998,10 @@
                         "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
                     },
                     "workspacePrimaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').primarySharedKey, '')]"
                     },
                     "workspaceSecondaryKey": {
-                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2020-03-01-preview').secondarySharedKey, '')]"
                     },
                     "clusterVmDiskSize": {
                         "value": "[parameters('clusterVmDiskSize')]"
@@ -963,26 +1009,149 @@
                     "clusterVmDiskCount": {
                         "value": "[parameters('clusterVmDiskCount')]"
                     },
+                    "clusterVmDataDiskType": {
+                        "value": "[parameters('clusterVmDataDiskType')]"
+                    },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
                     },
-                    "blobStorageUri": {
-                        "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('jira').storage.name), '2017-06-01').primaryEndpoints.blob]"
+                    "diagnosticsBlobStorageUri": {
+                         "value": "[reference(variables('storageName')).primaryEndpoints.blob]"
                     }
                 }
             }
         },
         {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2018-07-01",
             "name": "[variables('jira').storage.name]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "condition": "[not(parameters('enablePremiumFiles'))]",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard_GRS",
                 "tier": "Standard"
             },
-            "kind": "StorageV2",
-            "tags": "[variables('tags')]"
+            "kind": "StorageV2"
+        },
+        {
+            "name": "[variables('jira').storage.diagnostics]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2"
+        },
+        {
+            "name": "[variables('jira').storage.premiumName]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "comments": "Only have this resource in this template because not allowed to return keys/secrets in output pararms from nested templates.",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Premium_LRS",
+                "tier": "Premium"
+            },
+            "kind": "FileStorage",
+            "properties": {
+                "largeFileSharesState": "Enabled",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "name": "[concat(if(parameters('enablePremiumFiles'), variables('jira').storage.premiumName, variables('jira').storage.name), '/default')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "dependsOn": [
+                "[variables('jira').storage.premiumName]"
+            ],
+            "sku": {
+                "name": "Premium_LRS"
+            }
+        },
+        {
+            "name": "[concat(if(parameters('enablePremiumFiles'), variables('jira').storage.premiumName, variables('jira').storage.name), '/default/', variables('jira').storage.sharedHomeName)]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [
+                "[variables('jira').storage.name]",
+                "[variables('jira').storage.premiumName]"
+            ],
+            "properties": {
+                "shareQuota": "[parameters('sharedHomeSizeInGb')]"
+            }
+        },
+        {
+            "name": "recoveryVaultTemplate",
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[parameters('enablePremiumFiles')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vaultTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vaultName": {
+                        "value": "[variables('vaultName')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "sharedHomeBackupTemplate",
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Resources/deployments",
+            // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
+            "condition": false,
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('jira').storage.premiumName)]",
+                "recoveryVaultTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedHomeBackupTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vaultName": {
+                        "value": "[variables('vaultName')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[variables('jira').storage.premiumName]"
+                    },
+                    "sharedHomeName": {
+                        "value": "[variables('jira').storage.sharedHomeName]"
+                    }
+                }
+            }
         }
     ],
     "outputs": {
@@ -1004,7 +1173,7 @@
         },
         "storageAccountName": {
             "type": "string",
-            "value": "[variables('jira').storage.name]"
+            "value": "[if(parameters('enablePremiumFiles'),variables('jira').storage.premiumName, variables('jira').storage.name)]"
         },
         "clusterName": {
             "type": "string",

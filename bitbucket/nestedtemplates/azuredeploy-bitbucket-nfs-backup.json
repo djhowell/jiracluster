@@ -19,7 +19,6 @@
         "policyName": "NFSBackupPolicy",
         "schedule": {
             "scheduleRunFrequency": "Daily",
-            "scheduleRunDays": null,
             "scheduleRunTimes": [
                 "2019-01-01T21:00:00.000Z"
             ],
@@ -49,7 +48,6 @@
             },
             "monthlySchedule": {
                 "retentionScheduleFormatType": "Weekly",
-                "retentionScheduleDaily": null,
                 "retentionScheduleWeekly": {
                     "daysOfTheWeek": [
                         "Sunday"
@@ -71,7 +69,6 @@
                 "monthsOfYear": [
                     "January"
                 ],
-                "retentionScheduleDaily": null,
                 "retentionScheduleWeekly": {
                     "daysOfTheWeek": [
                         "Sunday"
@@ -113,7 +110,7 @@
             "apiVersion": "2016-12-01",
             "name": "[concat(parameters('vaultName'), '/', variables('fabricName'), '/', variables('v2VmContainer'), concat(resourceGroup().name,';',variables('existingVirtualMachines')[copyIndex()]), '/', variables('v2Vm'), concat(resourceGroup().name,';',variables('existingVirtualMachines')[copyIndex()]))]",
             "dependsOn": [
-                "[concat('Microsoft.RecoveryServices/vaults', '/', parameters('vaultName'), '/backupPolicies/', variables('policyName'))]"
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('vaultName'), variables('policyName'))]"
             ],
             "properties": {
                 "protectedItemType": "Microsoft.Compute/virtualMachines",

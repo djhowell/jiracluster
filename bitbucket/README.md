@@ -6,6 +6,9 @@ Bitbucket Data Center gives you uninterrupted access to Bitbucket with performan
 
 [![Deploy Bitbucket Data Center to Azure Portal](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fbitbucket.org%2Fatlassian%2Fatlassian-azure-deployment%2Fraw%2Fmaster%2Fbitbucket%2FmainTemplate.json)
 
+## Azure Bitbucket Architecture
+
+![Azure Bitbucket Architecture](images/AzureBitbucketv2Architecture.png "Azure Bitbucket Architecture")
 
 ## View Azure Deployment Results
 

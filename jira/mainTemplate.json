@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
@@ -12,7 +12,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/master/jira/",
+            "defaultValue": "[deployment().properties.templateLink.uri]",
             "metadata": {
                 "description": "The URL specifying the location of the installation files."
             }
@@ -350,6 +350,19 @@
                 "description": "The size of the virtual machine to use for each Jira node in the cluster."
             }
         },
+        "clusterVmDataDiskType": {
+            "type": "string",
+            "defaultValue": "StandardSSD_LRS",
+            "allowedValues": [
+                "Premium_LRS",
+                "StandardSSD_LRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+            ],
+            "metadata": {
+                "description": "The disk type for the Data Disk of each node in the cluster."
+            }
+        },
         "linuxOsType": {
             "type": "string",
             "defaultValue": "Canonical:UbuntuServer:18.04-LTS",
@@ -362,6 +375,13 @@
             ],
             "metadata": {
                 "description": "Select your preferred Linux OS type. Bear in mind, the Linux OS type has to support Accelerated Networking as well - https://docs.microsoft.com/en-us/azure/virtual-network/create-vm-accelerated-networking-cli"
+            }
+        },
+        "sharedHomeSizeInGb": {
+           "type": "string",
+           "defaultValue": "128",
+           "metadata": {
+                "description": "Shared Home File Share Size in GB"
             }
         },
         "clusterVmDiskSize": {
@@ -487,6 +507,13 @@
             "metadata": {
                 "description": "Enable accelerated networking. Note that this needs to be on a supported instance type."
             }
+        },
+        "enablePremiumFiles": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Azure Premium Files."
+            }
         }
     },
     "variables": {
@@ -562,6 +589,13 @@
                 "medium": "Standard_B1s",
                 "large": "Standard_B1s",
                 "enterprise": "Standard_B1s"
+            },
+            "sharedHomeSizeInGb": {
+                "trial": "128",
+                "small": "256",
+                "medium": "5120",
+                "large": "10240",
+                "enterprise": "20480"
             }
         }
     },
@@ -569,7 +603,7 @@
         {
             "comments": "Azure tracking GUID for Jira - ensure right one being used for the delivery channel ie via Azure Marketplace, BitBucket Quickstart etc",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "[concat('pid-',variables('customerUsageId'))]",
             "properties": {
                 "mode": "Incremental",
@@ -582,7 +616,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vpcTemplate",
             "properties": {
                 "mode": "Incremental",
@@ -611,7 +645,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "jiraTemplate",
             "dependsOn": [
                 "vpcTemplate"
@@ -716,14 +750,14 @@
                     "appSubnetName": {
                         "value": "[reference('vpcTemplate').outputs.appSubnetName.value]"
                     },
+                    "jumpboxSubnetName": {
+                        "value": "[reference('vpcTemplate').outputs.jumpboxSubnetName.value]"
+                    },
                     "gtwySubnetName": {
                         "value": "[reference('vpcTemplate').outputs.gtwySubnetName.value]"
                     },
                     "jumpboxName": {
                         "value": "[reference('vpcTemplate').outputs.jumpboxName.value]"
-                    },
-                    "jumpboxPublicIpAddress": {
-                        "value": "[reference('vpcTemplate').outputs.jumpboxPublicIpAddress.value]"
                     },
                     "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
@@ -749,18 +783,27 @@
                     "clusterVmDiskCount": {
                         "value": "[parameters('clusterVmDiskCount')]"
                     },
+                    "clusterVmDataDiskType": {
+                        "value": "[parameters('clusterVmDataDiskType')]"
+                    },
                     "customDownloadUrl": {
                         "value": "[parameters('customDownloadUrl')]"
                     },
                     "linuxOsType": {
                         "value": "[parameters('linuxOsType')]"
+                    },
+                    "sharedHomeSizeInGb": {
+                        "value": "[if(parameters('enablePremiumFiles'), if(variables('isJiraClusterSizeUsed'), variables('clusterLookup').sharedHomeSizeInGb[parameters('jiraClusterSize')], parameters('sharedHomeSizeInGb')), '5120')]"
+                    },
+                    "enablePremiumFiles": {
+                        "value": "[parameters('enablePremiumFiles')]"
                     }
                 }
             }
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "domainTemplate",
             "dependsOn": [
                 "jiraTemplate"
@@ -786,7 +829,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "alertsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableEmailAlerts')]",
