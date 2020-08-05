@@ -368,6 +368,62 @@
                             "sku": "18.04-LTS"
                         },
                         "count": "[steps('cluster').nodeCount]"
+                    },  
+                    {
+                        "name": "hasActiveDirApp",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "HazelCast Cluster Auto Discovery Mechanism",
+                        "toolTip": "Use an Azure Active Directory Service Principal for auto discovery or create role (default - requires Owner permission).",
+                        "defaultValue": "Resource Group role (requires Owner permission on Resource Group)",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Resource Group role (requires Owner permission on Resource Group)",
+                                    "value": false
+                                },
+                                {
+                                    "label": "Use Existing Active Directory Service Principal with Reader permission.",
+                                    "value": true
+                                }
+                            ],
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "bbsHazelcastClientId",
+                        "label": "Service Principal Client ID",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The Azure Active Directory Service Principal Client ID.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^.{1,50}$",
+                            "validationMessage": "You must specify a Client ID"
+                        },
+                        "visible": "[steps('cluster').hasActiveDirApp]"
+                    },
+                    {
+                        "name": "bbsHazelcastClientSecret",
+                        "label": "Service Principal Client Secret",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The Azure Active Directory Service Principal Client Secret.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^.{1,50}$",
+                            "validationMessage": "You must specify a Client Secret"
+                        },
+                        "visible": "[steps('cluster').hasActiveDirApp]"
+                    },
+                    {
+                        "name": "bbsHazelcastTenantId",
+                        "label": "Service Principal Tenant ID",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The Azure Active Directory Service Principal Tenant ID.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^.{1,50}$",
+                            "validationMessage": "You must specify a Tenant ID"
+                        },
+                        "visible": "[steps('cluster').hasActiveDirApp]"
                     }
                 ]
             },
@@ -921,6 +977,9 @@
             "sshKey": "[steps('ssh').credentials.sshPublicKey]",
             "bbsNodeCount": "[int(steps('cluster').nodeCount)]",
             "bbsVmSize": "[steps('cluster').nodeSize]",
+            "bbsHazelcastClientId": "[steps('cluster').bbsHazelcastClientId]",
+            "bbsHazelcastClientSecret": "[steps('cluster').bbsHazelcastClientSecret]",
+            "bbsHazelcastTenantId": "[steps('cluster').bbsHazelcastTenantId]",
             "nfsDiskSize": "[int(steps('fileServer').nfsDiskSize)]",
             "nfsVmSize": "[steps('fileServer').nfsVMSize]",
             "esDataDiskSize": "[int(steps('elasticsearch').esDiskSize)]",
