@@ -1,0 +1,290 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.atlassian.pom</groupId>
+        <artifactId>closedsource-pom</artifactId>
+        <version>5.0.18</version>
+    </parent>
+
+    <groupId>com.atlassian.dcd</groupId>
+    <artifactId>confluence-smoke-tests</artifactId>
+    <packaging>pom</packaging>
+    <version>SNAPSHOT</version>
+
+    <name>Confluence Smoke Tests</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.atlassian.confluence</groupId>
+                <artifactId>confluence-plugins-platform-test-pom</artifactId>
+                <version>${confluence.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-acceptance-test</artifactId>
+            <version>${confluence.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.testng</groupId>
+                    <artifactId>testng</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.upm</groupId>
+            <artifactId>atlassian-universal-plugin-manager-pageobjects</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.upm</groupId>
+            <artifactId>atlassian-universal-plugin-manager-javascript-tests</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.selenium</groupId>
+            <artifactId>atlassian-webdriver-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence-stateless-test-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.confluence</groupId>
+            <artifactId>confluence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>atlassian-confluence</finalName>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-testresources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <configuration>
+                    <excludes>
+                        <!-- Exclude all tests so we can run them later after the SetupAcceptanceTest -->
+                        <exclude>it/com/**/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <http.port>${http.port}</http.port>
+                        <baseurl>${baseurl}</baseurl>
+                        <!--
+                        temp directory used by the acceptance tests (to place attachments etc) Default Value: Java's default temp directory
+                        -->
+                        <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
+                        <!--
+                        Set this property to give the location of the local maven repository from which plugins etc may be loaded.
+                        -->
+                        <confluence.version>${confluence.version}</confluence.version>
+                        <!--
+                        Version of Shared Application Access Layer Compatibility Testing Kit Plugin to test against
+                        -->
+                        <sal.version>2.6.0</sal.version>
+                        <!--
+                        Defines where the dependent plugins (func-test and sal), related to the copy-dependency goal in the extended-acceptance-profile
+                        -->
+                        <dynamicPluginDirectory>${project.build.directory}/dependency</dynamicPluginDirectory>
+                        <!--
+                        Either standard for the "default/evaluation" installation (embedded database etc), or custom for anything else.
+                        -->
+                        <setup.type>${setup.type}</setup.type>
+                        <!--
+                        Prints the contents of net.sf.hibernate.cache.StandardQueryCache when the functest-rpc logs a message Used to diagnose CONF-10673
+                        -->
+                        <spamLogWithHibernate>${spamLogWithHibernate}</spamLogWithHibernate>
+                        <!--
+                        The time used when pausing a test. Used mainly because mysql doesn't store dates in millis Default: 10
+                        -->
+                        <pause.time.millis>${pause.time.millis}</pause.time.millis>
+                        <!--
+                        Set this property to true if running against a database that is case insensitive. e.g. MySQL Default: false, but is set by the mysql profile
+                        -->
+                        <database.case.insensitive>${database.case.insensitive}</database.case.insensitive>
+                        <!--
+                        Choose to use an embedded database (hsql) or an external one. Either database-type-embedded or database-type-standard.
+                        -->
+                        <database.type>hsql</database.type>
+                        <!--
+                        Will pause the tests after confluence has been setup Default: false
+                        -->
+                        <wait.after.setup>${wait.after.setup}</wait.after.setup>
+                        <!--
+                        Defaults to 180000 (3 minutes). Lately, this is too slow on some platform builds for the plugin system to start.
+                        -->
+                        <httpRequestTimeout>${httpRequestTimeout}</httpRequestTimeout>
+                        <!--
+                        Checks extra assertions during tearDown. Useful for determining problems where one test breaks another, but likely to add to total test time.
+                        -->
+                        <checkTestTearDown>${checkTestTearDown}</checkTestTearDown>
+                    </systemPropertyVariables>
+                    <!-- Use deprecated systemProperties, rather than systemPropertyVariables, so we can pass an empty value through -->
+                    <systemProperties>
+                        <property>
+                            <name>webappContext</name>
+                            <value>${webappContext}</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>00_setup</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>
+                                    com/atlassian/confluence/setup/SetupAcceptanceTest.java
+                                </include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>50_acceptance_tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>com/atlassian/confluence/Page*AcceptanceTest.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/Abstract*.java</exclude>
+                                <exclude>**/PageHistoryAcceptanceTest.java</exclude><!-- requires non-distributed properties file on classpath -->
+                                <exclude>com/atlassian/confluence/Cluster*.java</exclude>
+                                <exclude>
+                                    com/atlassian/confluence/KnownBugsAcceptanceTest.java
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!--
+                HACK: copy the dependencies from the reactor, so that the acceptance tests can retrieve them
+                -->
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!--
+                        Use the dependency plugin to copy the Confluence dynamic plugins to be installed during testing.
+                        -->
+                        <id>copy-dynamic-plugins</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>
+                                confluence-functestrpc-plugin,
+                                confluence-functest-rest-plugin,
+                                confluence-functestxss-plugin,
+                                confluence-installer-distribution,
+                                confluence-scriptsfinished-plugin,
+                                atlassian-universal-plugin-manager-javascript-tests
+                            </includeArtifactIds>
+                            <stripVersion>true</stripVersion>
+                            <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!--
+                        Use the dependency plugin to extract the Confluence acceptance tests into the test output directory. This is declared here in the parent pom so we don't have it copied and pasted everywhere. BUT the downside is that every single child module will perform the do
+                        -->
+                        <id>unpack-confluence-tests</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>confluence-acceptance-test</includeArtifactIds>
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <slf4j.version>1.7.22</slf4j.version>
+        <!-- acceptance test properties -->
+        <jvm.args.custom/> <!-- Allows to specify custom arguments in build scripts -->
+        <jvm.args.xmx>1024m</jvm.args.xmx>
+        <jvm.args>-Xmx${jvm.args.xmx} -Djava.awt.headless=true -XX:+HeapDumpOnOutOfMemoryError ${jvm.args.custom}</jvm.args>
+        <webappContext/>
+        <maven.junit.fork>once</maven.junit.fork>
+        <spamLogWithHibernate>false</spamLogWithHibernate>
+        <database.case.insensitive>false</database.case.insensitive>
+        <pause.time.millis>10</pause.time.millis>
+        <wait.after.setup>false</wait.after.setup>
+        <checkTestTearDown>false</checkTestTearDown>
+        <httpRequestTimeout>180000</httpRequestTimeout>
+        <http.port></http.port>
+        <rmi.port>8009</rmi.port>
+        <baseurl>http://localhost:${http.port}/</baseurl>
+        <installer.confHome>${project.build.directory}/atlassian/application-data/confluence</installer.confHome>
+        <installer.installationDir>${project.build.directory}/atlassian/confluence</installer.installationDir>
+        <synchrony-proxy.version>2.1.3</synchrony-proxy.version>
+        <confluence-bootstrap.version>1.0.7</confluence-bootstrap.version>
+        <confluence.buildPartner />
+        <confluence.buildExcludedLocale />
+        <setup.type>awscluster</setup.type>
+        <confluence.version>7.4.3</confluence.version>
+    </properties>
+</project>
