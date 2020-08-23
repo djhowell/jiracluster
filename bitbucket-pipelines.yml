@@ -184,12 +184,9 @@ pipelines:
           caches:
             - pip
           script:
-            - pip install --upgrade pip
-            - pip install setuptools -U
-            - pip install azure-cli
+            # Install the Azure CLI 
+            - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
             - mkdir -p $BITBUCKET_CLONE_DIR/outputs
-            - hash -r
-            - echo $PATH
 
             # Have to use artifact file because env variables don't carry over to after-script
             - echo "BB_PIPELINE_$BITBUCKET_BUILD_NUMBER" > $BITBUCKET_CLONE_DIR/outputs/resourcegroup
@@ -230,6 +227,7 @@ pipelines:
           caches:
             - maven
           script:
+            - cd $BITBUCKET_CLONE_DIR/outputs
             - curl -LOisf https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/confluence-dc-smoke-test-suite/pom.xml
             - mvn -B -e -nsu clean verify -Dbaseurl=$APP_ENDPOINT
 
