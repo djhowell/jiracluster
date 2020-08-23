@@ -3,7 +3,7 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: python:3.8.2
+image: openkbs/jre-mvn-py3
 
 options:
   max-time: 90
@@ -188,6 +188,8 @@ pipelines:
             - pip install setuptools -U
             - pip install azure-cli
             - mkdir -p $BITBUCKET_CLONE_DIR/outputs
+            - hash -r
+            - echo $PATH
 
             # Have to use artifact file because env variables don't carry over to after-script
             - echo "BB_PIPELINE_$BITBUCKET_BUILD_NUMBER" > $BITBUCKET_CLONE_DIR/outputs/resourcegroup
