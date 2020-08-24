@@ -179,16 +179,20 @@ pipelines:
           - mvn -B -e -nsu clean verify -Dbaseurl=$APP_ENDPOINT
           
     dylansNightlyConfluenceSmokeTest:
-      - step:
-          name: Build and deploy Confluence
+      - step: 
+          name: Install dependencies
           script:
             - sudo apt-get update
             - sudo apt-get -y install jq
-            # Install the Azure CLI  
+      - step:
+          name: Install Azure CLI
+          script:
             # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
             - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      - step:
+          name: Build and deploy Confluence
+          script:
             - mkdir -p $BITBUCKET_CLONE_DIR/outputs
-
             # Have to use artifact file because env variables don't carry over to after-script
             - echo "BB_PIPELINE_$BITBUCKET_BUILD_NUMBER" > $BITBUCKET_CLONE_DIR/outputs/resourcegroup
             - export AZURE_PIPELINE_RG=$(cat $BITBUCKET_CLONE_DIR/outputs/resourcegroup)
@@ -211,17 +215,16 @@ pipelines:
 
             # Got here so get deployment output. Can't get it from pipe as doesn't allow log capture/piping
             - az group deployment show --resource-group $AZURE_PIPELINE_RG --name $AZURE_PIPELINE_RG > $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json
-
-            # Get endpoint from Outputs section and ping heartbeat
-#            - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
+      - step:
+          name: Hit status endpoint
+          script:
             - APP_ENDPOINT=$(cat $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json | jq '.properties.outputs.appEndpoint.value' | sed 's/"//g')
             - echo "Testing app heartbeat at $APP_ENDPOINT/status"
             - curl -isSf --retry 15 --retry-connrefused $APP_ENDPOINT/status
 
-            # Hit API to ensure user is configured correctly
+              # Hit API to ensure user is configured correctly
             - curl -isSf --retry 15 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/space
-          artifacts:
-            - outputs/**
+
       - step:
           name: Run acceptance tests
           caches:
@@ -230,6 +233,8 @@ pipelines:
             - cd $BITBUCKET_CLONE_DIR/outputs
             - curl -LOisf https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/confluence-dc-smoke-test-suite/pom.xml
             - mvn -B -e -nsu clean verify -Dbaseurl=$APP_ENDPOINT
+          artifacts:
+            - outputs/**
           after-script:
             - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
 
