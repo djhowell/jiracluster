@@ -181,10 +181,10 @@ pipelines:
     dylansNightlyConfluenceSmokeTest:
       - step:
           name: Build and deploy Confluence
-          caches:
-            - pip
           script:
-            # Install the Azure CLI 
+            - apt-get -y install jq
+            # Install the Azure CLI  
+            # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
             - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
             - mkdir -p $BITBUCKET_CLONE_DIR/outputs
 
@@ -212,7 +212,8 @@ pipelines:
             - az group deployment show --resource-group $AZURE_PIPELINE_RG --name $AZURE_PIPELINE_RG > $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json
 
             # Get endpoint from Outputs section and ping heartbeat
-            - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
+#            - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
+            - APP_ENDPOINT=$(cat $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json | jq '.properties.outputs.appEndpoint.value' | sed 's/"//g')
             - echo "Testing app heartbeat at $APP_ENDPOINT/status"
             - curl -isSf --retry 15 --retry-connrefused $APP_ENDPOINT/status
 
@@ -223,7 +224,7 @@ pipelines:
           after-script:
             - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
       - step:
-          name: Run Confluence acceptance tests
+          name: Run acceptance tests
           caches:
             - maven
           script:
