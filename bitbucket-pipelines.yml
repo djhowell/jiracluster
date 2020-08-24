@@ -182,8 +182,8 @@ pipelines:
       - step:
           name: Build and deploy Confluence
           script:
-            - apt-get update
-            - apt-get -y install jq
+            - sudo apt-get update
+            - sudo apt-get -y install jq
             # Install the Azure CLI  
             # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
             - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
