@@ -214,7 +214,6 @@ pipelines:
             - az group deployment show --resource-group $AZURE_PIPELINE_RG --name $AZURE_PIPELINE_RG > $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json
 
             # Get endpoint from Outputs section and ping heartbeat
-            #            - APP_ENDPOINT=$(jp.py -f $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json 'properties.outputs.appEndpoint.value' | sed 's/"//g')
             - APP_ENDPOINT=$(cat $BITBUCKET_CLONE_DIR/outputs/azureDeployOutput.json | jq '.properties.outputs.appEndpoint.value' | sed 's/"//g')
             - echo "Testing app heartbeat at $APP_ENDPOINT/status"
             - curl -isSf --retry 15 --retry-connrefused $APP_ENDPOINT/status
@@ -224,7 +223,6 @@ pipelines:
 
             # Run acceptance tests
             - cd $BITBUCKET_CLONE_DIR/confluence/confluence-dc-smoke-test-suite
-            # - curl -LOisf https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/confluence-dc-smoke-test-suite/pom.xml
             - mvn -B -e -nsu clean verify -Dbaseurl=$APP_ENDPOINT
           artifacts:
             - outputs/**
