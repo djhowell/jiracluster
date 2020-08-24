@@ -167,8 +167,8 @@ pipelines:
           - curl -isSf --retry 15 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/space
         artifacts:
           - outputs/**
-        after-script:
-          - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
+#        after-script:
+#          - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
 
     nightlyConfluenceRedHatSmokeTest:
       - step:
@@ -394,8 +394,8 @@ pipelines:
             - curl -isSf --retry 15 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/space
           artifacts:
             - outputs/**
-#          after-script:
-#            - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
+          after-script:
+            - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
 
     nightlyCrowdRedHatSmokeTest:
       - step:
