@@ -180,10 +180,11 @@ pipelines:
           
     dylansNightlyConfluenceSmokeTest:
       - step:
-          name: Build and deploy Confluence
+          name: Build, Deploy & Test Confluence
           script:
             - sudo apt-get update
             - sudo apt-get -y install jq
+            
             # Install the Azure CLI  
             # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
             - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -220,16 +221,13 @@ pipelines:
 
             # Hit API to ensure user is configured correctly
             - curl -isSf --retry 15 --retry-connrefused -u admin:admin $APP_ENDPOINT/rest/api/space
+
+            # Run acceptance tests
+            - cd $BITBUCKET_CLONE_DIR/confluence/confluence-dc-smoke-test-suite
+#            - curl -LOisf https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/confluence-dc-smoke-test-suite/pom.xml
+            - mvn -B -e -nsu clean verify -Dbaseurl=$APP_ENDPOINT
           artifacts:
             - outputs/**
-      - step:
-          name: Run acceptance tests
-          caches:
-            - maven
-          script:
-            - cd $BITBUCKET_CLONE_DIR/outputs
-            - curl -LOisf https://bitbucket.org/atlassian/atlassian-azure-deployment/raw/$BITBUCKET_BRANCH/confluence/confluence-dc-smoke-test-suite/pom.xml
-            - mvn -B -e -nsu clean verify -Dbaseurl=$APP_ENDPOINT
           after-script:
             - az group delete --resource-group $(cat outputs/resourcegroup) --yes --no-wait
 
