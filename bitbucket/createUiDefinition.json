@@ -396,8 +396,8 @@
                         "toolTip": "The Azure Active Directory Service Principal Client ID.",
                         "constraints": {
                             "required": true,
-                            "regex": "^.{1,50}$",
-                            "validationMessage": "You must specify a Client ID"
+                            "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                            "validationMessage": "You must specify a Client ID UUID"
                         },
                         "visible": "[steps('cluster').hasActiveDirApp]"
                     },
@@ -408,7 +408,7 @@
                         "toolTip": "The Azure Active Directory Service Principal Client Secret.",
                         "constraints": {
                             "required": true,
-                            "regex": "^.{1,50}$",
+                            "regex": "^.{20,50}$",
                             "validationMessage": "You must specify a Client Secret"
                         },
                         "visible": "[steps('cluster').hasActiveDirApp]"
@@ -420,8 +420,8 @@
                         "toolTip": "The Azure Active Directory Service Principal Tenant ID.",
                         "constraints": {
                             "required": true,
-                            "regex": "^.{1,50}$",
-                            "validationMessage": "You must specify a Tenant ID"
+                            "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                            "validationMessage": "You must specify a Tenant ID UUID"
                         },
                         "visible": "[steps('cluster').hasActiveDirApp]"
                     }
