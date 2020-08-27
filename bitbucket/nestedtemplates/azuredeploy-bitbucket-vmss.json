@@ -260,6 +260,27 @@
         },
         "diagnosticsBlobStorageUri": {
             "type": "string"
+        },
+        "bbsHazelcastClientId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Client Id for User-assigned Managed Identities."
+            }
+        },
+        "bbsHazelcastClientSecret": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Client Secret for User-assigned Managed Identities."
+            }
+        },
+        "bbsHazelcastTenantId": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Optional Hazelcast Tenant Id for User-assigned Managed Identities."
+            }
         }
     },
     "variables": {
@@ -307,6 +328,9 @@
                 "[concat('BBS_HAZELCAST_CLUSTER_ID', '=\"', parameters('bbsHazelcastTag'), '\" ')]",
                 "[concat('BBS_HAZELCAST_GROUP_NAME', '=\"', resourceGroup().name, '\" ')]",
                 "[concat('BBS_HAZELCAST_SUBSCRIPTION_ID', '=\"', subscription().subscriptionId, '\" ')]",
+                "[concat('BBS_HAZELCAST_CLIENT_ID', '=\"', parameters('bbsHazelcastClientId'), '\" ')]",
+                "[concat('BBS_HAZELCAST_CLIENT_SECRET', '=\"', parameters('bbsHazelcastClientSecret'), '\" ')]",
+                "[concat('BBS_HAZELCAST_TENANT_ID', '=\"', parameters('bbsHazelcastTenantId'), '\" ')]",
                 "[concat('BBS_ES_BASE_URL', '=\"http://', variables('elasticsearch').lbIp, ':9200/\" ')]",
                 "[concat('APPINSIGHTS_VER', '=\"', '2.3.1', '\" ')]",
                 "[concat('APPINSIGHTS_INSTRUMENTATION_KEY', '=\"', parameters('appInsightsInstrumentKey'), '\" ')]",
@@ -328,7 +352,8 @@
                 "bendGit": "[concat(variables('namespace'), '-lb', '-bend-git')]"
             }
         },
-        "reader-role": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]"
+        "reader-role": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+        "isHazelcastSystemAssigned": "[and(empty(parameters('bbsHazelcastClientId')), empty(parameters('bbsHazelcastClientSecret')), empty(parameters('bbsHazelcastTenantId')))]"
     },
     "resources": [
         {
@@ -462,6 +487,7 @@
             "name": "[guid(resourceGroup().id)]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
+            "condition": "[variables('isHazelcastSystemAssigned')]",
             "dependsOn": [
                 "[variables('vm').bbs.name]"
             ],
