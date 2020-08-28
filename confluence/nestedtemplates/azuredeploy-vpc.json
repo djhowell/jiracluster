@@ -97,7 +97,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2020-05-01",
             "name": "[variables('appSubnet').nsg.name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -139,7 +139,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2020-05-01",
             "name": "[variables('jumpbox').nsg.name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -167,7 +167,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2020-05-01",
             "name": "[variables('jumpbox').ip.name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -180,7 +180,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2020-05-01",
             "name": "[variables('vnet').name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -214,9 +214,7 @@
                                         "[parameters('location')]"
                                     ]
                                 }
-                            ],
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
+                            ]
                         }
                     },
                     {
@@ -225,9 +223,7 @@
                             "addressPrefix": "[variables('jumpbox').subnet.prefix]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('jumpbox').nsg.name)]"
-                            },
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
+                            }
                         }
                     }
                 ]
@@ -235,7 +231,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2020-05-01",
             "name": "[variables('jumpbox').nics.public]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -325,10 +321,6 @@
             "type": "string",
             "value": "[variables('appSubnet').name]"
         },
-        "jumpboxSubnetName": {
-            "type": "string",
-            "value": "[variables('jumpbox').subnet.name]"
-        },
         "gtwySubnetName": {
             "type": "string",
             "value": "[variables('gtwySubnet').name]"
@@ -336,6 +328,10 @@
         "jumpboxName": {
             "type": "string",
             "value": "[variables('jumpbox').name]"
+        },
+        "jumpboxPublicIpAddress": {
+            "type": "string",
+            "value": "[reference(variables('jumpbox').ip.name).ipAddress]"
         },
         "jumpboxPublicEndpoint": {
             "type": "string",

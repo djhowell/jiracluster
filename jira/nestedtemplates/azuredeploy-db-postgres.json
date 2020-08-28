@@ -5,19 +5,6 @@
     "location": {
       "type": "string"
     },
-    "_artifactsLocation": {
-      "type": "string",
-      "metadata": {
-        "description": "The URL specifying the location of the installation files."
-      }
-    },
-    "_artifactsLocationSasToken": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
-      }
-    },
     "dbServerName": {
       "type": "string",
       "metadata": {
@@ -83,10 +70,17 @@
         "description": "The name of the subnet within the Jira virtual network where the Jira cluster is located."
       }
     },
-    "jumpboxSubnetName": {
+    "clusterDbAccessNetworkRule": {
+      "type": "string",
+      "defaultValue": "allowClusterDbAccess",
+      "metadata": {
+        "description": "The name of the network rule that enables the Jira cluster to access the database."
+      }
+    },
+    "jumpboxPublicIpAddress": {
       "type": "string",
       "metadata": {
-        "description": "The name of the subnet within the virtual network where the Jumpbox is located."
+        "description": "The public IP address of the Jumpbox."
       }
     },
     "workspaceName": {
@@ -101,10 +95,6 @@
       "metadata": {
         "description": "Enable Azure Operational Insights. Note that an Azure Operations Management Suite (OMS) workspace must first exist."
       }
-    },
-    "privateDnsZoneName": {
-      "defaultValue": "privatelink.postgres.database.azure.com",
-      "type": "String"
     }
   },
   "variables": {
@@ -127,8 +117,7 @@
         "collation": "English_United States.1252"
       }
     },
-    "retentionInDays": 7,
-    "endpointTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-db-endpoints.json', parameters('_artifactsLocationSasToken')))]"
+    "retentionInDays": 7
   },
   "resources": [
     {
@@ -141,7 +130,7 @@
         "family": "[variables('postgresql').database.family]",
         "capacity": "[variables('postgresql').database.capacity]"
       },
-      "apiVersion": "2017-12-01",
+      "apiVersion": "2017-12-01-preview",
       "properties": {
         "storageProfile": {
           "storageMB": "[variables('postgresql').database.storage]",
@@ -226,42 +215,28 @@
       ]
     },
     {
-      "apiVersion": "2019-09-01",
-      "name": "dbPrivateEndpoints",
-      "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('postgresql').server.name)]"
-      ],
+      "type": "Microsoft.DBforPostgreSQL/servers/virtualNetworkRules",
+      "name": "[concat(parameters('dbServerName'), '/', parameters('clusterDbAccessNetworkRule'))]",
+      "apiVersion": "2017-12-01",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('endpointTemplateUri')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "dbServerName": {
-            "value": "[parameters('dbServerName')]"
-          },
-          "vnetName": {
-            "value": "[parameters('vnetName')]"
-          },
-          "appSubnetName": {
-            "value": "[parameters('appSubnetName')]"
-          },
-          "jumpboxSubnetName": {
-            "value": "[parameters('jumpboxSubnetName')]"
-          },
-          "privateDnsZoneName": {
-            "value": "[parameters('privateDnsZoneName')]"
-          },
-          "dbType": {
-            "value": "postgres"
-          }
-        }
-      }
+        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('appSubnetName'))]",
+        "ignoreMissingVnetServiceEndpoint": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/servers/firewallRules",
+      "name": "[concat(parameters('dbServerName'), '/', 'AllowAccessToSetupVMPublicIP')]",
+      "apiVersion": "2017-12-01-preview",
+      "properties": {
+        "startIpAddress": "[parameters('jumpboxPublicIpAddress')]",
+        "endIpAddress": "[parameters('jumpboxPublicIpAddress')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('dbServerName'))]"
+      ]
     }
   ],
   "outputs": {
