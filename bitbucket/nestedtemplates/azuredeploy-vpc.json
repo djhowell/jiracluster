@@ -437,9 +437,7 @@
                             "addressPrefix": "[variables('net').subnets.public.cidr]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('net').nsg.public.name)]"
-                            },
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
+                            }
                         }
                     },
                     {
@@ -462,9 +460,7 @@
                                 {
                                     "service": "Microsoft.Sql"
                                 }
-                            ],
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
+                            ]
                         }
                     },
                     {
