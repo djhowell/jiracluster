@@ -405,9 +405,6 @@
         "gtwySubnetName": {
             "type": "string"
         },
-        "jumpboxName": {
-            "type": "string"
-        },
         "jumpboxPublicIpAddress": {
             "type": "string"
         },
@@ -485,19 +482,6 @@
             "metadata": {
                 "description": "Enable Azure Premium Files."
             }
-        },
-        "nfsVmDataDiskType": {
-            "type": "string",
-            "defaultValue": "StandardSSD_LRS",
-            "allowedValues": [
-                "Premium_LRS",
-                "StandardSSD_LRS",
-                "Standard_LRS",
-                "UltraSSD_LRS"
-            ],
-            "metadata": {
-                "description": "The disk type for the Data Disk of each node in the cluster."
-            }
         }
     },
     "variables": {
@@ -524,15 +508,15 @@
         "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]",
         "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
         "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]",
-        "nfsVmDataDiskType": {
-                "value": "[parameters('nfsVmDataDiskType')]"
-            }
+        "names" : {
+            "workspaceName" : "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+        }
     },
     "resources": [
         {
             "name": "[variables('storage').name]",
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2018-07-01",
+            "apiVersion": "2019-06-01",
             "condition": "[not(parameters('enablePremiumFiles'))]",
             "location": "[parameters('location')]",
             "sku": {
@@ -544,7 +528,7 @@
         {
             "name": "[variables('storage').diagnostics]",
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2018-07-01",
+            "apiVersion": "2019-06-01",
             "condition": "[parameters('enablePremiumFiles')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -613,7 +597,7 @@
         },
         {
             "name": "recoveryVaultTemplate",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enablePremiumFiles')]",
             "properties": {
@@ -634,7 +618,7 @@
         },
         {
             "name": "sharedHomeBackupTemplate",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
             // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
             "condition": false,
@@ -665,9 +649,8 @@
             "type": "Microsoft.OperationalInsights/workspaces",
             "name": "[variables('workspace').name]",
             "condition": "[parameters('enableAnalytics')]",
-            "apiVersion": "2017-04-26-preview",
+            "apiVersion": "2020-03-01-preview",
             "location": "[parameters('location')]",
-            "scale": null,
             "properties": {
                 "sku": {
                     "name": "[parameters('workspaceSku')]"
@@ -675,12 +658,12 @@
             },
             "resources": [
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "CrowdLogs",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[variables('names').workspaceName]"
                     ],
                     "kind": "CustomLog",
                     "properties": {
@@ -699,8 +682,7 @@
                                     "regexDelimiter": {
                                         "pattern": "((\\d{2})|(\\d{4}))-([0-1]\\d)-(([0-3]\\d)|(\\d))\\s((\\d)|([0-1]\\d)|(2[0-4])):[0-5][0-9]:[0-5][0-9]",
                                         "matchIndex": 0,
-                                        "matchIndexSpecified": true,
-                                        "numberedGroup": null
+                                        "matchIndexSpecified": true
                                     }
                                 }
                             }
@@ -724,12 +706,12 @@
                     }
                 },
                 {
-                    "apiVersion": "2015-11-01-preview",
+                    "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
                     "name": "confLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+                        "[variables('names').workspaceName]"
                     ],
                     "kind": "CustomLogCollection",
                     "properties": {
@@ -739,7 +721,7 @@
             ]
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "sqlDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'sqlserver'))]",
@@ -793,7 +775,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "postgresDbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[and(parameters('dbCreateNew'), equals(parameters('dbType'), 'postgres'))]",
@@ -853,7 +835,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "byodbTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[not(parameters('dbCreateNew'))]",
@@ -892,14 +874,13 @@
             }
         },
         {
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-12-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('gtwyIpName')]",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "Basic"
             },
-            "zones": [],
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
@@ -909,7 +890,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appGtwyTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -963,7 +944,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "vmssTemplate",
             "type": "Microsoft.Resources/deployments",
             "dependsOn": [
@@ -1060,9 +1041,6 @@
                     "appSubnetName": {
                         "value": "[parameters('appSubnetName')]"
                     },
-                    "jumpboxName": {
-                        "value": "[parameters('jumpboxName')]"
-                    },
                     "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
                     },
@@ -1074,12 +1052,6 @@
                     },
                     "gtwyAddressPoolName": {
                         "value": "[variables('gtwyAddressPoolName')]"
-                    },
-                    "confBaseUrl": {
-                        "value": "[if(not(empty(parameters('cname'))), parameters('cname'), reference(variables('gtwyIpName')).dnsSettings.fqdn)]"
-                    },
-                    "confDbServerName": {
-                        "value": "[if(parameters('dbCreateNew'), reference(variables('dbTemplate')).outputs.serverName.value, parameters('dbHost'))]"
                     },
                     "jdbcUrl": {
                         "value" : "[reference(variables('dbTemplate')).outputs.jdbcUrl.value]"
@@ -1124,7 +1096,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "appInsightsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableApplicationInsights')]",
@@ -1146,7 +1118,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-09-01",
             "name": "analyticsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableAnalytics')]",

@@ -86,7 +86,7 @@
         {
             "type": "Microsoft.Insights/actionGroups",
             "name": "[variables('supportTeam').name]",
-            "apiVersion": "2018-03-01",
+            "apiVersion": "2019-03-01",
             "location": "Global",
             "properties": {
                 "groupShortName": "[variables('supportTeam').shortName]",
@@ -104,7 +104,6 @@
             "name": "[variables('alerts').confNodeOffline.name]",
             "apiVersion": "2018-03-01",
             "location": "global",
-            "scale": null,
             "properties": {
                 "description": "A Crowd node has just became unhealthly/gone offline. ",
                 "enabled": true,
@@ -124,7 +123,6 @@
                             "threshold": 0,
                             "timeAggregation": "Average",
                             "name": "Metric1",
-                            "dimensions": [],
                             "monitorTemplateType": "8"
                         }
                     ],
@@ -164,7 +162,6 @@
                             "threshold": 4000000000000,
                             "timeAggregation": "Average",
                             "name": "Metric1",
-                            "dimensions": [],
                             "monitorTemplateType": "8"
                         }
                     ],
@@ -231,7 +228,7 @@
         {
             "type": "Microsoft.Insights/webtests",
             "name": "[variables('webTestName')]",
-            "apiVersion": "2015-05-01",
+            "apiVersion": "2018-05-01-preview",
             "location": "[parameters('location')]",
             "condition": "[not(empty(parameters('appInsightsName')))]",
             "tags": {
@@ -240,7 +237,6 @@
             "properties": {
                 "SyntheticMonitorId": "[variables('webTestName')]",
                 "Name": "AppHeartBeat",
-                "Description": "",
                 "Enabled": true,
                 "Frequency": 300,
                 "Timeout": 120,

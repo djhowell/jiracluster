@@ -192,13 +192,16 @@
             "product": "Crowd",
             "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
         },
-        "retentionInDays": 7
+        "retentionInDays": 7,
+        "names": {
+            "server": "[concat('Microsoft.Sql/servers/', variables('sql').server.name)]"
+        }
     },
     "resources": [
         {
             "name": "[variables('sql').server.name]",
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2017-03-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "administratorLogin": "[variables('sql').server.username]",
@@ -208,12 +211,12 @@
             "resources": [
                 {
                     "type": "databases",
-                    "apiVersion": "2017-10-01-preview",
+                    "apiVersion": "2020-02-02-preview",
                     "name": "[variables('sql').database.name]",
                     "location": "[parameters('location')]",
                     "tags": "[variables('tags')]",
                     "dependsOn": [
-                        "[concat('Microsoft.Sql/servers/', variables('sql').server.name)]"
+                        "[variables('names').server]"
                     ],
                     "sku": {
                         "name": "[variables('sql').database.tierName]",
@@ -329,7 +332,7 @@
         {
             "type": "Microsoft.Sql/servers/virtualNetworkRules",
             "name": "[concat(parameters('dbServerName'), '/', parameters('clusterDbAccessNetworkRule'))]",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "properties": {
                 "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', parameters('vnetName'), parameters('appSubnetName'))]",
                 "ignoreMissingVnetServiceEndpoint": false
@@ -341,7 +344,7 @@
         {
             "comments": "Required for bastion host to populate/configure database. Not needed if going to use existing DB",
             "type": "Microsoft.Sql/servers/firewallRules",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "name": "[concat(parameters('dbServerName'), '/', 'AllowAccessToSetupVMPublicIP')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers', parameters('dbServerName'))]"

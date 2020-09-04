@@ -105,17 +105,24 @@
             "nics": {
                 "public": "[concat(variables('namespace'), 'jumpbox', 'nic', 'public')]"
             }
+        },
+        "names" : {
+            "jumpBox" : "[concat('Microsoft.Network/publicIPAddresses', '/', variables('jumpbox').ip.name)]",
+            "ip" : "[concat('Microsoft.Network/publicIPAddresses', '/', variables('jumpbox').ip.name)]",
+            "nsg": "[concat('Microsoft.Network/networkSecurityGroups/', variables('appSubnet').nsg.name)]",
+            "vnet": "[concat('Microsoft.Network/virtualNetworks/', variables('vnet').name)]",
+            "nics": "[concat('Microsoft.Network/networkInterfaces/', variables('jumpbox').nics.public)]"
         }
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('appSubnet').nsg.name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses', '/', variables('jumpbox').ip.name)]"
+                "[variables('names').jumpBox]"
             ],
             "properties": {
                 "securityRules": [
@@ -152,12 +159,12 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('jumpbox').nsg.name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses', '/', variables('jumpbox').ip.name)]"
+                 "[variables('names').ip]"
             ],
             "properties": {
                 "securityRules": [
@@ -180,7 +187,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('jumpbox').ip.name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
@@ -193,12 +200,12 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('vnet').name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkSecurityGroups/', variables('appSubnet').nsg.name)]"
+                "[variables('names').nsg]"
             ],
             "properties": {
                 "addressSpace": {
@@ -244,13 +251,13 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('jumpbox').nics.public]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('jumpbox').ip.name)]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnet').name)]"
+                 "[variables('names').ip]",
+                 "[variables('names').vnet]"
             ],
             "properties": {
                 "networkSecurityGroup": {
@@ -274,12 +281,12 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2018-06-01",
+            "apiVersion": "2019-12-01",
             "name": "[variables('jumpbox').name]",
             "location": "[parameters('location')]",
             "tags": "[variables('tags')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('jumpbox').nics.public)]"
+                "[variables('names').nics]"
             ],
             "properties": {
                 "hardwareProfile": {

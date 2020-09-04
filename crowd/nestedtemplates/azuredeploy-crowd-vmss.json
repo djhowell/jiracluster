@@ -159,9 +159,6 @@
         "appSubnetName": {
             "type": "string"
         },
-        "jumpboxName": {
-            "type": "string"
-        },
         "sslBase64EncodedPfxCertificate": {
             "type": "string",
             "defaultValue": ""
@@ -174,12 +171,6 @@
             "type": "string"
         },
         "gtwyAddressPoolName": {
-            "type": "string"
-        },
-        "confBaseUrl": {
-            "type": "string"
-        },
-        "confDbServerName": {
             "type": "string"
         },
         "jdbcUrl": {
@@ -378,6 +369,9 @@
     "variables": {
         "namespace": "crd",
         "crowd": {
+            "database": {
+                "uri": "[concat(parameters('dbHost'), '.', 'database', '.', 'windows', '.', 'net')]"
+            },
             "cluster": {
                 "name": "[concat(variables('namespace'), 'cluster')]",
                 "tier": "Standard",
@@ -740,7 +734,7 @@
         parameters('dbType'), ' ',
         parameters('dbUsername'), ' ', 
         parameters('dbPassword'), ' ', 
-        parameters('dbHost') , '.database.windows.net ', 
+        variables('crowd').database.uri  , ' ', 
         parameters('appInsightsInstrumentKey'), ' ',
         base64(parameters('jdbcUrl')), ' ',  
         parameters('dbDatabase'),
@@ -752,9 +746,7 @@
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "name": "[variables('crowd').cluster.name]",
             "location": "[parameters('location')]",
-            "apiVersion": "2018-06-01",
-            "dependsOn": [
-            ],
+            "apiVersion": "2019-12-01",
             "sku": {
                 "name": "[variables('crowd').cluster.vm.size]",
                 "tier": "[variables('crowd').cluster.tier]",

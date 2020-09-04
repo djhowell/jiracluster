@@ -35,7 +35,7 @@ echo "ATL_DB_HOST=$7" >> /etc/atl
 echo "ATL_DB_ROOT_USER=$5" >> /etc/atl #admin user
 echo "ATL_DB_ROOT_PASSWORD=$6" >> /etc/atl #admin password
 echo "APPINSIGHTS_INSTRUMENTATION_KEY=$8" >> /etc/atl
-echo "ATL_TOMCAT_SECURE=false" >> etc/atl
+echo "ATL_TOMCAT_SECURE=false" >> /etc/atl
 #Introduce a delay to allow database to be ready
 sleep 10m
 # Install ansible dependancies

@@ -25,7 +25,6 @@
         "policyName": "SharedHomeBackupPolicy",
         "schedule": {
             "scheduleRunFrequency": "Daily",
-            "scheduleRunDays": null,
             "scheduleRunTimes": [
                 "2020-01-01T10:00:00.000Z"
             ],
@@ -41,15 +40,16 @@
                     "durationType": "Days"
                 }
             },
-            "weeklySchedule": null,
-            "monthlySchedule": null,
-            "yearlySchedule": null,
             "retentionPolicyType": "LongTermRetentionPolicy"
         },
         "timeZone": "UTC",
         "fabricName": "Azure",
         "protectionContainers": "[array(concat('storagecontainer;storage;', resourceGroup().name, ';', parameters('storageAccountName')))]",
-        "protectedItems": "[array(concat('azurefileshare;', parameters('sharedHomeName')))]"
+        "protectedItems": "[array(concat('azurefileshare;', parameters('sharedHomeName')))]",
+        "names" : {
+            "policyName" : "[concat('Microsoft.RecoveryServices/vaults', '/', parameters('vaultName'), '/backupPolicies/', variables('policyName'))]",
+
+        }
     },
     "resources": [
         {
@@ -69,7 +69,7 @@
             "apiVersion": "2016-06-01",
             "name": "[concat(parameters('vaultName'), '/', variables('fabricName'), '/',variables('protectionContainers')[copyIndex()], '/', variables('protectedItems')[copyIndex()])]",
             "dependsOn": [
-                "[concat('Microsoft.RecoveryServices/vaults', '/', parameters('vaultName'), '/backupPolicies/', variables('policyName'))]"
+                "[variables('names').policyName]"
             ],
             "properties": {
                 "backupManagementType": "AzureStorage",

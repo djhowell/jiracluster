@@ -606,7 +606,7 @@
         {
             "comments": "Azure tracking GUID for Crowd - ensure right one being used for the delivery channel ie via Azure Marketplace, BitBucket Quickstart etc",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-05-01",
             "name": "pid-de1a11e5-9c17-4538-b570-df707237c073",
             "properties": {
                 "mode": "Incremental",
@@ -619,7 +619,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-05-01",
             "name": "vpcTemplate",
             "properties": {
                 "mode": "Incremental",
@@ -648,7 +648,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-05-01",
             "name": "crowdTemplate",
             "dependsOn": [
                 "vpcTemplate"
@@ -753,9 +753,6 @@
                     "gtwySubnetName": {
                         "value": "[reference('vpcTemplate').outputs.gtwySubnetName.value]"
                     },
-                    "jumpboxName": {
-                        "value": "[reference('vpcTemplate').outputs.jumpboxName.value]"
-                    },
                     "jumpboxPublicIpAddress": {
                         "value": "[reference('vpcTemplate').outputs.jumpboxPublicIpAddress.value]"
                     },
@@ -800,7 +797,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-05-01",
             "name": "domainTemplate",
             "dependsOn": [
                 "crowdTemplate"
@@ -826,7 +823,7 @@
             }
         },
         {
-            "apiVersion": "2018-05-01",
+            "apiVersion": "2019-05-01",
             "name": "alertsTemplate",
             "type": "Microsoft.Resources/deployments",
             "condition": "[parameters('enableEmailAlerts')]",
