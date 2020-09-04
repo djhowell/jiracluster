@@ -12,7 +12,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://bitbucket.org/MickWalker/azure-crowd/raw/master/",
+            "defaultValue": "[deployment().properties.templateLink.uri]",
             "metadata": {
                 "description": "The URL specifying the location of the installation artifacts."
             }
