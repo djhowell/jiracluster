@@ -847,7 +847,8 @@
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
                                         "fileUris": [
-                                            "[uri(parameters('_artifactsLocation'), concat('scripts/prepare_install.sh', parameters('_artifactsLocationSasToken')))]"
+                                            "[uri(parameters('_artifactsLocation'), concat('scripts/prepare_install.sh', parameters('_artifactsLocationSasToken')))]",
+                                            "[uri(parameters('_artifactsLocation'), concat('scripts/ansible.zip', parameters('_artifactsLocationSasToken')))]"
                                         ]
                                     },
                                     "protectedSettings": {

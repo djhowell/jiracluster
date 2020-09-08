@@ -37,13 +37,12 @@ echo "ATL_DB_ROOT_PASSWORD=$6" >> /etc/atl #admin password
 echo "APPINSIGHTS_INSTRUMENTATION_KEY=$8" >> /etc/atl
 echo "ATL_TOMCAT_SECURE=false" >> /etc/atl
 #Introduce a delay to allow database to be ready
-sleep 10m
+#sleep 10m
 # Install ansible dependancies
-mkdir -p /usr/lib/systemd/system
 mkdir -p /opt/atlassian
 apt update > /dev/null 2>&1
-apt-get install -y python3.7 git > /dev/null 2>&1
+apt-get install -y python3.7 git unzip > /dev/null 2>&1
 # Clone playbook repo (azure-crowd branch instead of master)
-git clone -b azure_deployments https://bitbucket.org/atlassian/dc-deployments-automation.git /opt/atlassian/dc-deployments-automation/
+unzip ansible.zip -d /opt/atlassian/
 # Install ansible & execute playbook
 cd /opt/atlassian/dc-deployments-automation/ && ./bin/install-ansible && ./bin/ansible-with-atl-env inv/azure_node_local azure_crowd_dc_node.yml /var/log/ansible-bootstrap.log
