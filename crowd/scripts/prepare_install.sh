@@ -34,10 +34,9 @@ for row in $(echo "${value}" | jq -r '.[] | @base64'); do
    echo "$(_jq '.name')=$(_jq '.value')" >> /etc/atl
 done
 # Install ansible dependencies
-mkdir -p /usr/lib/systemd/system
 mkdir -p /opt/atlassian
-apt-get install -y python3.7 git > /dev/null 2>&1
+apt-get install -y python3.7 git unzip > /dev/null 2>&1
 # Clone playbook repo (azure-crowd branch instead of master)
-git clone -b azure_deployments https://bitbucket.org/atlassian/dc-deployments-automation.git /opt/atlassian/dc-deployments-automation/
+unzip ansible.zip -d /opt/atlassian/
 # Install ansible & execute playbook
 cd /opt/atlassian/dc-deployments-automation/ && ./bin/install-ansible && ./bin/ansible-with-atl-env inv/azure_node_local azure_crowd_dc_node.yml /var/log/ansible-bootstrap.log

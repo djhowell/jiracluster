@@ -56,7 +56,15 @@ A _custom paramaters template_ is a JSON file that contains parameters for a cus
     az storage container create --name jiratemplateupload --account-name storageaccount --sas-token 'se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=XanVOenVIroHQFbkyUjk6E9nuHFEm1Rpyu3N2AiOOX0%3D'
     ```
 
-5. Use AzCopy to upload edited templates/scripts to the blobstore (do this before each deployment). Note the use of the blob's primary endpoint and the question mark prefix on the SAS token.  
+5. If the Product is installed and configured using Ansible Playbooks (Currently only Crowd) download and package them using:
+
+    ```
+   cd scripts
+   ./getPlaybooks.sh
+    ```
+    This script retrives the ansible playbooks from the dc-deployments repo, creates a zip file and places in the product scripts directory
+
+6. Use AzCopy to upload edited templates/scripts to the blobstore (do this before each deployment). Note the use of the blob's primary endpoint and the question mark prefix on the SAS token.  
 
     ```
     ~/apps/azcopy/azcopy --quiet --source ~/git/atlassian-azure-deployment/jira/ --destination https://storageaccount.blob.core.windows.net/jiratemplateupload/ --recursive --dest-sas '?se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=XanVOenVIroHQFbkyUjk6E9nuHFEm1Rpyu3N2AiOOX0%3D'
@@ -64,7 +72,7 @@ A _custom paramaters template_ is a JSON file that contains parameters for a cus
 
     Since you will be using the same AzCopy command often, you might want to copy/paste this command into a new script file (for example, `~/atlassian/bin/azupload`).  
 
-6. Create a local directory for your templates and copy the default `azuredeploy.parameters.json` to there:  
+7. Create a local directory for your templates and copy the default `azuredeploy.parameters.json` to there:  
 
     ```
     mkdir -p ~/atlassian/templates
