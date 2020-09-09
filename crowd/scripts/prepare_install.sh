@@ -35,7 +35,6 @@ for row in $(echo "${value}" | jq -r '.[] | @base64'); do
 done
 # Install ansible dependencies
 mkdir -p /opt/atlassian
-apt update > /dev/null 2>&1
 apt-get install -y python3.7 git unzip > /dev/null 2>&1
 # Clone playbook repo (azure-crowd branch instead of master)
 unzip ansible.zip -d /opt/atlassian/

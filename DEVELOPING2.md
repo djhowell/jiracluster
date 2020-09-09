@@ -56,7 +56,7 @@ A _custom paramaters template_ is a JSON file that contains parameters for a cus
     az storage container create --name jiratemplateupload --account-name storageaccount --sas-token 'se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=XanVOenVIroHQFbkyUjk6E9nuHFEm1Rpyu3N2AiOOX0%3D'
     ```
 
-5. Download the Ansible playbooks for the products which use them
+5. If the Product is installed and configured using Ansible Playbooks (Currently only Crowd) download and package them using:
 
     ```
    cd scripts
