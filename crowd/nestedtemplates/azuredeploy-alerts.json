@@ -53,13 +53,13 @@
             "shortName": "[toUpper(concat(variables('namespace'), 'SupTeam'))]"
         },
         "alerts": {
-            "confNodeOffline": {
+            "crowdNodeOffline": {
                 "name": "[concat(variables('namespace'), '-AlertClusterNodeOffline-', uniqueString(resourceGroup().id))]"
             },
-            "confSanSize": {
+            "crowdSanSize": {
                 "name": "[concat(variables('namespace'), '-AlertSharedStorageSize-', uniqueString(resourceGroup().id))]"
             },
-            "confClusterNodeCPU": {
+            "crowdClusterNodeCPU": {
                 "name": "[concat(variables('namespace'), '-AlertClusterNodeHighCpuUsage-', uniqueString(resourceGroup().id))]"
             },
             "dbCpuPercentage": {
@@ -93,7 +93,7 @@
                 "enabled": true,
                 "emailReceivers": [
                     {
-                        "name": "ConfEmailAction_-EmailAction-",
+                        "name": "CrowdEmailAction_-EmailAction-",
                         "emailAddress": "[parameters('adminUserEmail')]"
                     }
                 ]
@@ -101,7 +101,7 @@
         },
         {
             "type": "Microsoft.Insights/metricAlerts",
-            "name": "[variables('alerts').confNodeOffline.name]",
+            "name": "[variables('alerts').crowdNodeOffline.name]",
             "apiVersion": "2018-03-01",
             "location": "global",
             "properties": {
@@ -140,7 +140,7 @@
         },
         {
             "type": "Microsoft.Insights/metricAlerts",
-            "name": "[variables('alerts').confSanSize.name]",
+            "name": "[variables('alerts').crowdSanSize.name]",
             "apiVersion": "2018-03-01",
             "location": "Global",
             "properties": {
@@ -179,7 +179,7 @@
         },
         {
             "type": "Microsoft.Insights/metricAlerts",
-            "name": "[variables('alerts').confClusterNodeCPU.name]",
+            "name": "[variables('alerts').crowdClusterNodeCPU.name]",
             "apiVersion": "2018-03-01",
             "location": "Global",
             "properties": {

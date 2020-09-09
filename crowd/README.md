@@ -4,8 +4,6 @@ Crowd Software Data Center gives you uninterrupted access to Crowd Software with
 
 ## Deploy to Azure Portal
 
-[![Deploy Crowd Software Data Center to Azure Portal](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fbitbucket.org%2Fatlassian%2Fatlassian-azure-deployment%2Fraw%2Fmaster%2Fcrowd%2FmainTemplate.json)
-
 NB. The current Azure deployment utilises certain Azure functionality like App Insights, Azure Monitoring, SQL Analytics, Premium Files etc that are still in Preview mode and not available in some regions. To ensure you can utilise these technologies deploy into the following regions:  
 
 1. Australia East
@@ -27,7 +25,7 @@ NB. The current Azure deployment utilises certain Azure functionality like App I
 
 You can of course disable App Insights, Analytics etc via the template parameters to allow installation to your desired region.  
 
-NB That the templates will download the latest version available from Atlassian Download site. These new releases might introduce breaking changes but you can always specify particular version by updating the crowdVersion parameter.  
+NB That the templates will download the latest version available from Atlassian Download site.
 
 Further information on parameters and other installation options for the Atlassian Azure solution can be found at our [Crowd Azure Support Page](https://confluence.atlassian.com/adminjiraserver075/getting-started-with-jira-data-center-on-azure-937183335.html)  
 

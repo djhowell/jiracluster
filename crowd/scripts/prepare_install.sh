@@ -1,44 +1,39 @@
 #!/bin/bash
 # This file /etc/atl required by ansible script, contains the vars
 # Azure file storage to be created beforehand
-echo "AZURE_STORAGE_ACCOUNT=$1" >> /etc/atl
-echo "AZURE_STORAGE_KEY=$2" >> /etc/atl
-echo "ATL_CROWD_SHARED_HOME_NAME=$3" >> /etc/atl
-echo "ATL_TOMCAT_DEFAULTCONNECTORPORT=8095" >> /etc/atl
-# Defaults in Setup Wizard
-case $4 in
-    sqlserver)
-        echo 'ATL_DB_ENGINE=azure_sql' >> /etc/atl
-        echo 'ATL_DB_PORT=1433' >> /etc/atl
-        JDBC_URL=`echo $9 | base64 -d`
-        echo "JDBC_URL=$JDBC_URL" >> /etc/atl
-        echo 'ATL_DB_ROOT_DB_NAME=master' >> /etc/atl
-    ;;
-    postgres)
-        echo 'JDBC_DRIVER=org.postgresql.Driver' >> /etc/atl
-        echo 'JDBC_DIALECT=org.hibernate.dialect.PostgreSQLDialect' >> /etc/atl
-        echo 'ATL_DB_ENGINE=rds_postgres' >> /etc/atl
-        echo 'ATL_DB_PORT=5432' >> /etc/atl
-        JDBC_URL=`echo $9 | base64 -d`
-        echo "JDBC_URL=$JDBC_URL" >> /etc/atl
-        echo 'ATL_DB_ROOT_DB_NAME=postgres' >> /etc/atl
-    ;;
-esac
 
-echo "JDBC_USER=$5" >> /etc/atl
-echo "JDBC_PASSWORD=$6" >> /etc/atl
-# DB to be created beforehand
-echo "ATL_JDBC_DB_NAME=${10}" >> /etc/atl
-echo "ATL_JDBC_USER=crowddbuser" >> /etc/atl
-echo "ATL_JDBC_PASSWORD=$6" >> /etc/atl
-echo "ATL_DB_HOST=$7" >> /etc/atl
-echo "ATL_DB_ROOT_USER=$5" >> /etc/atl #admin user
-echo "ATL_DB_ROOT_PASSWORD=$6" >> /etc/atl #admin password
-echo "APPINSIGHTS_INSTRUMENTATION_KEY=$8" >> /etc/atl
-echo "ATL_TOMCAT_SECURE=false" >> /etc/atl
-#Introduce a delay to allow database to be ready
-#sleep 10m
-# Install ansible dependancies
+IS_REDHAT=$(cat /etc/os-release | egrep '^ID' | grep rhel)
+
+
+apt update > /dev/null 2>&1
+jq=`which jq`
+if [ "X$jq" == "X" ]
+then
+    if [[ -n ${IS_REDHAT} ]]
+    then
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        yum check-update
+        yum install jq -y
+    else
+        apt-get update
+        apt-get install -y jq
+    fi
+fi
+
+BASE64_ENCODED=$1
+
+# Decode the encoded string into a JSON string
+echo $BASE64_ENCODED | base64 --decode | jq . > args.json
+value=`cat args.json`
+
+for row in $(echo "${value}" | jq -r '.[] | @base64'); do
+    _jq() {
+     echo ${row} | base64 --decode | jq -r ${1}
+    }
+
+   echo "$(_jq '.name')=$(_jq '.value')" >> /etc/atl
+done
+# Install ansible dependencies
 mkdir -p /opt/atlassian
 apt update > /dev/null 2>&1
 apt-get install -y python3.7 git unzip > /dev/null 2>&1
