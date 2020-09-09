@@ -643,7 +643,7 @@
                 {
                     "apiVersion": "2020-03-01-preview",
                     "type": "dataSources",
-                    "name": "confLogCollection",
+                    "name": "crowdLogCollection",
                     "condition": "[parameters('enableAnalytics')]",
                     "dependsOn": [
                         "[variables('names').workspaceName]"
@@ -1048,7 +1048,7 @@
             "type": "string",
             "value": "[if(parameters('dbCreateNew'), reference(variables('dbTemplate')).outputs.jdbcUrl.value, reference('byodbTemplate').outputs.jdbcUrl.value)]"
         },
-        "confAppEndpoint": {
+        "crowdAppEndPoint": {
             "type": "string",
             "value": "[reference(variables('gtwyIpName')).dnsSettings.fqdn]"
         },
