@@ -33,10 +33,6 @@ for row in $(echo "${value}" | jq -r '.[] | @base64'); do
 
    echo "$(_jq '.name')=$(_jq '.value')" >> /etc/atl
 done
-
-# Allow DB to come up
-sleep 10m
-
 # Install ansible dependencies
 mkdir -p /usr/lib/systemd/system
 mkdir -p /opt/atlassian
