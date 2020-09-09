@@ -12,8 +12,10 @@ then
     if [[ -n ${IS_REDHAT} ]]
     then
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        yum check-update
         yum install jq -y
     else
+        apt-get update
         apt-get install -y jq
     fi
 fi
@@ -31,13 +33,9 @@ for row in $(echo "${value}" | jq -r '.[] | @base64'); do
 
    echo "$(_jq '.name')=$(_jq '.value')" >> /etc/atl
 done
-
-
-sleep 10m
-# Install ansible dependancies
+# Install ansible dependencies
 mkdir -p /usr/lib/systemd/system
 mkdir -p /opt/atlassian
-
 apt-get install -y python3.7 git > /dev/null 2>&1
 # Clone playbook repo (azure-crowd branch instead of master)
 git clone -b azure_deployments https://bitbucket.org/atlassian/dc-deployments-automation.git /opt/atlassian/dc-deployments-automation/
