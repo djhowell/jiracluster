@@ -10,9 +10,6 @@
         },
         "sshUserName": {
             "value": "crowdadmin"
-        },
-        "crowdAdminUserPassword": {
-            "value": "admin"
         }
     }
 }
