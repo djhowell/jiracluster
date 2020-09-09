@@ -901,7 +901,9 @@
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
                     },
-                
+                    "appEndpoint": {
+                        "value": "[reference(variables('gtwyIpName')).dnsSettings.fqdn]"
+                    },
                     "location": {
                         "value": "[parameters('location')]"
                     },

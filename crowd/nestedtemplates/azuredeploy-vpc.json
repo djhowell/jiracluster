@@ -141,6 +141,20 @@
                         }
                     },
                     {
+                        "name": "allow_http2",
+                        "properties": {
+                            "description": "Allow http traffic.",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8095",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 102,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
                         "name": "allow_ssh_from_jumpbox",
                         "properties": {
                             "description": "Allow ssh trafic from single node in internal subnet",
@@ -150,7 +164,7 @@
                             "destinationPortRange": "22",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 102,
+                            "priority": 103,
                             "direction": "Inbound"
                         }
                     }

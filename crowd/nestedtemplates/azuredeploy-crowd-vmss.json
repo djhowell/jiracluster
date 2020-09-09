@@ -22,6 +22,9 @@
                 "description": "The Shared Access Signature (SAS) token that provides access to resources in the storage account."
             }
         },
+        "appEndpoint" : {
+            "type": "string"
+        },
         "dbCreateNew": {
             "type": "bool",
             "defaultValue": true,
@@ -485,6 +488,10 @@
                 {
                     "name": "ATL_TOMCAT_SECURE",
                     "value": "false"
+                },
+                {
+                    "name": "AZURE_APP_ENDPOINT",
+                    "value": "[parameters('appEndpoint')]"
                 }
             ]
         },
