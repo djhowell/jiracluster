@@ -41,7 +41,7 @@
 						"type": "Microsoft.Common.TextBox",
 						"label": "Admin Username",
 						"toolTip": "The username for the Crowd administrator's account.",
-						"defaultValue": "confadmin",
+						"defaultValue": "crowdadmin",
 						"constraints": {
 							"required": true,
 							"regex": "^([a-z0-9]{5,15})$",
