@@ -64,10 +64,10 @@ A _custom paramaters template_ is a JSON file that contains parameters for a cus
     ```
     This script retrives the ansible playbooks from the dc-deployments repo, creates a zip file and places in the product scripts directory
 
-6. Use AzCopy to upload edited templates/scripts to the blobstore (do this before each deployment). Note the use of the blob's primary endpoint and the question mark prefix on the SAS token.  
+6. Use [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to upload edited templates/scripts to the blobstore (do this before each deployment). Note the use of the blob's primary endpoint and the question mark prefix on the SAS token.  
 
     ```
-    ~/apps/azcopy/azcopy --quiet --source ~/git/atlassian-azure-deployment/jira/ --destination https://storageaccount.blob.core.windows.net/jiratemplateupload/ --recursive --dest-sas '?se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=XanVOenVIroHQFbkyUjk6E9nuHFEm1Rpyu3N2AiOOX0%3D'
+    ~/apps/azcopy/azcopy cp "~/git/atlassian-azure-deployment/jira/" "https://storageaccount.blob.core.windows.net/jiratemplateupload/?[SAS]" --recursive=true 
     ```
 
     Since you will be using the same AzCopy command often, you might want to copy/paste this command into a new script file (for example, `~/atlassian/bin/azupload`).  
