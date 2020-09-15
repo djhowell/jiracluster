@@ -961,9 +961,6 @@
                     "gtwyAddressPoolName": {
                         "value": "[variables('gtwyAddressPoolName')]"
                     },
-                    "jdbcUrl": {
-                        "value" : "[reference(variables('dbTemplate')).outputs.jdbcUrl.value]"
-                    },
                     "storageAccountName": {
                         "value": "[if(parameters('enablePremiumFiles'), variables('storage').premiumName, variables('storage').name)]"
                     },
@@ -990,7 +987,11 @@
                     },
                     "diagnosticsBlobStorageUri": {
                          "value": "[reference(concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('storage').diagnostics, variables('storage').name)), '2017-06-01').primaryEndpoints.blob]"
+                    },
+                     "sslBase64EncodedPfxCertificate": {
+                        "value": "[parameters('sslBase64EncodedPfxCertificate')]"
                     }
+
                 }
             }
         },

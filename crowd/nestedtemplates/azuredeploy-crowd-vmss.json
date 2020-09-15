@@ -122,9 +122,6 @@
         "gtwyAddressPoolName": {
             "type": "string"
         },
-        "jdbcUrl": {
-            "type": "string"
-        },
         "storageAccountName": {
             "type": "string",
             "metadata": {
@@ -290,7 +287,12 @@
             "metadata": {
                 "description": "The disk type for the Data Disk of each node in the cluster."
             }
+        },
+        "sslBase64EncodedPfxCertificate": {
+            "type": "string",
+            "defaultValue": ""
         }
+
     },
     "variables": {
         "namespace": "crd",
@@ -431,7 +433,7 @@
                 },
                 {
                     "name": "ATL_TOMCAT_DEFAULTCONNECTORPORT",
-                    "value": "8095"
+                    "value": "8080"
                 },
                 {
                     "name": "ATL_DB_ENGINE",
@@ -440,10 +442,6 @@
                 {
                     "name": "ATL_DB_PORT",
                     "value": "[if(parameters('dbCreateNew'), if(equals(parameters('dbType'), 'sqlserver'), '1433', '5432'), parameters('dbPort'))]"
-                },
-                {
-                    "name": "JDBC_URL",
-                    "value": "[parameters('jdbcUrl')]"
                 },
                 {
                     "name": "ATL_DB_ROOT_DB_NAME",
@@ -492,9 +490,27 @@
                 {
                     "name": "AZURE_APP_ENDPOINT",
                     "value": "[parameters('appEndpoint')]"
+                },
+                {
+                    "name": "ATL_TOMCAT_REDIRECTPORT",
+                    "value": "8443"
+                },
+                {
+                    "name": "ATL_TOMCAT_PROXYPORT",
+                    "value": "[if(variables('isSslSpecified'), '443', '80')]"
+                },
+                {
+                  "name": "ATL_TOMCAT_DEFAULTCONNECTORPORT",
+                  "value": "8080"
+                },
+                {
+                    "name": "ATL_PROXY_NAME",
+                    "value": "[parameters('appEndpoint')]"
                 }
+
             ]
         },
+        "isSslSpecified": "[not(empty(parameters('sslBase64EncodedPfxCertificate')))]",
         "crowdInstallCmd": "[concat('FILE_STORE_URL_DOMAIN=\"', parameters('storageFilesEndpoint'), '\" ', './prepare_install.sh ', base64(string(variables('env').settings)), ' 2>&1 > /var/log/crowd.install-$(uname -n).log')]"
     },
     "resources": [

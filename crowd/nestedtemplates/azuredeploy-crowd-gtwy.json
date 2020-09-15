@@ -114,7 +114,7 @@
                     "path": "/*",
                     "name": "[concat(variables('namespace'), 'pathrule')]"
                 },
-                "port": "8095"
+                "port": "8080"
             },
             "sslCert": {
                 "name": "[concat(variables('namespace'), 'appgwyHttpsListenerCert')]"
