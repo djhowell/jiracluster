@@ -108,7 +108,8 @@
                         "interval": "60",
                         "timeout": "5",
                         "path": "/status"
-                    }
+                    },
+                    "timeout": "240"
                 },
                 "pathrule": {
                     "path": "/*",
@@ -215,6 +216,7 @@
                             "Protocol": "Http",
                             "CookieBasedAffinity": "Enabled",
                             "PickHostNameFromBackendAddress": true,
+                            "requestTimeout" : "[variables('applicationGateway').backend.httpConfiguration.timeout]",
                             "probe": {
                                 "id": "[resourceId('Microsoft.Network/applicationGateways/probes', variables('applicationGateway').name, variables('applicationGateway').backend.httpConfiguration.probe.name)]"
                             }
