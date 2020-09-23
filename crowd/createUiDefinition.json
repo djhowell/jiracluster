@@ -3,7 +3,16 @@
 	"handler": "Microsoft.Azure.CreateUIDef",
 	"version": "0.1.2-preview",
 	"parameters": {
-		"basics": [],
+		"basics": [
+            {
+                "name": "releaseDate",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                    "text": "Release Date: MARKETPLACE_RELEASE_DATE"
+                }
+            }
+        ],
 		"steps": [
 			{
 
@@ -27,40 +36,6 @@
                         },
                         "defaultValue": "latest"
                     },
-					{
-						"name": "adminfullname",
-						"label": "Admin Full Name",
-						"type": "Microsoft.Common.TextBox",
-						"toolTip": "The fullname for the Crowd administrator's account.",
-						"constraints": {
-							"required": true,
-							"regex": "^[a-zA-Z0-9 ]*$",
-							"validationMessage": "You must specify a full name."
-						}
-					},
-					{
-						"name": "adminEmail",
-						"label": "Admin Email",
-						"type": "Microsoft.Common.TextBox",
-						"toolTip": "The email address of the Crowd administrator user.",
-						"constraints": {
-							"required": true,
-							"regex": "[^@]+@[^@]+\\.[A-z]{2,4}",
-							"validationMessage": "You must specify an email address."
-						}
-					},
-					{
-						"name": "adminUsername",
-						"type": "Microsoft.Common.TextBox",
-						"label": "Admin Username",
-						"toolTip": "The username for the Crowd administrator's account.",
-						"defaultValue": "crowdadmin",
-						"constraints": {
-							"required": true,
-							"regex": "^([a-z0-9]{5,15})$",
-							"validationMessage": "This username has to be in lowercase for Crowd."
-						}
-					},
 					{
 						"name": "crowdClusterSize",
 						"label": "Crowd Cluster",
@@ -485,102 +460,134 @@
 				]
 			},
 			{
-				"name": "database",
-				"bladeTitle": "Configure Database",
-				"label": "Configure Database",
-				"subLabel": {
-					"preValidation": "To do",
-					"postValidation": "Done"
-				},
-				"elements": [
-					{
-						"name": "dbType",
-						"label": "Database Type",
-						"type": "Microsoft.Common.OptionsGroup",
-						"defaultValue": "Azure SQL DB",
-						"toolTip": "The database type.",
-						"constraints": {
-							"allowedValues": [
-								{
-									"label": "Azure SQL DB",
-									"value": "Azure SQL DB"
-								},
-								{
-									"label": "Azure DB for PostgreSQL",
-									"value": "Azure DB for PostgreSQL"
-								}
-							],
-							"required": true
-						},
-						"visible": true
-					},
-					{
-						"name": "dbHost",
-						"label": "Database Server",
-						"type": "Microsoft.Common.TextBox",
-						"toolTip": "The hostname of an existing Azure database server.",
-						"constraints": {
-							"required": true,
-							"regex": "^[a-z0-9]*(.postgres.database.azure.com|.database.windows.net)$",
-							"validationMessage": "Expected a lowercase Azure SQL endpoint ie '<database>.database.windows.net' or <database>.postgres.database.azure.com'"
-						},
-						"visible": "[equals('yes', steps('database').hasDatabase)]"
-					},
-					{
-						"name": "dbPort",
-						"label": "Database Port",
-						"type": "Microsoft.Common.TextBox",
-						"toolTip": "The port of an existing Azure database.",
-						"defaultValue": "",
-						"constraints": {
-							"required": "[equals('yes', steps('database').hasDatabase)]",
-							"regex": "[0-9]*",
-							"validationMessage": "Expected a numeric value for database port eg 1433 or 5852."
-						},
-						"visible": "[equals('yes', steps('database').hasDatabase)]"
-					},
-					{
-						"name": "dbDatabase",
-						"label": "Database Name",
-						"type": "Microsoft.Common.TextBox",
-						"toolTip": "The name of an existing Crowd Azure database.",
-						"defaultValue": "crddatabase",
-						"constraints": {
-							"required": true,
-							"regex": "^[a-z0-9]*$",
-							"validationMessage": "Expected a lowercase database name"
-						},
-						"visible": "[equals('yes', steps('database').hasDatabase)]"
-					},
-					
-					{
-						"name": "dbUsername",
-						"type": "Microsoft.Common.TextBox",
-						"label": "Database Username",
-						"toolTip": "The username for the dedicated database user.",
-						"defaultValue": "crowdadmin",
-						"constraints": {
-							"required": true,
-							"regex": "^(?!admin$|administrator$|sa$|root$|dbmanager$|loginmanager$|dbo$|guest$|information_schema$|sys$|db_accessadmin$|db_backupoperator$|db_datareader$|db_datawriter$|db_ddladmin$|db_denydatareader$|db_denydatawriter$|db_owner$|db_securityadmin$|public$)[a-zA-Z][a-zA-Z0-9]{1,9}$",
-							"validationMessage": "This username needs to be a SQL Identifier - it can't be a typical username like admin, adminstrator, sa, root, dbmanager, loginmanager, dbo, guest, or public. It also can't begin with numbers or symbols, and can't include whitespaces, unicode characters, or non-alphabetic characters."
-						}
-					},
-					{
-						"name": "dbPassword",
-						"type": "Microsoft.Common.PasswordBox",
-						"toolTip": "The password for the dedicated database user.",
-						"label": {
-							"password": "Database Password",
-							"confirmPassword": "Confirm Database Password"
-						},
-						"constraints": {
-							"required": true,
-							"regex": "^(?=.*[A-Z])(?=.*[!@#$%])(?=.*[0-9])(?=.*[a-z]).{12,16}$",
-							"validationMessage": "This password must be between 12 and 16 characters long, and must contain at least one uppercase letter, one lowercase letter, one number (0-9), and one non-alphanumeric character (!, $, #, %, etc.)."
-						}
-					}
-				]
-			},
+                "name": "database",
+                "bladeTitle": "Configure Database",
+                "label": "Configure Database",
+                "subLabel": {
+                    "preValidation": "To do",
+                    "postValidation": "Done"
+                },
+                "elements": [
+                    {
+                        "name": "dbType",
+                        "label": "Database Type",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "defaultValue": "Azure SQL DB",
+                        "toolTip": "The database type.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Azure SQL DB",
+                                    "value": "Azure SQL DB"
+                                },
+                                {
+                                    "label": "Azure DB for PostgreSQL",
+                                    "value": "Azure DB for PostgreSQL"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "hasDatabase",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Do you have an existing database (in same location/resource group)?",
+                        "toolTip": "Use an existing database that has been created in the same resource group and location.",
+                        "defaultValue": "No",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes",
+                                    "value": true
+                                },
+                                {
+                                    "label": "No",
+                                    "value": false
+                                }
+                            ],
+                            "required": true
+                        }
+                    },
+                    {
+                        "name": "dbHost",
+                        "label": "Database Server",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The hostname of an existing Azure database server.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z0-9]*(.postgres.database.azure.com|.database.windows.net)$",
+                            "validationMessage": "Expected a lowercase Azure SQL endpoint ie '<database>.database.windows.net' or <database>.postgres.database.azure.com'"
+                        },
+                        "visible": "[steps('database').hasDatabase]"
+                    },
+                    {
+                        "name": "dbPort",
+                        "label": "Database Port",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The port of an existing Azure database.",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": "[steps('database').hasDatabase]",
+                            "regex": "[0-9]*",
+                            "validationMessage": "Expected a numeric value for database port eg 1433 or 5852."
+                        },
+                        "visible": "[steps('database').hasDatabase]"
+                    },
+                    {
+                        "name": "dbDatabase",
+                        "label": "Database Name",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The name of an existing Crowd Azure database.",
+                        "defaultValue": "crowddatabase",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z0-9]*$",
+                            "validationMessage": "Expected a lowercase database name"
+                        },
+                        "visible": "[steps('database').hasDatabase]"
+                    },
+                    {
+                        "name": "dbSchema",
+                        "label": "Database Schema",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The name of an existing Crowd Azure database schema.",
+                        "defaultValue": "dbo",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z0-9]*$",
+                            "validationMessage": "Expected a database schema"
+                        },
+                        "visible": "[steps('database').hasDatabase]"
+                    },
+                    {
+                        "name": "dbUsername",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Database Username",
+                        "toolTip": "The username for the dedicated database user.",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^(?!admin$|administrator$|sa$|root$|dbmanager$|loginmanager$|dbo$|guest$|information_schema$|sys$|db_accessadmin$|db_backupoperator$|db_datareader$|db_datawriter$|db_ddladmin$|db_denydatareader$|db_denydatawriter$|db_owner$|db_securityadmin$|public$)[a-zA-Z][a-zA-Z0-9]{1,9}$",
+                            "validationMessage": "This username needs to be a SQL Identifier - it can't be a typical username like admin, adminstrator, sa, root, dbmanager, loginmanager, dbo, guest, or public. It also can't begin with numbers or symbols, and can't include whitespaces, unicode characters, or non-alphabetic characters."
+                        }
+                    },
+                    {
+                        "name": "dbPassword",
+                        "type": "Microsoft.Common.PasswordBox",
+                        "toolTip": "The password for the dedicated database user.",
+                        "label": {
+                            "password": "Database Password",
+                            "confirmPassword": "Confirm Database Password"
+                        },
+                        "constraints": {
+                            "required": true,
+                            "regex": "^(?=.*[A-Z])(?=.*[!@#$%])(?=.*[0-9])(?=.*[a-z]).{12,16}$",
+                            "validationMessage": "This password must be between 8 and 16 characters long, and must contain at least one uppercase letter, one lowercase letter, one number (0-9), and one non-alphanumeric character (!, $, #, %, etc.)."
+                        }
+                    }
+                ]
+            },
 			{
 				"name": "ssh",
 				"bladeTitle": "Configure SSH Access",
@@ -598,6 +605,7 @@
 							{
 								"name": "nodeUsername",
 								"label": "Node SSH Username",
+								"defaultValue": "",
 								"type": "Microsoft.Compute.UserNameTextBox",
 								"toolTip": "The SSH username to use to access the Crowd nodes from the Jumpbox. Note that this is the only way to access the Crowd nodes.",
 								"constraints": {
@@ -741,95 +749,171 @@
 					"postValidation": "Done"
 				},
 				"elements": [
-					{
-						"name": "locationInfo",
-						"type": "Microsoft.Common.TextBlock",
-						"visible": true,
-						"options": {
-							"text": "[concat('Location: ', location())]"
-						}
-					},
-					{
-						"name": "workspaceSku",
-						"type": "Microsoft.Common.DropDown",
-						"label": "Configure Log Analytics Workspace Pricing Tier",
-						"defaultValue": "Per GB (New Subscription Tier)",
-						"toolTip": "Select Log Analytics Workspace SKU. Options depend on your Azure Subscription. If you have an Azure subscription greater in 2018 or later, use Per GB. If created before, use Free to start with.",
-						"constraints": {
-							"allowedValues": [
-								{
-									"label": "Per GB (New Subscription Tier)",
-									"value": "PerGB2018"
-								},
-								{
-									"label": "Free (Old Subscription Tier)",
-									"value": "Free"
-								},
-								{
-									"label": "Per Node (Old Subscription Tier)",
-									"value": "PerNode"
-								},
-								{
-									"label": "Standalone (Old Subscription Tier)",
-									"value": "Standalone"
-								},
-								{
-									"label": "Standard (Old Subscription Tier)",
-									"value": "Standard"
-								},
-								{
-									"label": "Premium (Old Subscription Tier)",
-									"value": "Premium"
-								},
-								{
-									"label": "Unlimited (Old Subscription Tier)",
-									"value": "Unlimited"
-								}
-							],
-							"required": true
-						},
-						"visible": "[equals(steps('monitoring').enableAnalytics, 'yes')]"
-					},
-					{
-						"name": "appAnalyticsCheck",
-						"type": "Microsoft.Common.InfoBox",
-						"visible": "[and(equals(steps('monitoring').enableAnalytics, 'yes'), not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
-						"options": {
-							"icon": "Error",
-							"text": "Analytics products only available in regions: australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2. Please disable or change resource group location!",
-							"uri": "https://azure.microsoft.com/en-gb/global-infrastructure/services/?products=monitor&regions=us-east,us-east-2,us-central,us-north-central,us-south-central,us-west-central,us-west,us-west-2,canada-east,canada-central,non-regional,europe-north,europe-west,france-central,france-south,united-kingdom-south,united-kingdom-west,asia-pacific-east,asia-pacific-southeast,australia-central,australia-central-2,australia-east,australia-southeast,germany-non-regional,germany-central,germany-northeast,usgov-non-regional,us-dod-central,us-dod-east,usgov-arizona,usgov-iowa,usgov-texas,usgov-virginia,brazil-south,japan-east,japan-west,central-india,south-india,west-india,korea-central,korea-south"
-						}
-					},
-					{
-						"name": "postgresAnalyticsCheck",
-						"type": "Microsoft.Common.InfoBox",
-						"visible": "[and(equals(steps('monitoring').enableAnalytics, 'yes'), equals(steps('database').dbType, 'Azure DB for PostgreSQL'))]",
-						"options": {
-							"icon": "Info",
-							"text": "Azure SQL Analytics not currently available for PostgreSQL!"
-						}
-					}
-				]
+                    {
+                        "name": "locationInfo",
+                        "type": "Microsoft.Common.TextBlock",
+                        "visible": true,
+                        "options": {
+                            "text": "[concat('Location: ', location())]"
+                        }
+                    },
+                    {
+                        "name": "enableEmailAlerts",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Enable Email Alerts",
+                        "defaultValue": "Yes",
+                        "toolTip": "Enable Email Alerts.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes",
+                                    "value": true
+                                },
+                                {
+                                    "label": "No",
+                                    "value": false
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "enableAppInsights",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Enable Azure Application Insights",
+                        "defaultValue": "Yes",
+                        "toolTip": "Enable Azure Application Insights.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes",
+                                    "value": true
+                                },
+                                {
+                                    "label": "No",
+                                    "value": false
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "appInsightsCheck",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[and(steps('monitoring').enableAppInsights,  not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
+                        "options": {
+                            "icon": "Error",
+                            "text": "App Insights product only available in regions: australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2. Please disable or change resource group location!",
+                            "uri": "https://azure.microsoft.com/en-gb/global-infrastructure/services/?products=monitor&regions=us-east,us-east-2,us-central,us-north-central,us-south-central,us-west-central,us-west,us-west-2,canada-east,canada-central,non-regional,europe-north,europe-west,france-central,france-south,united-kingdom-south,united-kingdom-west,asia-pacific-east,asia-pacific-southeast,australia-central,australia-central-2,australia-east,australia-southeast,germany-non-regional,germany-central,germany-northeast,usgov-non-regional,us-dod-central,us-dod-east,usgov-arizona,usgov-iowa,usgov-texas,usgov-virginia,brazil-south,japan-east,japan-west,central-india,south-india,west-india,korea-central,korea-south"
+                        }
+                    },
+                    {
+                        "name": "enableAnalytics",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Enable Azure Analytics for Application Gateway and Azure SQL Database",
+                        "defaultValue": "Yes",
+                        "toolTip": "Enable Azure Analytics for Application Gateway and Azure SQL Database.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes",
+                                    "value": true
+                                },
+                                {
+                                    "label": "No",
+                                    "value": false
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "workspaceSku",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Configure Log Analytics Workspace Pricing Tier",
+                        "defaultValue": "Per GB (New Subscription Tier)",
+                        "toolTip": "Select Log Analytics Workspace SKU. Options depend on your Azure Subscription. If you have an Azure subscription greater in 2018 or later, use Per GB. If created before, use Free to start with.",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Per GB (New Subscription Tier)",
+                                    "value": "PerGB2018"
+                                },
+                                {
+                                    "label": "Free (Old Subscription Tier)",
+                                    "value": "Free"
+                                },
+                                {
+                                    "label": "Per Node (Old Subscription Tier)",
+                                    "value": "PerNode"
+                                },
+                                {
+                                    "label": "Standalone (Old Subscription Tier)",
+                                    "value": "Standalone"
+                                },
+                                {
+                                    "label": "Standard (Old Subscription Tier)",
+                                    "value": "Standard"
+                                },
+                                {
+                                    "label": "Premium (Old Subscription Tier)",
+                                    "value": "Premium"
+                                },
+                                {
+                                    "label": "Unlimited (Old Subscription Tier)",
+                                    "value": "Unlimited"
+                                }
+                            ],
+                            "required": true
+                        },
+                        "visible": "[steps('monitoring').enableAnalytics]"
+                    },
+                    {
+                        "name": "appAnalyticsCheck",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[and(steps('monitoring').enableAnalytics, not(contains('australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2', location())))]",
+                        "options": {
+                            "icon": "Error",
+                            "text": "Analytics products only available in regions: australiaeast, australiasoutheast, canadacentral, centralus, eastasia, eastus, eastus2, japaneast, koreacentral, northcentralus, northeurope, southcentralus, southeastasia, uksouth, westeurope, westus, westus2. Please disable or change resource group location!",
+                            "uri": "https://azure.microsoft.com/en-gb/global-infrastructure/services/?products=monitor&regions=us-east,us-east-2,us-central,us-north-central,us-south-central,us-west-central,us-west,us-west-2,canada-east,canada-central,non-regional,europe-north,europe-west,france-central,france-south,united-kingdom-south,united-kingdom-west,asia-pacific-east,asia-pacific-southeast,australia-central,australia-central-2,australia-east,australia-southeast,germany-non-regional,germany-central,germany-northeast,usgov-non-regional,us-dod-central,us-dod-east,usgov-arizona,usgov-iowa,usgov-texas,usgov-virginia,brazil-south,japan-east,japan-west,central-india,south-india,west-india,korea-central,korea-south"
+                        }
+                    },
+                    {
+                        "name": "postgresAnalyticsCheck",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[and(steps('monitoring').enableAnalytics, equals(steps('database').dbType, 'Azure DB for PostgreSQL'))]",
+                        "options": {
+                            "icon": "Info",
+                            "text": "Azure SQL Analytics not currently available for PostgreSQL!"
+                        }
+                    }
+                ]
 			}
 		],
 		"outputs": {
 			"location": "[location()]",
 			"isMarketplaceDeployment": true,
 			"crowdVersion": "[steps('administrator').crowdVersion]",
-			"crowdAdminUserEmail": "[steps('administrator').adminEmail]",
 			"crowdClusterSize": "[steps('administrator').crowdClusterSize]",
 			"clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",
-			"dbUsername": "[steps('database').dbUsername]",
-			"dbPassword": "[steps('database').dbPassword]",
-			"dbDatabase": "[steps('database').dbDatabase]",
-			"dbHost": "[steps('database').dbHost]",
-			"dbPort": "[steps('database').dbPort]",
-			"dbType": "[steps('database').dbType]",
+			"dbCreateNew": "[not(steps('database').hasDatabase)]",
+            "dbUsername": "[steps('database').dbUsername]",
+            "dbPassword": "[steps('database').dbPassword]",
+            "dbDatabase": "[steps('database').dbDatabase]",
+            "dbHost": "[steps('database').dbHost]",
+            "dbPort": "[steps('database').dbPort]",
+            "dbType": "[steps('database').dbType]",
 			"sshKey": "[steps('ssh').jumpboxSshSection.sshKey.sshPublicKey]",
 			"sshUserName": "[steps('ssh').nodeSshSection.nodeUsername]",
 			"cname": "[steps('domain').cnameSection.cname]",
 			"sslPfxCertificatePassword": "[steps('domain').sslSection.sslPfxCertificatePassword]",
-			"workspaceSku": "[steps('monitoring').workspaceSku]"
+			"enableEmailAlerts": "[steps('monitoring').enableEmailAlerts]",
+            "enableApplicationInsights": "[steps('monitoring').enableAppInsights]",
+            "enableAnalytics": "[steps('monitoring').enableAnalytics]",
+            "workspaceSku": "[steps('monitoring').workspaceSku]"
 		}
 	}
 }

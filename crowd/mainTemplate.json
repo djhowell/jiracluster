@@ -110,6 +110,7 @@
         "sshUserName": {
             "type": "string",
             "minLength": 5,
+            "defaultValue": "crowdadmin",
             "metadata": {
                 "description": "The SSH username to use to access the Crowd nodes from the Jumpbox. Note that access to the Crowd nodes can only be made in this way."
             }
