@@ -6,6 +6,7 @@
 		"basics": [],
 		"steps": [
 			{
+
 				"name": "administrator",
 				"bladeTitle": "Configure Crowd",
 				"label": "Configure Crowd",
@@ -14,6 +15,18 @@
 					"postValidation": "Done"
 				},
 				"elements": [
+					{
+                        "name": "crowdVersion",
+                        "label": "Crowd Version",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Specify which version of Crowd you want to install. You can also specify 'latest' to download the latest version available.",
+                        "constraints": {
+                            "required": true,
+                            "regex": "latest|^(\\d+)\\.(\\d+)\\.(\\d+)",
+                            "validationMessage": "You must specify a version in decimal format. e.g 4.0.3"
+                        },
+                        "defaultValue": "latest"
+                    },
 					{
 						"name": "adminfullname",
 						"label": "Admin Full Name",
@@ -802,6 +815,7 @@
 		"outputs": {
 			"location": "[location()]",
 			"isMarketplaceDeployment": true,
+			"crowdVersion": "[steps('administrator').crowdVersion]",
 			"crowdAdminUserEmail": "[steps('administrator').adminEmail]",
 			"crowdClusterSize": "[steps('administrator').crowdClusterSize]",
 			"clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",

@@ -31,7 +31,13 @@
                 "description": "If these templates are being deployed via the Azure Marketplace."
             }
         },
-        
+         "crowdVersion": {
+            "type": "string",
+            "defaultValue": "latest",
+            "metadata": {
+                "description": "The Crowd software product version to install. You can also specify 'latest' to download the latest version available. If using with customDownloadUrl you have to specify the correct version."
+            }
+        },
         "dbCreateNew": {
             "type": "bool",
             "defaultValue": true,
@@ -701,7 +707,9 @@
                     "jumpboxPublicIpAddress": {
                         "value": "[reference('vpcTemplate').outputs.jumpboxPublicIpAddress.value]"
                     },
-                    
+                    "crowdVersion": {
+                        "value": "[parameters('crowdVersion')]"
+                    },
                     "sslPfxCertificatePassword": {
                         "value": "[parameters('sslPfxCertificatePassword')]"
                     },

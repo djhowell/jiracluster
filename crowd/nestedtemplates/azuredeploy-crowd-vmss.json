@@ -291,8 +291,14 @@
         "sslBase64EncodedPfxCertificate": {
             "type": "string",
             "defaultValue": ""
+        }, 
+        "crowdVersion": {
+            "type": "string",
+            "defaultValue": "latest",
+            "metadata": {
+                "description": "The Crowd software product version to install. By default the deployment will download and use the latest version published."
+            }
         }
-
     },
     "variables": {
         "namespace": "crd",
@@ -506,8 +512,11 @@
                 {
                     "name": "ATL_PROXY_NAME",
                     "value": "[parameters('appEndpoint')]"
+                },
+                {
+                    "name": "ATL_PRODUCT_VERSION",
+                    "value": "[parameters('crowdVersion')]"
                 }
-
             ]
         },
         "isSslSpecified": "[not(empty(parameters('sslBase64EncodedPfxCertificate')))]",

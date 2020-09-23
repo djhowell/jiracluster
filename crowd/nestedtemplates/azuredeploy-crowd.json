@@ -22,7 +22,13 @@
                 "description": "The (optional) Shared Access Signature (SAS) token that provides access to resources in the storage account."
             }
         },
-        
+        "crowdVersion": {
+            "type": "string",
+            "defaultValue": "latest",
+            "metadata": {
+                "description": "The Crowd software product version to install. By default the deployment will download and use the latest version published."
+            }
+        },
         "dbCreateNew": {
             "type": "bool",
             "defaultValue": true,
@@ -900,6 +906,9 @@
                     },
                     "_artifactsLocationSasToken": {
                         "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "crowdVersion": {
+                        "value": "[parameters('crowdVersion')]"
                     },
                     "appEndpoint": {
                         "value": "[reference(variables('gtwyIpName')).dnsSettings.fqdn]"
