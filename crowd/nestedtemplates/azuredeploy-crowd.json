@@ -995,7 +995,7 @@
                         "value": "[parameters('linuxOsType')]"
                     },
                     "diagnosticsBlobStorageUri": {
-                         "value": "[reference(concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('storage').diagnostics, variables('storage').name)), '2017-06-01').primaryEndpoints.blob]"
+                        "value": "[reference(variables('storageName')).primaryEndpoints.blob]"
                     },
                      "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
