@@ -29,7 +29,7 @@ You can of course disable App Insights, Analytics etc via the template parameter
 
 NB That the templates will download the latest version available from Atlassian Download site.
 
-Further information on parameters and other installation options for the Atlassian Azure solution can be found at our [Running Crowd on Azure page](https://confluence.atlassian.com/enterprise/running-crowd-on-an-azure-cluster-1018778149.html)  
+Further information on parameters and other installation options for the Atlassian Azure solution can be found at our [Running Crowd on Azure page](https://confluence.atlassian.com/display/ENTERPRISE/Running+Crowd+on+an+Azure+cluster)  
 
 ## View Azure Deployment Results
 
