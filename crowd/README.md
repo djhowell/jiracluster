@@ -3,8 +3,8 @@
 Crowd Software Data Center gives you uninterrupted access to Crowd Software with performance at scale, disaster recovery and instant scalability when hosting our applications in your Azure private cloud account.
 
 ## Deploy to Azure Portal
+Deploy via the Azure Marketplace, search for *Crowd Software Data Center*
 
-[![Deploy Crowd Software Data Center to Azure Portal](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fbitbucket.org%2Fatlassian%2Fatlassian-azure-deployment%2Fraw%2Fazure_ansible%2Fcrowd%2FmainTemplate.json)
 
 NB. The current Azure deployment utilises certain Azure functionality like App Insights, Azure Monitoring, SQL Analytics, Premium Files etc that are still in Preview mode and not available in some regions. To ensure you can utilise these technologies deploy into the following regions:  
 
