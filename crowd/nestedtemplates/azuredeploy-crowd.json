@@ -437,6 +437,7 @@
             "name": "[concat(variables('namespace'), '-omsworkspace-', uniqueString(resourceGroup().id))]"
         },
         "vaultName": "[concat(variables('namespace'), '-vault-', uniqueString(resourceGroup().id))]",
+        "storageName": "[concat('Microsoft.Storage/storageAccounts/', if(parameters('enablePremiumFiles'), variables('storage').diagnostics, variables('storage').name))]",
         "gtwyIpName": "[concat(variables('namespace'), '-appgtwyip-', uniqueString(resourceGroup().id))]",
         "gtwyName": "[if(empty(parameters('sslBase64EncodedPfxCertificate')), concat(variables('namespace'), 'appgateway'), concat(variables('namespace'), 'appgateway-https'))]",
         "gtwyAddressPoolName": "[concat(variables('namespace'), 'appgwaddrpool')]",
@@ -561,7 +562,6 @@
             "name": "sharedHomeBackupTemplate",
             "apiVersion": "2019-09-01",
             "type": "Microsoft.Resources/deployments",
-            // Can't create backup item from templates currently - see https://github.com/Azure/azure-quickstart-templates/issues/7184
             "condition": false,
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').premiumName)]",
