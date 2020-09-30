@@ -711,6 +711,9 @@
                     "crowdVersion": {
                         "value": "[parameters('crowdVersion')]"
                     },
+                    "sslBase64EncodedPfxCertificate": {
+                        "value": "[parameters('sslBase64EncodedPfxCertificate')]"
+                    },
                     "sslPfxCertificatePassword": {
                         "value": "[parameters('sslPfxCertificatePassword')]"
                     },
