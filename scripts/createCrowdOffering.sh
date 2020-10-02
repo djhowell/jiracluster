@@ -17,7 +17,8 @@ find . -name createUiDefinition.json | xargs -L1 sed -i .bak "s/MARKETPLACE_RELE
 
 for product in crowd
 do
-  zip -r $DEPLOY_DIR/atlassian-azure-deployment/$product/scripts/ansible.zip $DEPLOY_DIR/dc-deployments-automation -x '*.git*'
+  cd  $DEPLOY_DIR
+  zip -r $DEPLOY_DIR/atlassian-azure-deployment/$product/scripts/ansible.zip dc-deployments-automation -x '*.git*'
 	PRODUCT_ZIP=/tmp/$product.$(date +%Y%m%d%H%M).zip
 	printf "Creating zip for product: $product at $PRODUCT_ZIP\n"
 	cd $DEPLOY_DIR/atlassian-azure-deployment/$product
