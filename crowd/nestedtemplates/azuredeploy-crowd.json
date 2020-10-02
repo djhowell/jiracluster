@@ -985,6 +985,15 @@
                     "enableAcceleratedNetworking": {
                         "value": "[parameters('enableAcceleratedNetworking')]"
                     },
+                    "workspaceId": {
+                        "value": "[if(parameters('enableAnalytics'), reference(variables('workspace').name).customerId, '')]"
+                    },
+                    "workspacePrimaryKey": {
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').primarySharedKey, '')]"
+                    },
+                    "workspaceSecondaryKey": {
+                        "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
+                    },
                     "clusterVmDiskSize" : {
                         "value": "[parameters('clusterVmDiskSize')]"
                     },

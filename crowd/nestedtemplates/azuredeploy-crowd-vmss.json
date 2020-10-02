@@ -147,6 +147,15 @@
                 "description": "Enable accelerated networking? Needs to be a supported instance type."
             }
         },
+        "workspaceId": {
+            "type": "string"
+        },
+        "workspacePrimaryKey": {
+            "type": "securestring"
+        },
+        "workspaceSecondaryKey": {
+            "type": "securestring"
+        },
         "dbTierSize": {
             "type": "string",
             "allowedValues": [
@@ -488,6 +497,18 @@
                 {
                     "name": "APPINSIGHTS_INSTRUMENTATION_KEY",
                     "value": "[parameters('appInsightsInstrumentKey')]"
+                },
+                {
+                    "name": "OMS_WORKSPACE_ID",
+                    "value": "[parameters('workspaceId')]"
+                },
+                {
+                    "name": "OMS_PRIMARY_KEY",
+                    "value": "[parameters('workspacePrimaryKey')]"
+                },
+                {
+                    "name": "OMS_SECONDARY_KEY",
+                    "value": "[parameters('workspaceSecondaryKey')]"
                 },
                 {
                     "name": "ATL_TOMCAT_SECURE",
