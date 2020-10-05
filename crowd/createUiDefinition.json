@@ -34,7 +34,7 @@
                             "regex": "latest|^(\\d+)\\.(\\d+)\\.(\\d+)",
                             "validationMessage": "You must specify a version in decimal format. e.g 4.0.3"
                         },
-                        "defaultValue": "latest"
+                        "defaultValue": "4.0.0"
                     },
 					{
 						"name": "crowdClusterSize",
@@ -205,7 +205,7 @@
 							"offer": "UbuntuServer",
 							"sku": "18.04-LTS"
 						},
-						"count": 2,
+						"count": 1,
 						"visible": "[equals('small', steps('administrator').crowdClusterSize)]"
 					},
 					{
@@ -277,7 +277,7 @@
 							"offer": "UbuntuServer",
 							"sku": "18.04-LTS"
 						},
-						"count": 3,
+						"count": 1,
 						"visible": "[equals('medium', steps('administrator').crowdClusterSize)]"
 					},
 					{
@@ -369,7 +369,7 @@
 							"offer": "UbuntuServer",
 							"sku": "18.04-LTS"
 						},
-						"count": 6,
+						"count": 1,
 						"visible": "[equals('large', steps('administrator').crowdClusterSize)]"
 					},
 					{
@@ -454,7 +454,7 @@
 							"offer": "UbuntuServer",
 							"sku": "18.04-LTS"
 						},
-						"count": 6,
+						"count": 1,
 						"visible": "[equals('enterprise', steps('administrator').crowdClusterSize)]"
 					}
 				]
