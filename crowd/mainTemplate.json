@@ -548,10 +548,10 @@
             },
             "clusterSize": {
                 "trial": 1,
-                "small": 2,
-                "medium": 3,
-                "large": 6,
-                "enterprise": 6
+                "small": 1,
+                "medium": 1,
+                "large": 1,
+                "enterprise": 1
             },
             "jumpboxVmSize": {
                 "trial": "Standard_B1s",
@@ -716,6 +716,9 @@
                     },
                     "sslPfxCertificatePassword": {
                         "value": "[parameters('sslPfxCertificatePassword')]"
+                    },
+                    "cname": {
+                        "value": "[if(greater(length(parameters('cname')), 0), concat('crowd.', parameters('cname')), parameters('cname'))]"
                     },
                     "enableApplicationInsights": {
                         "value": "[parameters('enableApplicationInsights')]"

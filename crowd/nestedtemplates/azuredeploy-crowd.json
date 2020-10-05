@@ -47,6 +47,13 @@
                 "description": "The database type."
             }
         },
+        "cname": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "This is the Canonical Name record (CNAME) for your organization. If you don't provide one, Azure will generate a random sub domain for your instance."
+            }
+        },
         "sslBase64EncodedPfxCertificate": {
             "type": "string",
             "defaultValue": "",
@@ -911,7 +918,7 @@
                         "value": "[parameters('crowdVersion')]"
                     },
                     "appEndpoint": {
-                        "value": "[reference(variables('gtwyIpName')).dnsSettings.fqdn]"
+                        "value": "[if(not(empty(parameters('cname'))), parameters('cname'), reference(variables('gtwyIpName')).dnsSettings.fqdn)]"
                     },
                     "location": {
                         "value": "[parameters('location')]"

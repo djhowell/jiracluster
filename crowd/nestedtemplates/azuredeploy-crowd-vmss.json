@@ -45,7 +45,7 @@
         },
         "clusterSize": {
             "type": "int",
-            "defaultValue": 2,
+            "defaultValue": 1,
             "minValue": 1,
             "maxValue": 6,
             "metadata": {
