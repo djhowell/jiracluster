@@ -5,8 +5,9 @@ This repository contains Azure ARM templates to install the following [Atlassian
 
 1. [Bitbucket Data Center](https://www.atlassian.com/software/bitbucket/enterprise/data-center)  
 2. [Confluence Data Center](https://www.atlassian.com/software/confluence/enterprise/data-center)  
-3. [Jira Software Data Center](https://www.atlassian.com/enterprise/data-center/jira)  
-4. [Jira Service Desk Data Center](https://www.atlassian.com/software/jira/service-desk/enterprise/data-center)  
+3. [Crowd Software Data Center](https://www.atlassian.com/enterprise/data-center/crowd)  
+4. [Jira Software Data Center](https://www.atlassian.com/enterprise/data-center/jira)  
+5. [Jira Service Desk Data Center](https://www.atlassian.com/software/jira/service-desk/enterprise/data-center)  
 
 ## Status
 [logo]: images/check_mark_32.png "OK"
@@ -16,6 +17,7 @@ This repository contains Azure ARM templates to install the following [Atlassian
 |-----------------------|:-----------:|:-----------:|
 | Bitbucket             | ![OK][logo] | ![OK][logo] |
 | Confluence            | ![OK][logo] | ![OK][logo] |
+| Crowd                 | ![OK][logo] | ![OK][logo] |
 | Jira Software         | ![OK][logo] | ![OK][logo] |
 | Jira Service Desk     | ![OK][logo] | ![OK][logo] |
 
@@ -23,9 +25,9 @@ This repository contains Azure ARM templates to install the following [Atlassian
 [Can be found here](RELEASE.md)
 
 ## Key Features
-The templates in this repository use Azure Cloud features to create a resilient and scaleable solution:  
+The templates in this repository use Azure Cloud features to create a resilient and saleable solution:  
 
-*  Only Azure "managed" features/functionality used to provide scaleablity, monitoring, and backup/recovery features "out of the box."  
+*  Only Azure "managed" features/functionality used to provide scalability, monitoring, and backup/recovery features "out of the box."  
 *  Security and accessibility principles/rules applied to ensure all customer data is protected.  
 *  Optional SSL and CNAME/domain name support.  
 *  Advanced monitoring and analytics the following integrated services:
@@ -52,6 +54,7 @@ Each Atlassian application folder contains specific instructions on how to deplo
 *  [Jira Software Data Center](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/atlassian.jira-data-center)
 *  [Jira Service Desk Data Center](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/atlassian.jira-service-desk)
 *  [Confluence Data Center](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/atlassian.confluence-data-center)
+*  [Crowd Data Center](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/atlassian.crowd-data-center)
 *  [Bitbucket Data Center](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/atlassian.bbsdc)
 
 When you deploy using these Azure Marketplace templates, many parameters will be pre-configured for your convenience.
