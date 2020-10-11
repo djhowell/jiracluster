@@ -25,7 +25,7 @@ This repository contains Azure ARM templates to install the following [Atlassian
 [Can be found here](RELEASE.md)
 
 ## Key Features
-The templates in this repository use Azure Cloud features to create a resilient and saleable solution:  
+The templates in this repository use Azure Cloud features to create a resilient and scaleable solution:  
 
 *  Only Azure "managed" features/functionality used to provide scalability, monitoring, and backup/recovery features "out of the box."  
 *  Security and accessibility principles/rules applied to ensure all customer data is protected.  
