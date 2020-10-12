@@ -307,13 +307,17 @@
             "metadata": {
                 "description": "The Crowd software product version to install. By default the deployment will download and use the latest version published."
             }
+        },
+        "jumpboxName": {
+            "type": "string"
         }
     },
-    "variables": {
+    "variables": { 
         "namespace": "crd",
+        "isMsSql": "[equals(parameters('dbType'), 'sqlserver')]",
         "crowd": {
             "database": {
-                "uri": "[concat(parameters('dbHost'), '.', 'database', '.', 'windows', '.', 'net')]"
+                "uri": "[if(variables('isMsSql'), concat(parameters('dbHost'), '.', 'database', '.', 'windows', '.', 'net'), concat(parameters('dbHost'), '.', 'postgres', '.', 'database', '.', 'azure', '.', 'com'))]"
             },
             "cluster": {
                 "name": "[concat(variables('namespace'), 'cluster')]",
@@ -540,15 +544,40 @@
                 }
             ]
         },
+
         "isSslSpecified": "[not(empty(parameters('sslBase64EncodedPfxCertificate')))]",
+        "confProvisionCmd": "[concat('FILE_STORE_URL_DOMAIN=\"', parameters('storageFilesEndpoint'), '\" ', './provision_install.sh')]",
         "crowdInstallCmd": "[concat('FILE_STORE_URL_DOMAIN=\"', parameters('storageFilesEndpoint'), '\" ', './prepare_install.sh ', base64(string(variables('env').settings)), ' 2>&1 > /var/log/crowd.install-$(uname -n).log')]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2019-12-01",
+            "name": "[concat(parameters('jumpboxName'), '/provision-install-script')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "[uri(parameters('_artifactsLocation'), concat('scripts/provision_install.sh', parameters('_artifactsLocationSasToken')))]"
+                    ]
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[variables('confProvisionCmd')]"
+                }
+            }
+        },
         {
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "name": "[variables('crowd').cluster.name]",
             "location": "[parameters('location')]",
             "apiVersion": "2019-12-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('jumpboxName'), 'provision-install-script')]"
+            ],
             "sku": {
                 "name": "[variables('crowd').cluster.vm.size]",
                 "tier": "[variables('crowd').cluster.tier]",
