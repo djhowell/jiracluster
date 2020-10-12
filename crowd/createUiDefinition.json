@@ -490,6 +490,18 @@
                         "visible": true
                     },
                     {
+                        "name": "dbUsername",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Database Username",
+                        "toolTip": "The username for the dedicated database user.",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^(?!admin$|administrator$|sa$|root$|dbmanager$|loginmanager$|dbo$|guest$|information_schema$|sys$|db_accessadmin$|db_backupoperator$|db_datareader$|db_datawriter$|db_ddladmin$|db_denydatareader$|db_denydatawriter$|db_owner$|db_securityadmin$|public$)[a-zA-Z][a-zA-Z0-9]{1,9}$",
+                            "validationMessage": "This username needs to be a SQL Identifier - it can't be a typical username like admin, adminstrator, sa, root, dbmanager, loginmanager, dbo, guest, or public. It also can't begin with numbers or symbols, and can't include whitespaces, unicode characters, or non-alphabetic characters."
+                        }
+                    },
+                    {
                         "name": "dbPassword",
                         "type": "Microsoft.Common.PasswordBox",
                         "toolTip": "The password for the dedicated database user.",
@@ -828,6 +840,7 @@
 			"crowdVersion": "[steps('administrator').crowdVersion]",
 			"crowdClusterSize": "[steps('administrator').crowdClusterSize]",
 			"clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",
+            "dbUsername": "[steps('database').dbUsername]",
             "dbPassword": "[steps('database').dbPassword]",
             "dbType": "[steps('database').dbType]",
 			"sshKey": "[steps('ssh').jumpboxSshSection.sshKey.sshPublicKey]",
