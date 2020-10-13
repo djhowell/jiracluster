@@ -766,7 +766,7 @@
                         "name": "enableAnalytics",
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Enable Azure Analytics for Application Gateway and Azure SQL Database",
-                        "defaultValue": "Yes",
+                        "defaultValue": "No",
                         "toolTip": "Enable Azure Analytics for Application Gateway and Azure SQL Database.",
                         "constraints": {
                             "allowedValues": [
@@ -781,7 +781,7 @@
                             ],
                             "required": true
                         },
-                        "visible": true
+                        "visible": "[equals('Azure SQL DB', steps('database').dbType)]"
                     },
                     {
                         "name": "workspaceSku",

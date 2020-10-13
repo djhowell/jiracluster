@@ -31,7 +31,7 @@
                 "description": "If these templates are being deployed via the Azure Marketplace."
             }
         },
-         "crowdVersion": {
+        "crowdVersion": {
             "type": "string",
             "defaultValue": "latest",
             "metadata": {
@@ -115,7 +115,7 @@
                 "description": "The SSH username to use to access the Crowd nodes from the Jumpbox. Note that access to the Crowd nodes can only be made in this way."
             }
         },
-       "dbHost": {
+        "dbHost": {
             "type": "string",
             "defaultValue": "AUTO-GENERATED",
             "metadata": {
@@ -319,9 +319,9 @@
             }
         },
         "sharedHomeSizeInGb": {
-           "type": "string",
-           "defaultValue": "128",
-           "metadata": {
+            "type": "string",
+            "defaultValue": "128",
+            "metadata": {
                 "description": "Shared Home File Share Size in GB"
             }
         },
@@ -619,7 +619,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-05-01",
-            "name": "crowdTemplate", 
+            "name": "crowdTemplate",
             "dependsOn": [
                 "vpcTemplate"
             ],
@@ -747,6 +747,9 @@
                     "enablePremiumFiles": {
                         "value": "[parameters('enablePremiumFiles')]"
                     },
+                    "isMarketplaceDeployment": {
+                        "value": "[parameters('isMarketplaceDeployment')]"
+                    },
                     "jumpboxName": {
                         "value": "[reference('vpcTemplate').outputs.jumpboxName.value]"
                     }
@@ -849,9 +852,9 @@
             "type": "string",
             "value": "[reference('crowdTemplate').outputs.jdbcUrl.value]"
         },
-        "appInsightsName" : {
+        "appInsightsName": {
             "type": "string",
-            "value" : "[reference('crowdTemplate').outputs.appInsightsName.value]"
+            "value": "[reference('crowdTemplate').outputs.appInsightsName.value]"
         }
     }
 }
