@@ -822,7 +822,7 @@
                             ],
                             "required": true
                         },
-                        "visible": "[steps('monitoring').enableAnalytics]"
+                        "visible": true
                     },
                     {
                         "name": "appAnalyticsCheck",
