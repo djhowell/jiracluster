@@ -37,17 +37,6 @@
                         "defaultValue": "4.0.0"
                     },
 					{
-						"name": "adminEmail",
-						"label": "Admin Email",
-						"type": "Microsoft.Common.TextBox",
-						"toolTip": "The email address of the Crowd administrator user.",
-						"constraints": {
-							"required": true,
-							"regex": "[^@]+@[^@]+\\.[A-z]{2,4}",
-							"validationMessage": "You must specify an email address."
-						}
-					},
-					{
 						"name": "crowdClusterSize",
 						"label": "Crowd Cluster",
 						"type": "Microsoft.Common.DropDown",
@@ -730,6 +719,18 @@
                         },
                         "visible": true
                     },
+					{
+						"name": "adminEmail",
+						"label": "Alerts Email",
+						"type": "Microsoft.Common.TextBox",
+						"toolTip": "The email address to which system alerts will be sent.",
+						"constraints": {
+							"required": false,
+							"regex": "[^@]+@[^@]+\\.[A-z]{2,4}",
+							"validationMessage": "You must specify an email address."
+						},
+						"visible": "[steps('monitoring').enableEmailAlerts]"
+					},
                     {
                         "name": "enableAppInsights",
                         "type": "Microsoft.Common.OptionsGroup",
@@ -849,7 +850,6 @@
 			"location": "[location()]",
 			"isMarketplaceDeployment": true,
 			"crowdVersion": "[steps('administrator').crowdVersion]",
-			"crowdAdminUserEmail": "[steps('administrator').adminEmail]",
 			"crowdClusterSize": "[steps('administrator').crowdClusterSize]",
 			"clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",
             "dbUsername": "[steps('database').dbUsername]",
@@ -861,7 +861,8 @@
 			"sslBase64EncodedPfxCertificate": "[steps('domain').sslSection.sslBase64EncodedPfxCertificate]",
 			"sslPfxCertificatePassword": "[steps('domain').sslSection.sslPfxCertificatePassword]",
 			"enableEmailAlerts": "[steps('monitoring').enableEmailAlerts]",
-            "enableApplicationInsights": "[steps('monitoring').enableAppInsights]",
+			"crowdAdminUserEmail": "[steps('monitoring').adminEmail]",
+			"enableApplicationInsights": "[steps('monitoring').enableAppInsights]",
             "enableAnalytics": "[steps('monitoring').enableAnalytics]",
             "workspaceSku": "[steps('monitoring').workspaceSku]"
 		}
