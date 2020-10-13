@@ -9,6 +9,9 @@
             },
             "minLength": 5
         },
+        "isMarketplaceDeployment": {
+            "type": "bool"
+        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
@@ -271,7 +274,7 @@
         "clusterVmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2",
-            "allowedValues" : [
+            "allowedValues": [
                 "Standard_D4s_v3",
                 "Standard_D8s_v3",
                 "Standard_D16s_v3",
@@ -394,14 +397,14 @@
                 "description": "Shared Home File Share Size in GB"
             }
         },
-        "clusterVmDiskSize" : {
+        "clusterVmDiskSize": {
             "type": "int",
             "defaultValue": 1000,
             "metadata": {
                 "description": "The desired size of the Cluster Node's allocation disk in GB"
             }
         },
-        "clusterVmDiskCount" : {
+        "clusterVmDiskCount": {
             "type": "int",
             "defaultValue": 8,
             "minValue": 8,
@@ -430,10 +433,14 @@
             "metadata": {
                 "description": "Enable Azure Premium Files."
             }
+        },
+        "jumpboxName": {
+            "type": "string"
         }
+
     },
     "variables": {
-       "namespace": "crd",
+        "namespace": "crd",
         "storage": {
             "name": "[concat(variables('namespace'), 'storage', uniqueString(resourceGroup().id))]",
             "premiumName": "[concat(variables('namespace'), 'prem', uniqueString(resourceGroup().id))]",
@@ -457,8 +464,8 @@
         "dbTemplate": "[if(equals(parameters('dbType'),'sqlserver'), 'sqlDbTemplate', 'postgresDbTemplate')]",
         "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
         "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]",
-        "names" : {
-            "workspaceName" : "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+        "names": {
+            "workspaceName": "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
         }
     },
     "resources": [
@@ -1002,10 +1009,10 @@
                     "workspaceSecondaryKey": {
                         "value": "[if(parameters('enableAnalytics'), listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name), '2017-04-26-preview').secondarySharedKey, '')]"
                     },
-                    "clusterVmDiskSize" : {
+                    "clusterVmDiskSize": {
                         "value": "[parameters('clusterVmDiskSize')]"
                     },
-                    "clusterVmDiskCount" : {
+                    "clusterVmDiskCount": {
                         "value": "[parameters('clusterVmDiskCount')]"
                     },
                     "linuxOsType": {
@@ -1014,8 +1021,14 @@
                     "diagnosticsBlobStorageUri": {
                         "value": "[reference(variables('storageName')).primaryEndpoints.blob]"
                     },
-                     "sslBase64EncodedPfxCertificate": {
+                    "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
+                    },
+                    "isMarketplaceDeployment": {
+                        "value": "[parameters('isMarketplaceDeployment')]"
+                    },
+                    "jumpboxName": {
+                        "value": "[parameters('jumpboxName')]"
                     }
                 }
             }
