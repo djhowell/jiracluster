@@ -430,6 +430,9 @@
             "metadata": {
                 "description": "Enable Azure Premium Files."
             }
+        },
+        "jumpboxName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -1015,8 +1018,10 @@
                     },
                      "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
+                    },
+                    "jumpboxName": {
+                        "value": "[parameters('jumpboxName')]"
                     }
-
                 }
             }
         },

@@ -501,77 +501,6 @@
                         "visible": true
                     },
                     {
-                        "name": "hasDatabase",
-                        "type": "Microsoft.Common.OptionsGroup",
-                        "label": "Do you have an existing database (in same location/resource group)?",
-                        "toolTip": "Use an existing database that has been created in the same resource group and location.",
-                        "defaultValue": "No",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "Yes",
-                                    "value": true
-                                },
-                                {
-                                    "label": "No",
-                                    "value": false
-                                }
-                            ],
-                            "required": true
-                        }
-                    },
-                    {
-                        "name": "dbHost",
-                        "label": "Database Server",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The hostname of an existing Azure database server.",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z0-9]*(.postgres.database.azure.com|.database.windows.net)$",
-                            "validationMessage": "Expected a lowercase Azure SQL endpoint ie '<database>.database.windows.net' or <database>.postgres.database.azure.com'"
-                        },
-                        "visible": "[steps('database').hasDatabase]"
-                    },
-                    {
-                        "name": "dbPort",
-                        "label": "Database Port",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The port of an existing Azure database.",
-                        "defaultValue": "",
-                        "constraints": {
-                            "required": "[steps('database').hasDatabase]",
-                            "regex": "[0-9]*",
-                            "validationMessage": "Expected a numeric value for database port eg 1433 or 5852."
-                        },
-                        "visible": "[steps('database').hasDatabase]"
-                    },
-                    {
-                        "name": "dbDatabase",
-                        "label": "Database Name",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The name of an existing Crowd Azure database.",
-                        "defaultValue": "crowddatabase",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z0-9]*$",
-                            "validationMessage": "Expected a lowercase database name"
-                        },
-                        "visible": "[steps('database').hasDatabase]"
-                    },
-                    {
-                        "name": "dbSchema",
-                        "label": "Database Schema",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "The name of an existing Crowd Azure database schema.",
-                        "defaultValue": "dbo",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-z0-9]*$",
-                            "validationMessage": "Expected a database schema"
-                        },
-                        "visible": "[steps('database').hasDatabase]"
-                    },
-                    {
                         "name": "dbUsername",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Database Username",
@@ -923,12 +852,8 @@
 			"crowdAdminUserEmail": "[steps('administrator').adminEmail]",
 			"crowdClusterSize": "[steps('administrator').crowdClusterSize]",
 			"clusterVmSize": "[coalesce(steps('administrator').trialClusterVmSize, steps('administrator').smallClusterVmSize, steps('administrator').mediumClusterVmSize, steps('administrator').largeClusterVmSize, steps('administrator').enterpriseClusterVmSize)]",
-			"dbCreateNew": "[not(steps('database').hasDatabase)]",
             "dbUsername": "[steps('database').dbUsername]",
             "dbPassword": "[steps('database').dbPassword]",
-            "dbDatabase": "[steps('database').dbDatabase]",
-            "dbHost": "[steps('database').dbHost]",
-            "dbPort": "[steps('database').dbPort]",
             "dbType": "[steps('database').dbType]",
 			"sshKey": "[steps('ssh').jumpboxSshSection.sshKey.sshPublicKey]",
 			"sshUserName": "[steps('ssh').nodeSshSection.nodeUsername]",
