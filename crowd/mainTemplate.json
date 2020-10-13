@@ -746,9 +746,6 @@
                     },
                     "enablePremiumFiles": {
                         "value": "[parameters('enablePremiumFiles')]"
-                    },
-                    "jumpboxName": {
-                        "value": "[reference('vpcTemplate').outputs.jumpboxName.value]"
                     }
                 }
             }

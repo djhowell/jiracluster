@@ -430,9 +430,6 @@
             "metadata": {
                 "description": "Enable Azure Premium Files."
             }
-        },
-        "jumpboxName": {
-            "type": "string"
         }
     },
     "variables": {
@@ -902,7 +899,8 @@
                 "[variables('storage').name]",
                 "[variables('storage').premiumName]",
                 "[variables('dbTemplate')]",
-                "byodbTemplate"
+                "byodbTemplate",
+                "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -1018,9 +1016,6 @@
                     },
                      "sslBase64EncodedPfxCertificate": {
                         "value": "[parameters('sslBase64EncodedPfxCertificate')]"
-                    },
-                    "jumpboxName": {
-                        "value": "[parameters('jumpboxName')]"
                     }
                 }
             }
