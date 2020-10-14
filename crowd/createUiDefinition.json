@@ -781,7 +781,7 @@
                             ],
                             "required": true
                         },
-                        "visible": "[equals('Azure SQL DB', steps('database').dbType)]"
+                        "visible": true
                     },
                     {
                         "name": "workspaceSku",
@@ -822,7 +822,7 @@
                             ],
                             "required": true
                         },
-                        "visible": "[steps('monitoring').enableAnalytics]"
+                        "visible": true
                     },
                     {
                         "name": "appAnalyticsCheck",

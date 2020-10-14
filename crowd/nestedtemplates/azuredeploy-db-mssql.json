@@ -194,7 +194,7 @@
         },
         "retentionInDays": 7,
         "names": {
-            "server": "[concat('Microsoft.Sql/servers/', variables('sql').server.name)]"
+            "server": "[resourceId('Microsoft.Sql/servers/', variables('sql').server.name)]"
         }
     },
     "resources": [
