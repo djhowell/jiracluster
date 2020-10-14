@@ -465,7 +465,7 @@
         "vaultTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-vault.json', parameters('_artifactsLocationSasToken')))]",
         "sharedHomeBackupTemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/azuredeploy-sharedhome-backup.json', parameters('_artifactsLocationSasToken')))]",
         "names": {
-            "workspaceName": "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
+            "workspaceName": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspace').name)]"
         }
     },
     "resources": [
