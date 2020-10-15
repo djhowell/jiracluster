@@ -192,10 +192,7 @@
             "product": "Crowd",
             "provider": "2F0AF47A-92C7-413A-9009-C3815BFF7AF6"
         },
-        "retentionInDays": 7,
-        "names": {
-            "server": "[resourceId('Microsoft.Sql/servers/', variables('sql').server.name)]"
-        }
+        "retentionInDays": 7
     },
     "resources": [
         {
@@ -216,7 +213,7 @@
                     "location": "[parameters('location')]",
                     "tags": "[variables('tags')]",
                     "dependsOn": [
-                        "[variables('names').server]"
+                        "[resourceId('Microsoft.Sql/servers/', variables('sql').server.name)]"
                     ],
                     "sku": {
                         "name": "[variables('sql').database.tierName]",
