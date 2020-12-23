@@ -175,7 +175,7 @@
         },
         "enableVault": {
             "type": "bool",
-            "defaultValue": true,
+            "defaultValue": false,
             "metadata": {
                 "description": "Enable Recovery Services vault"
             }
