@@ -47,13 +47,16 @@ A _custom paramaters template_ is a JSON file that contains parameters for a cus
 
     ```
     az storage account generate-sas --account-name storageaccount --services bfqt --resource-types sco --permissions cdlruwap --expiry $(date --date "next year" '+%Y-%m-%dT%H:%MZ')
-    "se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=XanVOenVIroHQFbkyUjk6E9nuHFEm1Rpyu3N2AiOOX0%3D"
+    ```
+    The result of running the above command will be a new SAS token printed to console, see below. Keep a record of this token as it will be needed for subsequent commands below. Substitute the token value in whenever "[SAS_TOKEN]" is mentioned.
+    ```
+    "se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=AanVOenVIrJSaaaKSDJHLE0nuHFEm0Rpyu0N0AiOOA0%3D"
     ```
 
 4. Create a container for each Atlassian application (for example, `jiratemplateupload` for Jira, or `confluenceupload` for Confluence):  
 
     ```
-    az storage container create --name jiratemplateupload --account-name storageaccount --sas-token 'se=2020-02-13T15%3A37Z&sp=rwdlacup&sv=2018-03-28&ss=bfqt&srt=sco&sig=XanVOenVIroHQFbkyUjk6E9nuHFEm1Rpyu3N2AiOOX0%3D'
+    az storage container create --name jiratemplateupload --account-name storageaccount --sas-token '[SAS_TOKEN]'
     ```
 
 5. If the Product is installed and configured using Ansible Playbooks (Currently only Crowd) download and package them using:
@@ -67,7 +70,7 @@ A _custom paramaters template_ is a JSON file that contains parameters for a cus
 6. Use [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to upload edited templates/scripts to the blobstore (do this before each deployment). Note the use of the blob's primary endpoint and the question mark prefix on the SAS token.  
 
     ```
-    ~/apps/azcopy/azcopy cp "~/git/atlassian-azure-deployment/jira/" "https://storageaccount.blob.core.windows.net/jiratemplateupload/?[SAS]" --recursive=true 
+    ~/apps/azcopy/azcopy cp "~/git/atlassian-azure-deployment/jira/" "https://storageaccount.blob.core.windows.net/jiratemplateupload/?[SAS_TOKEN]" --recursive=true 
     ```
 
     Since you will be using the same AzCopy command often, you might want to copy/paste this command into a new script file (for example, `~/atlassian/bin/azupload`).  
