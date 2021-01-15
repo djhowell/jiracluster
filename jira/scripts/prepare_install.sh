@@ -60,9 +60,9 @@ function download_installer {
   
  if [ -n "${upgrade_version}" ] && [ "${upgrade_version}" = 'latest' ] || [ "${upgrade_version}" = $semantic_version ]; then
    ATL_JIRA_PRODUCT_VERSION=$upgrade_version
-   log "An upgrade version has been supplied. Will download upgrade version: ${ATL_JIRA_PRODUCT_VERSION}"
+   log "A upgrade version has been supplied, downloading upgrade version: ${ATL_JIRA_PRODUCT_VERSION}"
  else
-   log "Valid upgrade version not supplied: ${upgrade_version}"
+   error "A valid upgrade version has not been supplied: ${upgrade_version}, exiting!"
  fi
 
  if [ ! -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ]
@@ -380,10 +380,21 @@ function restore_installer {
   local installer_target="${ATL_TEMP_DIR}/installer"
   
   if [[ -f ${installer_path} ]]; then
+    atl_log restore_installer "Installer [${installer_path}] available. Copying installer to [${installer_target}] and updating permissions..."
     cp ${installer_path} "${installer_target}"
     chmod 0700 "${installer_target}"
+    atl_log restore_installer "Installer [${installer_path}] ready for use"
+    
+  # We enter this else when the value in the file '${ATL_JIRA_SHARED_HOME}/${ATL_JIRA_PRODUCT}.version' 
+  # does not correspond to the current installer version residing in ${ATL_JIRA_SHARED_HOME},
+  #
+  # This suggests an upgrade is intended!
+  #
+  # Upgrades are driven by the value of the file '${ATL_JIRA_SHARED_HOME}/${ATL_JIRA_PRODUCT}.version' being manually updated
+  # to; 'latest' or a valid semantic version. As such we should download, preserve, and restore that new installer based on 
+  # this version  
   else
-    local msg="${ATL_JIRA_PRODUCT} installer ${jira_installer} has been requested but unable to locate it in ${ATL_JIRA_SHARED_HOME}. This is probably because this is an upgrade. Downloading new installer..."
+    local msg="Unable to locate ${jira_installer} installer for ${ATL_JIRA_PRODUCT} in ${ATL_JIRA_SHARED_HOME}. This is probably an upgrade. Downloading new installer for version [${jira_version}]"
     atl_log restore_installer "${msg}"
     download_installer "${jira_version}"
     preserve_installer
