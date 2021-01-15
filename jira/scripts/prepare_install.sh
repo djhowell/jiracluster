@@ -54,38 +54,40 @@ function preserve_installer {
 }
 
 function download_installer {
+  
+ local upgrade_version=$1
+ local semantic_version="^[0-9]+\.[0-9]+"
+  
+ if [ -n "${upgrade_version}" ] && [ "${upgrade_version}" = 'latest' ] || [ "${upgrade_version}" = $semantic_version ]; then
+   ATL_JIRA_PRODUCT_VERSION=$upgrade_version
+   log "An upgrade version has been supplied. Will download upgrade version: ${ATL_JIRA_PRODUCT_VERSION}"
+ else
+   log "Valid upgrade version not supplied: ${upgrade_version}"
+ fi
 
-  local jira_version=${ATL_JIRA_PRODUCT_VERSION}
-  echo "${ATL_JIRA_PRODUCT_VERSION}" > version
-  atl_log download_installer "Going to use ${ATL_JIRA_PRODUCT} with version: ${ATL_JIRA_PRODUCT_VERSION}"
-
-  if [[ ${ATL_JIRA_PRODUCT_VERSION} == 'latest' ]]
+ if [ ! -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ]
   then
-    # Get latest version from the special /latest url.
-    local jira_version_file_url="${ATL_JIRA_RELEASES_BASE_URL}/${ATL_JIRA_PRODUCT}/latest"
-    atl_log download_installer "Downloading installer description from ${jira_version_file_url}"
-
-    if ! curl -L -f --silent "${jira_version_file_url}" \
-       -o "version" 2>&1
-    then
-      atl_log download_installer "Could not download installer description from ${jira_version_file_url}"
-      exit 1
+    log "Will use version: ${ATL_JIRA_PRODUCT_VERSION} but first retrieving latest jira version info from Atlassian..."
+    LATEST_INFO=$(curl -L -f --silent https://my.atlassian.com/download/feeds/current/jira-software.json | sed 's/^downloads(//g' | sed 's/)$//g')
+    if [ "$?" -ne "0" ]; then
+      error "Could not get latest info installer description from https://my.atlassian.com/download/feeds/current/jira-software.json"
     fi
 
-    local jira_version=$(cat version)
+    LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g' | sort -nr | head -n1)
+    LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g' | sort -nr | head -n1)
+    log "Latest jira info: $LATEST_VERSION and download URL: $LATEST_VERSION_URL"
   fi
   
+  [ ${ATL_JIRA_PRODUCT_VERSION} = 'latest' ] &&  echo -n "${LATEST_VERSION}" > version || echo -n "${ATL_JIRA_PRODUCT_VERSION}" > version
+  local jira_version=$(cat version)
+  [ -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ] && local jira_installer_url="${ATL_JIRA_CUSTOM_DOWNLOAD_URL}/atlassian-jira-software-${ATL_JIRA_PRODUCT_VERSION}-x64.bin"  || local jira_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${jira_version}/g")
+  log "Downloading ${ATL_JIRA_PRODUCT} installer from ${jira_installer_url}"
 
-  local jira_installer="atlassian-${ATL_JIRA_PRODUCT}-${jira_version}-x64.bin"
-  [ -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ] && local jira_installer_url="${ATL_JIRA_CUSTOM_DOWNLOAD_URL}/${jira_installer}" || local jira_installer_url="${ATL_JIRA_RELEASES_BASE_URL}/${ATL_JIRA_PRODUCT}/${jira_installer}"
-  atl_log download_installer "Downloading ${ATL_JIRA_PRODUCT} installer from ${jira_installer_url}"
-
-  if ! curl -L -f --silent "${jira_installer_url}" \
-       -o "installer" 2>&1
+  if ! curl -L -f --silent "${jira_installer_url}" -o "installer" 2>&1
   then
-    atl_log download_installer "Could not download ${ATL_JIRA_PRODUCT} installer from ${jira_installer_url}"
-    exit 1
+    error "Could not download ${ATL_JIRA_PRODUCT} installer from ${jira_installer_url}"
   fi
+
 }
 
 function install_pacapt {
@@ -381,11 +383,13 @@ function restore_installer {
     cp ${installer_path} "${installer_target}"
     chmod 0700 "${installer_target}"
   else
-    local msg="${ATL_JIRA_PRODUCT} installer ${jira_installer} has been requested but unable to locate it in ${ATL_JIRA_SHARED_HOME}"
+    local msg="${ATL_JIRA_PRODUCT} installer ${jira_installer} has been requested but unable to locate it in ${ATL_JIRA_SHARED_HOME}. This is probably because this is an upgrade. Downloading new installer..."
     atl_log restore_installer "${msg}"
-    error "${msg}"
+    download_installer "${jira_version}"
+    preserve_installer
+    restore_installer
   fi
-
+  
   atl_log restore_installer "Restoration of ${ATL_JIRA_PRODUCT} installer ${jira_installer} has been completed"
 }
 

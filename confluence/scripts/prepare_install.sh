@@ -443,6 +443,7 @@ function prepare_installer {
     log "No installer has been found, downloading..."
     download_installer
     preserve_installer
+    restore_installer
   fi
 
   log "Installer is ready!"
