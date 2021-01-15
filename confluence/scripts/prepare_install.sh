@@ -62,8 +62,6 @@ function download_installer {
  if [ -n "${upgrade_version}" ] && [ "${upgrade_version}" = 'latest' ] || [ "${upgrade_version}" = $semantic_version ]; then
    ATL_CONFLUENCE_VERSION=$upgrade_version
    log "A upgrade version has been supplied, downloading upgrade version: ${ATL_CONFLUENCE_VERSION}"
- else
-   error "A valid upgrade version has not been supplied: ${upgrade_version}, exiting!"
  fi
 
  if [ ! -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ]
