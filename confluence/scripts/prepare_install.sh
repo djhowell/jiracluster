@@ -57,9 +57,9 @@ function preserve_installer {
 function download_installer {
   
  local upgrade_version=$1
- local semantic_version="^[0-9]+\.[0-9]+"
+ local valid_version="^latest|[0-9]+\.[0-9]+"
   
- if [ -n "${upgrade_version}" ] && [ "${upgrade_version}" = 'latest' ] || [ "${upgrade_version}" = $semantic_version ]; then
+ if [ -n "${upgrade_version}" ] && [[ $upgrade_version =~ $valid_version ]]; then
    ATL_CONFLUENCE_VERSION=$upgrade_version
    log "A upgrade version has been supplied, downloading upgrade version: ${ATL_CONFLUENCE_VERSION}"
  fi
