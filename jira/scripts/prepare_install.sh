@@ -54,21 +54,21 @@ function preserve_installer {
 }
 
 function download_installer {
+  local BASE_URL=https://my.atlassian.com/download/feeds/current
   
- local upgrade_version=$1
- local valid_version="^latest|[0-9]+\.[0-9]+"
+  # ATL_JIRA_PRODUCT can only either be"jira-software" or "servicedesk"
+  if [ ${ATL_JIRA_PRODUCT} = 'jira-software' ]; then
+    VERSION_URL="${BASE_URL}/jira-software.json"
+  else
+    VERSION_URL="${BASE_URL}/jira-servicedesk.json"
+  fi
   
- if [ -n "${upgrade_version}" ] && [[ $upgrade_version =~ $valid_version ]]; then
-   ATL_JIRA_PRODUCT_VERSION=$upgrade_version
-   log "An upgrade version has been supplied, downloading upgrade version: [${ATL_JIRA_PRODUCT_VERSION}]"
- fi
-
  if [ ! -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ]
   then
     log "Will use version: ${ATL_JIRA_PRODUCT_VERSION} but first retrieving latest jira version info from Atlassian..."
-    LATEST_INFO=$(curl -L -f --silent https://my.atlassian.com/download/feeds/current/jira-software.json | sed 's/^downloads(//g' | sed 's/)$//g')
+    LATEST_INFO=$(curl -L -f --silent ${VERSION_URL} | sed 's/^downloads(//g' | sed 's/)$//g')
     if [ "$?" -ne "0" ]; then
-      error "Could not get latest info installer description from https://my.atlassian.com/download/feeds/current/jira-software.json"
+      error "Could not get latest info installer description from ${VERSION_URL}"
     fi
 
     LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g' | sort -nr | head -n1)
@@ -85,7 +85,6 @@ function download_installer {
   then
     error "Could not download ${ATL_JIRA_PRODUCT} installer from ${jira_installer_url}"
   fi
-
 }
 
 function install_pacapt {
@@ -378,27 +377,14 @@ function restore_installer {
   local installer_target="${ATL_TEMP_DIR}/installer"
   
   if [[ -f ${installer_path} ]]; then
-    atl_log restore_installer "Installer [${installer_path}] available. Copying installer to [${installer_target}] and updating permissions..."
     cp ${installer_path} "${installer_target}"
     chmod 0700 "${installer_target}"
-    atl_log restore_installer "Installer [${installer_path}] ready for use"
-    
-  # We enter this else when the value in the file '${ATL_JIRA_SHARED_HOME}/${ATL_JIRA_PRODUCT}.version' 
-  # does not correspond to the current installer version residing in ${ATL_JIRA_SHARED_HOME},
-  #
-  # This suggests an upgrade is intended!
-  #
-  # Upgrades are driven by the value of the file '${ATL_JIRA_SHARED_HOME}/${ATL_JIRA_PRODUCT}.version' being manually updated
-  # to; 'latest' or a valid semantic version. As such we should download, preserve, and restore that new installer based on 
-  # this version  
   else
-    local msg="Unable to locate ${jira_installer} installer for ${ATL_JIRA_PRODUCT} in ${ATL_JIRA_SHARED_HOME}. This is probably an upgrade. Downloading new installer for version [${jira_version}]"
+    local msg="${ATL_JIRA_PRODUCT} installer ${jira_installer} has been requested but unable to locate it in ${ATL_JIRA_SHARED_HOME}"
     atl_log restore_installer "${msg}"
-    download_installer "${jira_version}"
-    preserve_installer
-    restore_installer
+    error "${msg}"
   fi
-  
+
   atl_log restore_installer "Restoration of ${ATL_JIRA_PRODUCT} installer ${jira_installer} has been completed"
 }
 
