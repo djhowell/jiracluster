@@ -311,14 +311,6 @@ function bbs_configure_shared_home {
 }
 
 function bbs_download_installer {
-  
-    if [ -f "${BBS_VERSION_CACHE_FILE}" ]
-    then
-      export BBS_VERSION=$(cat "${BBS_VERSION_CACHE_FILE}")
-      log "Found existing Bitbucket version in ${BBS_VERSION_CACHE_FILE}: ${BBS_VERSION}"
-    else
-      log "No Bitbucket version cache found, using Bitbucket version parameter: ${BBS_VERSION}"
-    fi
 
     if [ ! -n "${BBS_CUSTOM_DOWNLOAD_URL}" ]
     then
@@ -385,9 +377,6 @@ function bbs_run_installer {
     fi
     
     log "Done running Bitbucket Server installer"
-    
-    log "Committing BBS_VERSION [${BBS_VERSION}] to ${BBS_VERSION_CACHE_FILE}" 
-    sudo -u "${BBS_USER}" sh -c "echo ${BBS_VERSION} > ${BBS_VERSION_CACHE_FILE}"
 }
 
 function bbs_prepare_properties {
