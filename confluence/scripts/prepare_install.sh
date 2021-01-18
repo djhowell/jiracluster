@@ -56,15 +56,7 @@ function preserve_installer {
 
 function download_installer {
   
- local upgrade_version=$1
- local valid_version="^latest|[0-9]+\.[0-9]+"
-  
- if [ -n "${upgrade_version}" ] && [[ $upgrade_version =~ $valid_version ]]; then
-   ATL_CONFLUENCE_VERSION=$upgrade_version
-   log "An upgrade version has been supplied, downloading upgrade version: [${ATL_CONFLUENCE_VERSION}]"
- fi
-
- if [ ! -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ]
+  if [ ! -n "${ATL_CONFLUENCE_CUSTOM_DOWNLOAD_URL}" ]
   then
     log "Will use version: ${ATL_CONFLUENCE_VERSION} but first retrieving latest confluence version info from Atlassian..."
     LATEST_INFO=$(curl -L -f --silent https://my.atlassian.com/download/feeds/current/confluence.json | sed 's/^downloads(//g' | sed 's/)$//g')
@@ -396,34 +388,21 @@ function restore_installer {
   local confluence_version=$(cat ${ATL_CONFLUENCE_SHARED_HOME}/${ATL_CONFLUENCE_PRODUCT}.version)
   local confluence_installer="${ATL_CONFLUENCE_PRODUCT}-${confluence_version}-x64.bin"
 
-  atl_log "Using existing installer ${confluence_installer} from ${ATL_CONFLUENCE_SHARED_HOME} mount"
+  log "Using existing installer ${confluence_installer} from ${ATL_CONFLUENCE_SHARED_HOME} mount"
 
   local installer_path="${ATL_CONFLUENCE_SHARED_HOME}/${confluence_installer}"
   local installer_target="${ATL_TEMP_DIR}/installer"
 
   if [[ -f ${installer_path} ]]; then
-    atl_log restore_installer "Installer [${installer_path}] available. Copying installer to [${installer_target}] and updating permissions..."
     cp ${installer_path} "${installer_target}"
     chmod 0700 "${installer_target}"
-    atl_log restore_installer "Installer [${installer_path}] ready for use"
-    
-  # We enter this else when the value in the file '${ATL_JIRA_SHARED_HOME}/${ATL_JIRA_PRODUCT}.version' 
-  # does not correspond to the current installer version residing in ${ATL_JIRA_SHARED_HOME},
-  #
-  # This suggests an upgrade is intended!
-  #
-  # Upgrades are driven by the value of the file '${ATL_JIRA_SHARED_HOME}/${ATL_JIRA_PRODUCT}.version' being manually updated
-  # to; 'latest' or a valid semantic version. As such we should download, preserve, and restore that new installer based on 
-  # this version  
   else
-    local msg="Unable to locate ${confluence_installer} installer for ${ATL_CONFLUENCE_PRODUCT} in ${ATL_CONFLUENCE_SHARED_HOME}. This is probably an upgrade. Downloading new installer for version [${confluence_version}]"
-    atl_log restore_installer "${msg}"
-    download_installer "${confluence_version}"
-    preserve_installer
-    restore_installer
+    local msg="${ATL_CONFLUENCE_PRODUCT} installer ${confluence_installer} ca been requested but unable to locate it in ${ATL_CONFLUENCE_SHARED_HOME}"
+    log "${msg}"
+    error "${msg}"
   fi
 
-  atl_log restore_installer "Restoration of ${ATL_CONFLUENCE_PRODUCT} installer ${confluence_installer} has been completed"
+  log "Restoration of ${ATL_CONFLUENCE_PRODUCT} installer ${confluence_installer} has been completed"
 }
 
 function ensure_readable {
