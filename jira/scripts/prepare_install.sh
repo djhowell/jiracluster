@@ -56,29 +56,25 @@ function preserve_installer {
 function download_installer {
   local BASE_URL=https://my.atlassian.com/download/feeds/current
   
-  # ATL_JIRA_PRODUCT can only either be"jira-software" or "servicedesk"
-  if [ ${ATL_JIRA_PRODUCT} = 'jira-software' ]; then
-    VERSION_URL="${BASE_URL}/jira-software.json"
-  else
-    VERSION_URL="${BASE_URL}/jira-servicedesk.json"
-  fi
+  # ATL_JIRA_PRODUCT can only either be "jira-software" or "servicedesk"
+  [ ${ATL_JIRA_PRODUCT} = 'jira-software' ] && SOFTWARE_VERSION_URL="${BASE_URL}/jira-software.json" || SOFTWARE_VERSION_URL="${BASE_URL}/jira-servicedesk.json"
   
  if [ ! -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ]
   then
     log "Will use version: ${ATL_JIRA_PRODUCT_VERSION} but first retrieving latest jira version info from Atlassian..."
-    LATEST_INFO=$(curl -L -f --silent ${VERSION_URL} | sed 's/^downloads(//g' | sed 's/)$//g')
+    LATEST_INFO=$(curl -L -f --silent ${SOFTWARE_VERSION_URL} | sed 's/^downloads(//g' | sed 's/)$//g')
     if [ "$?" -ne "0" ]; then
-      error "Could not get latest info installer description from ${VERSION_URL}"
+      error "Could not get latest info installer description from ${SOFTWARE_VERSION_URL}"
     fi
 
     LATEST_VERSION=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .version' | sed 's/"//g' | sort -nr | head -n1)
-    LATEST_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g' | sort -nr | head -n1)
-    log "Latest jira info: $LATEST_VERSION and download URL: $LATEST_VERSION_URL"
+    LATEST_SOFTWARE_VERSION_URL=$(echo ${LATEST_INFO} | jq '.[] | select(.platform == "Unix") |  select(.zipUrl|test("x64")) | .zipUrl' | sed 's/"//g' | sort -nr | head -n1)
+    log "Latest jira info: $LATEST_VERSION and download URL: $LATEST_SOFTWARE_VERSION_URL"
   fi
   
   [ ${ATL_JIRA_PRODUCT_VERSION} = 'latest' ] &&  echo -n "${LATEST_VERSION}" > version || echo -n "${ATL_JIRA_PRODUCT_VERSION}" > version
   local jira_version=$(cat version)
-  [ -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ] && local jira_installer_url="${ATL_JIRA_CUSTOM_DOWNLOAD_URL}/atlassian-jira-software-${ATL_JIRA_PRODUCT_VERSION}-x64.bin"  || local jira_installer_url=$(echo ${LATEST_VERSION_URL} | sed "s/${LATEST_VERSION}/${jira_version}/g")
+  [ -n "${ATL_JIRA_CUSTOM_DOWNLOAD_URL}" ] && local jira_installer_url="${ATL_JIRA_CUSTOM_DOWNLOAD_URL}/atlassian-jira-software-${ATL_JIRA_PRODUCT_VERSION}-x64.bin"  || local jira_installer_url=$(echo ${LATEST_SOFTWARE_VERSION_URL} | sed "s/${LATEST_VERSION}/${jira_version}/g")
   log "Downloading ${ATL_JIRA_PRODUCT} installer from ${jira_installer_url}"
 
   if ! curl -L -f --silent "${jira_installer_url}" -o "installer" 2>&1
